@@ -1,1 +1,105 @@
 \chapter{Refinement Background}
+
+\section{Proactive Enforcement}
+
+First we recall some definitions from Metric First Order Temporal Logic (MFOTL) and Lex \cite{whyenf, lex}.
+Let $\Types$ be a set of base types and $\Variables$ a set of variables.
+
+\begin{definition}\label{def:signature}
+    A \emph{Signature}
+    $\Sigma = \left( \left(\Domain_{ty}\right)_{ty \in \Types}, \Events, \Functions, \iota \right)$
+    is a quadruple consisting of a domain of values such that
+    for every $ty \in \Types$, $\Domain_{ty}$ is the set of values of type $ty$,
+    a set of event names $\Events$, a set of function names $\Functions$,
+    and an arity function $\iota : \Events \cup \Functions \to \Types^*$
+    such that for every $e \in \Events$, $\iota(e) = (p_1,\dots,p_k)$ provides the
+    parameter types of $e$
+    and for any $f \in \Functions$, $\iota(f) = (a_1,\dots,a_k,r)$ provides the
+    argument types $(a_1,\dots,a_k)$ and the return type $r$ of $f$.
+\end{definition}
+
+\begin{definition}\label{def:event}
+    An \emph{Event} $e(p_1,\dots,p_k)$ consists of an event name
+    $e \in \Events$ and parameters $(p_1,\dots,p_k)$ such that
+    for every $1 \leq i \leq k$, $p_i \in \Domain_{\iota(e)_i}$.
+\end{definition}
+
+\begin{definition}\label{def:database}
+    A \emph{Database} $D \in \Databases$ is a set of events.
+\end{definition}
+
+\begin{definition}\label{def:trace}
+    A \emph{Trace} $\sigma \in \Traces$ is a sequence
+    $\Sequence[1 \leq i \leq k]{(\tau_i, D_i)}$, $k \in \Nat \cup \lbrace \infty \rbrace$
+    of timestamps $\tau_i \in \Nat$ and finite databases $D_i \in Databases$,
+    where timestamps grow \emph{monotonically}
+    ($\forall i < |\sigma|.\,\tau_i \leq \tau_{i+1}$)
+    and \emph{progress}
+    (if $|\sigma| = \infty$, then $\lim_{i\to\infty} \tau_i = \infty$).
+\end{definition}
+
+\begin{definition}\label{def:infinite-trace}
+    The set of \emph{Infinite Traces} is denoted by $\Traces_\omega$.
+\end{definition}
+
+\begin{definition}\label{def:finite-trace}
+    The set of \emph{Finite Traces} is denoted by $\Traces_f$.
+\end{definition}
+
+\begin{definition}\label{def:time-point}
+    A \emph{time-point} $0 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
+\end{definition}
+
+\begin{definition}\label{def:empty-trace}
+    The \emph{Empty Trace} is denoted by $\emptytrace$.
+\end{definition}
+
+\begin{definition}\label{def:property}
+    A \emph{Property} is a subset $P\subseteq \Traces_\omega$.
+\end{definition}
+
+A Property can be induced by some policy $\phi$, we denote this policy by
+$P(\phi)$.
+We say a trace $\sigma$ is compliant with policy $\phi$ if and only if
+$\sigma \in P(\phi)$.
+
+\begin{definition}
+   An \emph{Enforcer Function}
+   $\mu_\phi : \Traces \times \Nat \times \Databases \to \Databases$
+   for some policy $\phi$ takes as input a trace $\sigma \in \Traces$,
+   a timestamp $\tau \in \Nat$, and a database $D \in \Databases$ and outputs a database $D' \in \Databases$
+   such that if the trace $\sigma \in P(\phi)$,
+   $\sigma \cdot \left(\tau, D'\right) \in P(\phi)$.
+\end{definition}
+% TODO: elaborate on functionality of a proactive enforcer
+
+\section{Enforcement as an Event System}
+
+We first define enforcement as an event system and then show how the notion of refinement as in Sprenger et. al \cite{igloo} works for such an event system.
+
+\begin{definition}
+    \label{def:enf-state-space}
+    The \emph{Enforcement State Space} $\Statespace = \Nat \times \Traces$
+    contains tuples $(\tau,\sigma)$.
+\end{definition}
+The timestamp $\tau$ can be seen as the \emph{current} timestamp
+and $\sigma$ the trace up until timestamp $\tau$.
+
+\begin{definition}
+    \label{def:enf-initial-states}
+    The \emph{Initial States}
+    $\Initialstates = \lbrace (\tau, \emptytrace) | \tau \in \Nat \rbrace$
+    are all states with an arbitrary timestamp $\tau$ and an empty trace.
+\end{definition}
+Intuitively this can be interpreted as that an enforced system may be
+started at an arbitrary timestamp.
+
+\begin{definition}
+    \label{def:enf-event-space}
+    The \emph{Event Space} $\Eventspace=\Databases$ is 
+\end{definition}
+
+\begin{definition}
+    \label{def:enf-transition-function}
+    The \emph{Transition Function} $\Transitionfunction{\phi}{\text{hello world}} : $
+\end{definition}
