@@ -1,4 +1,5 @@
 \chapter{Refinement Background}
+% TODO: introduce (E)MFOTL
 
 \section{Proactive Enforcement}
 
@@ -73,6 +74,49 @@ $\sigma \in P(\phi)$.
 \end{definition}
 % TODO: elaborate on functionality of a proactive enforcer
 
+Capabilities are an integral part of the proactive enforcement
+approach introduced by Hublet et. al \cite{whyenf}.
+Under this approach an enforcer can have different capabilities, or ways of interacting
+with events emitted by a given system under scrutiny (SuS).
+In Hublet et. al the set of capabilities consists of observable, suppressable, causable,
+and suppressable-causable.
+Hublet et. al \cite{lex} expands this expands this system of capabilities, specifically it
+makes the existence of events that may not (always) be externally visible explicit.
+Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
+to assign a capability to all events with some event name $e \in \Events$.
+Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
+We write Sup as a shortform for Suppressable and Cau as a shortform for Causable.
+% TODO: insert WhyEnf and Lex/CRE capability lattices
+
+\begin{definition}
+    \label{def:cau-events}
+    The subset of \emph{Causable Events}
+    $\Events_{Cau} = \left\lbrace e~|~\text{Cau} \sqsubseteq \kappa(e) \right\rbrace$
+    consists of all event names which are can be caused by the enforcer.
+\end{definition}
+
+\begin{definition}
+    \label{def:cau-events}
+    The subset of \emph{Suppressable Events}
+    $\Events_{Sup} = \left\lbrace e~|~\text{Sup} \sqsubseteq \kappa(e) \right\rbrace$
+    consists of all event names which can be suppressed by the enforcer.
+\end{definition}
+
+\begin{theorem}
+    A Function $\mu_\phi : \Traces \times \Nat \times \Databases \to \Databases$
+    is a valid enforcer function for a (Lex or MFOTL) policy $\phi$ iff
+    for all $\sigma \in \Traces$, $\tau \in \Nat$, and $D \in \Databases$
+    \begin{enumerate}
+        \item $\mu_\phi(\sigma, \tau, D) \setminus D \subseteq \Events_{Cau}$ and
+        \item $D \setminus \mu_\phi(\sigma, \tau, D) \subseteq \Events_{Sup}$
+    \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+    % TODO
+    TODO
+\end{proof}
+
 \section{Enforcement as an Event System}
 
 We first define enforcement as an event system and then show how the notion of refinement as in Sprenger et. al \cite{igloo} works for such an event system.
@@ -87,9 +131,10 @@ and $\sigma$ the trace up until timestamp $\tau$.
 
 \begin{definition}
     \label{def:enf-initial-states}
-    The \emph{Initial States}
+    The set of \emph{Initial States}
     $\Initialstates = \lbrace (\tau, \emptytrace) | \tau \in \Nat \rbrace$
-    are all states with an arbitrary timestamp $\tau$ and an empty trace.
+    consists of all states with an arbitrary timestamp $\tau$ and the empty trace
+    $\emptytrace$.
 \end{definition}
 Intuitively this can be interpreted as that an enforced system may be
 started at an arbitrary timestamp.
@@ -100,6 +145,9 @@ started at an arbitrary timestamp.
 \end{definition}
 
 \begin{definition}
-    \label{def:enf-transition-function}
-    The \emph{Transition Function} $\Transitionfunction{\phi}{\text{hello world}} : $
+    \label{def:enf-transition-relation}
+    The \emph{Transition Relation} is a subset
+    $\Transitionrelation{\phi}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
 \end{definition}
+We write $(\tau, \sigma) \Transitionrelation{\phi}{e} (\tau', \sigma')$ as a short
+hand for $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\phi}{}$.
