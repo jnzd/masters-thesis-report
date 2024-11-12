@@ -1,5 +1,11 @@
-\chapter{Refinement Background}
+\chapter{Background}
+
+\section{Metric First Order Temporal Logic}
 % TODO: introduce (E)MFOTL
+
+\section{The Lex Language}
+
+\subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
 
 \section{Proactive Enforcement}
 
@@ -64,14 +70,23 @@ $P(\phi)$.
 We say a trace $\sigma$ is compliant with policy $\phi$ if and only if
 $\sigma \in P(\phi)$.
 
+% TODO: introduce the notion of a System under Scrutiny (SuS)
+
 \begin{definition}
+    \label{def:enf-function}
    An \emph{Enforcer Function}
-   $\mu_\phi : \Traces \times \Nat \times \Databases \to \Databases$
+   $\mu_\phi : \Traces \times \Nat \times (\Databases \cup \lbrace\tick\rbrace) \to (\Databases \cup \lbrace \bot \rbrace)$
    for some policy $\phi$ takes as input a trace $\sigma \in \Traces$,
-   a timestamp $\tau \in \Nat$, and a database $D \in \Databases$ and outputs a database $D' \in \Databases$
-   such that if the trace $\sigma \in P(\phi)$,
+   a timestamp $\tau \in \Nat$, and either a database $D \in \Databases$
+   or the special event $\tick$ which symbolizes a clock tick of the underlying
+   System under Scrutiny (SuS) and outputs either
+   a database $D' \in \Databases$ or nothing (marked by the special symbol $\bot$)
+   and if the trace $\sigma \in P(\phi)$, it ensures that
    $\sigma \cdot \left(\tau, D'\right) \in P(\phi)$.
-\end{definition}
+   $\bot$ (nothing) is only a valid output if the third argument (the event) is $\tick$.
+   % TODO: is this remark about \bot / nothing correct?
+\end{definition} % TODO: is there an additional requirement that \tau must be \geq than the largest timestamp in \sigma?
+
 % TODO: elaborate on functionality of a proactive enforcer
 
 Capabilities are an integral part of the proactive enforcement
@@ -104,7 +119,7 @@ We write Sup as a shortform for Suppressable and Cau as a shortform for Causable
 
 \begin{theorem}
     A Function $\mu_\phi : \Traces \times \Nat \times \Databases \to \Databases$
-    is a valid enforcer function for a (Lex or MFOTL) policy $\phi$ iff
+    is a valid enforcer function for some (Lex or MFOTL) policy $\phi$ iff
     for all $\sigma \in \Traces$, $\tau \in \Nat$, and $D \in \Databases$
     \begin{enumerate}
         \item $\mu_\phi(\sigma, \tau, D) \setminus D \subseteq \Events_{Cau}$ and
@@ -117,7 +132,13 @@ We write Sup as a shortform for Suppressable and Cau as a shortform for Causable
     TODO
 \end{proof}
 
+\section{Refinement Mappings}
+Abadi and Lamport \cite{refinement-mappings}
+
+TODO
+
 \section{Enforcement as an Event System}
+% TODO: probably move out of background chapter
 
 We first define enforcement as an event system and then show how the notion of refinement as in Sprenger et. al \cite{igloo} works for such an event system.
 
@@ -141,13 +162,97 @@ started at an arbitrary timestamp.
 
 \begin{definition}
     \label{def:enf-event-space}
-    The \emph{Event Space} $\Eventspace=\Databases$ is 
+    The \emph{Event Space} $\Eventspace=\Databases \cup \lbrace\tick\rbrace$ is the union of databases and the special event $\tick$ which stands for a clock tick
+    (incrementing a timestamp by one).
 \end{definition}
 
 \begin{definition}
     \label{def:enf-transition-relation}
     The \emph{Transition Relation} is a subset
     $\Transitionrelation{\phi}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
+    We write $(\tau, \sigma) \Transitionrelation{\phi}{e} (\tau', \sigma')$
+    as a shorthand for
+    $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\phi}{}$.
+    A Transition Relation is valid for some policy $\phi$, if there exists an
+    enforcer function $\mu_\phi$ for $\phi$ and all allowed transitions match
+    one of the three following transitions.
+    \begin{itemize}
+        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, D))} (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, D))$
+        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))} (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, \tick))$ if $\mu_\phi(\sigma, \tau, \tick) \neq \bot$
+        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))} (\tau, \sigma)$ if $\mu_\phi(\sigma, \tau, \tick) = \bot$
+    \end{itemize}
 \end{definition}
-We write $(\tau, \sigma) \Transitionrelation{\phi}{e} (\tau', \sigma')$ as a short
-hand for $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\phi}{}$.
+
+\subsection{Refinement of Enforcement Event Systems}
+
+For Enforcement Event Systems we will now define refinement
+via a modulo function and a simulation relation as in Sprenger et. al \cite{igloo}.
+We aim to show that for a specific class of mediator functions, whenever
+some concrete enforcement event system refines an abstract enforcement 
+event system, the existence of an enforcer function $\mu_A$ for the abstract
+enforcement event system implies the existence of an enforcer function $\mu_C$ for
+the concrete enforcement event system.
+We will further show that the way we refine the enforcement event systems here
+corresponds to the refinement definition for Lex in Hublet et. al \cite{lex}.
+
+We start out with two enforcement event systems, an abstract and a concrete one.
+The parameters of the abstract system are the following
+\begin{align*}
+    \Sigma_A &= \left(\Domain, \Events_A, \Functions, \iota_A \right) \\
+    \Statespace_A &= \Nat \times \Traces_A & \text{State space of traces of signature $\Sigma_A$}\\
+    \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
+    \phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
+    S_A &= \left(\Sigma_A, \phi_A, \kappa_A \right)
+    % \\
+    % \mu_{\phi_A} && \text{An enforcer function for policy $\phi_A$} \\
+\end{align*}
+
+And the parameters for the concrete system are
+\begin{align*}
+    \Sigma_C &= \left(\Domain, \Events_C, \Functions, \iota_C \right) \\
+    \Statespace_C &= \Nat \times \Traces_C & \text{State space of traces of signature $\Sigma_C$}\\
+    \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
+    \phi_C &= \left( C_C, R_C, E_C \right) \\
+    S_C &= \left(\Sigma_C, \phi_C, \kappa_C \right)
+    % \\
+    % \mu_{\phi_C} && \text{An enforcer function for policy $\phi_C$} \\
+\end{align*}
+
+We assume that the concrete specification $S_C$ is a refinement of the
+abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
+
+\begin{definition}
+    \label{def:modulo-mediator-function}
+    A \emph{Modulo Mediator Function}
+    $\pi : \Traces_C \times \Nat \times \Databases_C \to \Databases_A$
+    converts a set of concrete events $D_C$ to a set of abstract events
+    $D_A = \pi(\sigma_C, \tau, D_C)$.
+\end{definition}
+
+This definition of a modulo mediator function differs from the definition in
+Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its arguments.
+
+\begin{definition}
+    \label{def:simulation-relation}
+    A \emph{Simulation Relation}
+    $R \subseteq \Statespace_C \times \Statespace_A$ defines a correspondence of
+    concrete and abstract states.
+    We define $R$ with respect to some modulo mediator function $\pi$ as
+    $$
+    R = \left\lbrace \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right) | \left|\sigma_C\right| = \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\, \pi\left( \sigma_{C,\dots<i}, \tau, \sigma_{C,i} \right) = \sigma_{A,i} \right\rbrace
+    $$
+\end{definition}
+Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than $i$.
+
+\begin{theorem}
+    \label{theo:lex-refinement-and-event-system-refinement}
+    If a concrete event system is a refinement of the abstract event system
+    through the modulo mediator function $\pi$ and the simulation relation $R$,
+    then the concrete specification $S_C$ is a refinement of the abstract
+    specification $S_A$.
+\end{theorem}
+
+\begin{proof}
+    \label{proof:refinement-correspondence}
+    TODO
+\end{proof}
