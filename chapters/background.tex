@@ -256,3 +256,35 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
     \label{proof:refinement-correspondence}
     TODO
 \end{proof}
+
+\begin{theorem}
+    \label{theo:existence-of-concrete-enforcer}
+    If there exists and abstract enforcer $\mu_A$ and a concrete event system refines
+    the event system defined by $\mu_A$, then there exists a concrete enforcer
+    $\mu_C$.
+\end{theorem}
+
+\begin{proof}
+    \label{proof:existence-proof}
+    Let $\phi_A$ be some enforceable policy for which there exists an enforcer
+    function $\mu_A$ and
+    \begin{align}
+        \label{ex-proof:c-states}
+        \left( \tau, \sigma_C \right), \left( \tau', \sigma_C'  \right) &\in \Statespace_C \\
+        \label{ex-proof:a-states}
+        \left( \tau, \sigma_A \right) &\in \Statespace_A \\
+        \label{ex-proof:c-a-state-in-r}
+        \left(\left( \tau, \sigma_C \right), \left( \tau, \sigma_A \right) \right) &\in R \\
+        \label{ex-proof:e}
+        e &\in \Eventspace \\
+        \label{ex-proof:concrete-transition} 
+        \left( \tau, \sigma_C \right) \Transitionrelation{\phi_C}{e} \left( \tau', \sigma_C'  \right) \\
+    \end{align}
+    Now we will do a case distinction to show that for all three cases
+    of transitions in Definition \ref{def:enf-transition-relation}
+    there must exist an abstract state $\left( \tau', \sigma_A' \right) \in \Statespace_A$
+    such that 
+    $$
+        \left( \tau, \sigma_A \right) \Transitionrelation{\phi_C}{\pi\left(\sigma_C, \tau, e\right)} \left( \tau', \sigma_C'  \right) \\
+    $$
+\end{proof}
