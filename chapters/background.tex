@@ -3,16 +3,14 @@
 \section{Metric First Order Temporal Logic}
 % TODO: introduce (E)MFOTL
 
-\section{The Lex Language}
 
-\subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
-
-\section{Proactive Enforcement}
+\section{Proactive Runtime Enforcement}
 
 First we recall some definitions from Metric First Order Temporal Logic (MFOTL) and Lex \cite{whyenf, lex}.
 Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
-\begin{definition}\label{def:signature}
+\begin{definition}
+    \label{def:signature}
     A \emph{Signature}
     $\Sigma = \left( \left(\Domain_{ty}\right)_{ty \in \Types}, \Events, \Functions, \iota \right)$
     is a quadruple consisting of a domain of values such that
@@ -24,18 +22,29 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
     and for any $f \in \Functions$, $\iota(f) = (a_1,\dots,a_k,r)$ provides the
     argument types $(a_1,\dots,a_k)$ and the return type $r$ of $f$.
 \end{definition}
+\begin{example}
+    \label{ex:signature}
+    A signature example ...
+\end{example}
 
-\begin{definition}\label{def:event}
+\begin{definition}
+    \label{def:event}
     An \emph{Event} $e(p_1,\dots,p_k)$ consists of an event name
     $e \in \Events$ and parameters $(p_1,\dots,p_k)$ such that
     for every $1 \leq i \leq k$, $p_i \in \Domain_{\iota(e)_i}$.
 \end{definition}
+\begin{example}
+    \label{ex:event}
+    An example event ...
+\end{example}
 
-\begin{definition}\label{def:database}
+\begin{definition}
+    \label{def:database}
     A \emph{Database} $D \in \Databases$ is a set of events.
 \end{definition}
 
-\begin{definition}\label{def:trace}
+\begin{definition}
+    \label{def:trace}
     A \emph{Trace} $\sigma \in \Traces$ is a sequence
     $\Sequence[1 \leq i \leq k]{(\tau_i, D_i)}$, $k \in \Nat \cup \lbrace \infty \rbrace$
     of timestamps $\tau_i \in \Nat$ and finite databases $D_i \in Databases$,
@@ -44,6 +53,10 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
     and \emph{progress}
     (if $|\sigma| = \infty$, then $\lim_{i\to\infty} \tau_i = \infty$).
 \end{definition}
+\begin{example}
+    \label{ex:trace}
+    A trace example ...
+\end{example}
 
 \begin{definition}\label{def:infinite-trace}
     The set of \emph{Infinite Traces} is denoted by $\Traces_\omega$.
@@ -100,7 +113,7 @@ makes the existence of events that may not (always) be externally visible explic
 Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
 to assign a capability to all events with some event name $e \in \Events$.
 Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
-We write Sup as a shortform for Suppressable and Cau as a shortform for Causable.
+We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
 % TODO: insert WhyEnf and Lex/CRE capability lattices
 
 \begin{definition}
@@ -132,12 +145,97 @@ We write Sup as a shortform for Suppressable and Cau as a shortform for Causable
     TODO
 \end{proof}
 
+\section{The Lex Language}
+
+\subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
+
+\begin{definition}
+    \label{def:cre-rules} % TODO: call this a CRE-Policy?
+    \emph{CRE Rules or CRE-Policy} ... TODO
+    
+\end{definition}
+
+\begin{definition}
+    \label{def:lex-specification}
+    A \emph{Lex Specification} 
+    $S = \left(\Sigma, \phi, \kappa \right)$
+    is a triple consisting of some signature
+    $\Sigma = \left(\Domain, \Events, \Functions, \iota \right)$,
+    some CRE-rules
+    $\phi = \left(C, R, E\right)$,
+    and a capability-mapping $\kappa$.
+\end{definition}
+
+\subsection{Refinement of Lex specifications}
+In this subsection we refresh refinement of Lex specifications as it is described in
+Hublet et. al \cite{lex}.
+
+\begin{definition}
+    \label{def:lex-refinement}
+    A specification
+    $S_C = \left( \Sigma_C, \phi_C, \kappa_C \right)$
+    with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    and CRE-rules $\phi_C = \left(C_C, R_C, E_C \right)$
+    refines a specification
+    $S_A = \left( \Sigma_A, \phi_A, \kappa_A \right)$
+    with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    and CRE-rules $\phi_A = \left(C_A, R_A, E_A \right)$
+    under condition $\psi = \left(C_C, R_A \setminus R_C, E_C \right)$
+    iff all of the following hold
+    \begin{enumerate}
+        \item 
+        $\Events_A \setminus \kappa_A^{-1} 
+        (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
+        \subseteq \Events_C$
+        and
+        for all
+        $e \in \Events_A \cap \Events_C,
+        \iota_A(e) = \iota_C(e)$
+        and
+        $\kappa_A(e) \sqsubseteq \kappa_C(e)$;
+        \item
+        $C_A \subseteq C_C$ and
+        there exists
+        $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
+        all events appearing in $\phi$ are in
+        $\Events_C \setminus \Events_A$
+        and
+        $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
+        \item
+        For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
+        a rule labeled by $s$ exists in
+        $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
+    \end{enumerate}
+    
+\end{definition}
+
+\begin{definition}
+    \label{def:lex-inconditional-refinement}
+    If we require the following additional condition in Definition \ref{def:lex-refinement}
+    \begin{enumerate}
+        \setcounter{enumi}{3}
+        \item 
+    \end{enumerate}
+    $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
+\end{definition}
+
 \section{Refinement Mappings}
-Abadi and Lamport \cite{refinement-mappings}
+In Abadi and Lamport \cite{refinement-mappings} the concept of refinement mappings
+between specifications is explored.
 
 TODO
 
-\section{Enforcement as an Event System}
+\section{Refinement of Event Systems}
+
+In this section we recall refinement of event systems as defined in Sprenger et. al
+\cite{igloo}.
+
+\begin{definition}
+    
+\end{definition}
+
+
+\section{Runtime Enforcement as an Event System}
 % TODO: probably move out of background chapter
 
 We first define enforcement as an event system and then show how the notion of refinement as in Sprenger et. al \cite{igloo} works for such an event system.
@@ -176,17 +274,25 @@ started at an arbitrary timestamp.
     A Transition Relation is valid for some policy $\phi$, if there exists an
     enforcer function $\mu_\phi$ for $\phi$ and all allowed transitions match
     one of the three following transitions.
-    \begin{itemize}
-        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, D))} (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, D))$
-        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))} (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, \tick))$ if $\mu_\phi(\sigma, \tau, \tick) \neq \bot$
-        \item $(\tau, \sigma) \Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))} (\tau, \sigma)$ if $\mu_\phi(\sigma, \tau, \tick) = \bot$
-    \end{itemize}
+    \begin{align}
+        (\tau, \sigma)
+        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, D))}
+        (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, D)) \\
+        (\tau, \sigma)
+        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))}
+        (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, \tick))
+        &\text{ if } \mu_\phi(\sigma, \tau, \tick) \neq \bot \\
+        (\tau, \sigma)
+        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))}
+        (\tau, \sigma)
+        &\text{ if } \mu_\phi(\sigma, \tau, \tick) = \bot
+    \end{align}
 \end{definition}
 
 \subsection{Refinement of Enforcement Event Systems}
 
 For Enforcement Event Systems we will now define refinement
-via a modulo function and a simulation relation as in Sprenger et. al \cite{igloo}.
+via a mediator function and a simulation relation as in Sprenger et. al \cite{igloo}.
 We aim to show that for a specific class of mediator functions, whenever
 some concrete enforcement event system refines an abstract enforcement 
 event system, the existence of an enforcer function $\mu_A$ for the abstract
@@ -222,8 +328,8 @@ We assume that the concrete specification $S_C$ is a refinement of the
 abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
 
 \begin{definition}
-    \label{def:modulo-mediator-function}
-    A \emph{Modulo Mediator Function}
+    \label{def:mediator-function}
+    A \emph{Mediator Function}
     $\pi : \Traces_C \times \left( \Nat \times \Databases_C \right)  \to \Databases_A$
     converts a set of concrete events $D_C$ at some timestamp $\tau$
     to a set of abstract events
@@ -231,7 +337,7 @@ abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
 \end{definition}
 
 \begin{definition}
-    \label{def:modulo-mediator-function-vec}
+    \label{def:mediator-function-vec}
     We recursively define the function $\vec{\pi} : \Traces_C \to \Traces_A$ as follows
     \begin{align*}
         \vec{\pi}(\emptytrace) &= \emptytrace \\
@@ -242,7 +348,7 @@ abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
     \end{align*}
 \end{definition}
 
-This definition of a modulo mediator function differs from the definition in
+This definition of a mediator function differs from the definition in
 Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its arguments.
 
 \begin{definition}
@@ -250,7 +356,7 @@ Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its ar
     A \emph{Simulation Relation}
     $R \subseteq \Statespace_C \times \Statespace_A$ defines a correspondence of
     concrete and abstract states.
-    We define $R$ with respect to some modulo mediator function $\pi$ as
+    We define $R$ with respect to some mediator function $\pi$ as
     $$
     R = \left\lbrace \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right) | \left|\sigma_C\right| = \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\, \pi\left( \sigma_{C,\dots<i}, \tau, \sigma_{C,i} \right) = \sigma_{A,i} \right\rbrace
     $$
@@ -260,7 +366,7 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
 \begin{theorem}
     \label{theo:lex-refinement-and-event-system-refinement}
     If a concrete event system is a refinement of the abstract event system
-    through the modulo mediator function $\pi$ and the simulation relation $R$,
+    through the mediator function $\pi$ and the simulation relation $R$,
     then the concrete specification $S_C$ is a refinement of the abstract
     specification $S_A$.
 \end{theorem}
@@ -272,7 +378,7 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
 
 \begin{theorem}
     \label{theo:existence-of-concrete-enforcer}
-    If there exists and abstract enforcer $\mu_A$ and a concrete event system refines
+    If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
     the event system defined by $\mu_A$, then there exists a concrete enforcer
     $\mu_C$.
 \end{theorem}
