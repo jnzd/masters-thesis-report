@@ -224,9 +224,22 @@ abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
 \begin{definition}
     \label{def:modulo-mediator-function}
     A \emph{Modulo Mediator Function}
-    $\pi : \Traces_C \times \Nat \times \Databases_C \to \Databases_A$
-    converts a set of concrete events $D_C$ to a set of abstract events
-    $D_A = \pi(\sigma_C, \tau, D_C)$.
+    $\pi : \Traces_C \times \left( \Nat \times \Databases_C \right)  \to \Databases_A$
+    converts a set of concrete events $D_C$ at some timestamp $\tau$
+    to a set of abstract events
+    $D_A = \pi\left( \sigma_C, \left( \tau, D_C \right) \right)$.
+\end{definition}
+
+\begin{definition}
+    \label{def:modulo-mediator-function-vec}
+    We recursively define the function $\vec{\pi} : \Traces_C \to \Traces_A$ as follows
+    \begin{align*}
+        \vec{\pi}(\emptytrace) &= \emptytrace \\
+        \vec{\pi}(\sigma_C) &=
+        \vec{\pi}\left(\sigma_{C,\dots<|\sigma_C|}\right) \cdot
+        \pi\left(\sigma_{C,\dots<|\sigma_C|}, \sigma_{C,|\sigma_C|} \right) 
+        &\text{ if } |\sigma_C| > 0
+    \end{align*}
 \end{definition}
 
 This definition of a modulo mediator function differs from the definition in
@@ -284,7 +297,30 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
     of transitions in Definition \ref{def:enf-transition-relation}
     there must exist an abstract state $\left( \tau', \sigma_A' \right) \in \Statespace_A$
     such that 
-    $$
-        \left( \tau, \sigma_A \right) \Transitionrelation{\phi_C}{\pi\left(\sigma_C, \tau, e\right)} \left( \tau', \sigma_C'  \right) \\
-    $$
+    \begin{align}
+        \left( \tau, \sigma_A \right)
+        \Transitionrelation{\phi_C}{\pi\left(\sigma_C, \tau, e\right)}
+        \left( \tau', \sigma_C'  \right).
+    \end{align}
+    \emph{Case 1:}
+    \begin{align}
+        e = \mu_\phi(\sigma, \tau, D_C)
+        \text{ for some }
+        D_C \in \Databases_C
+    \end{align}
+    
+    \emph{Case 2:}
+    \begin{align}
+        e = \mu_\phi(\sigma, \tau, \tick)
+        \text{ and }
+        \mu_\phi(\sigma, \tau, \tick) \neq \bot
+    \end{align}
+    
+    \emph{Case 3:}
+    \begin{align}
+        e = \mu_\phi(\sigma, \tau, \tick)
+        \text{ and }
+        \mu_\phi(\sigma, \tau, \tick) = \bot
+    \end{align}
 \end{proof}
+
