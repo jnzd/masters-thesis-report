@@ -1,18 +1,22 @@
 \chapter{Background}
 
-\section{Metric First Order Temporal Logic}
-% TODO: introduce (E)MFOTL
+\section{Runtime Verification}
+\subsection{Runtime Monitoring}
 
+\subsection{Runtime Enforcement}
 
-\section{Proactive Runtime Enforcement}
-
-First we recall some definitions from Metric First Order Temporal Logic (MFOTL) and Lex \cite{whyenf, lex}.
+\section{Metric First-Order Temporal Logic}
+Metric First-Order Logic (MFOTL)
+\cite{basin2015monitoring, chomicki1995efficient}
+is frequently used as a policy language in
+runtime verification \cite{whyenf, lex, }. %TODO: more references and reformulate this introductory part
 Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
 \begin{definition}
-    \label{def:signature}
-    A \emph{Signature}
-    $\Sigma = \left( \left(\Domain_{ty}\right)_{ty \in \Types}, \Events, \Functions, \iota \right)$
+    \label{def:mfotl-signature}
+    An \emph{MFOTL Signature}
+    $\Sigma = \left( \left(\Domain_{ty}\right)_{ty \in \Types},
+        \Events, \Functions, \iota \right)$
     is a quadruple consisting of a domain of values such that
     for every $ty \in \Types$, $\Domain_{ty}$ is the set of values of type $ty$,
     a set of event names $\Events$, a set of function names $\Functions$,
@@ -24,7 +28,15 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 \end{definition}
 \begin{example}
     \label{ex:signature}
-    A signature example ...
+    If
+    \begin{align*}
+        \Domain &= \Nat \cup \left\lbrace \texttt{true}, \texttt{false} \right\rbrace \\
+        \Events &= \left\lbrace TODO \right\rbrace \\ % TODO: choose event set
+        \Functions &= \left\lbrace TODO \right\rbrace \\ % TODO: choose functions
+        \iota &= TODO, % TODO: define arity-function for chosen events and functions
+    \end{align*}
+    then $ \Sigma = \left( \Domain, \Events, \Functions, \iota \right) $
+    is an MFOTL signature.
 \end{example}
 
 \begin{definition}
@@ -58,33 +70,159 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
     A trace example ...
 \end{example}
 
-\begin{definition}\label{def:infinite-trace}
+\begin{definition}
+    \label{def:infinite-trace}
     The set of \emph{Infinite Traces} is denoted by $\Traces_\omega$.
 \end{definition}
 
-\begin{definition}\label{def:finite-trace}
+\begin{definition}
+    \label{def:finite-trace}
     The set of \emph{Finite Traces} is denoted by $\Traces_f$.
 \end{definition}
 
-\begin{definition}\label{def:time-point}
+\begin{definition}
+    \label{def:time-point}
     A \emph{time-point} $0 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
 \end{definition}
 
-\begin{definition}\label{def:empty-trace}
+\begin{definition}
+    \label{def:empty-trace}
     The \emph{Empty Trace} is denoted by $\emptytrace$.
 \end{definition}
 
-\begin{definition}\label{def:property}
+\begin{definition}
+    \label{def:property}
     A \emph{Property} is a subset $P\subseteq \Traces_\omega$.
 \end{definition}
 
-A Property can be induced by some policy $\phi$, we denote this policy by
-$P(\phi)$.
-We say a trace $\sigma$ is compliant with policy $\phi$ if and only if
-$\sigma \in P(\phi)$.
+A Property can be induced by some policy $\phi$, we denote this policy by $P(\phi)$.
+We say a trace $\sigma$ is compliant with policy $\phi$ if and only if $\sigma \in P(\phi)$.
+In the next part we revisit the specific variant of MFOTL used in Hublet et. al \cite{lex}
+which includes the notable additions of non-recursive let-bindings \cite{zingg2022verified}
+and aggregations \cite{basin2015monitoring} as compared to more standard MFOTL variants.
+We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet et. al
+\cite{whyenf} and its typing rules.
+
+\begin{definition}
+    \label{def:non-empty-intervals}
+    The set of \emph{Non-Empty Intervals} over $\Nat$ is denoted by $\Intervals$.
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-grammar}
+    Let $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
+    $x \in \Variables$,
+    $f \in \Functions$,
+    $e \in \Events$,
+    and $I \in \Intervals$.
+    Then the \emph{MFOTL Grammar} of our variant is defined by the following grammar rules
+    \begin{align*}
+        t &::= &&c \mid x \mid f(t,\dots,t) \\
+        \phi &::= &&\top \mid e(t,\dots,t) \mid t=t \mid \neg \phi \mid
+            \phi \wedge \phi \mid  \exists.\ \phi \mid \Next_I \phi \mid
+            \Prev_I \phi \mid \phi \Until_I \phi \mid \phi \Since_I \phi \\
+            &&& \mid \Aggreg{x}{\omega}{t}{x,\dots,x}{\phi} \mid
+            \LLet{e \left(x,\dots,x \right)}{\phi}{\phi}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-typing-rules}
+    A MFOTL formula $\phi$ is \emph{Well Typed} if it follows the following typing rules
+    
+    TODO
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-valuation}
+    A variable \emph{Valuation} $v: \Variables \to \cup_{ty \in \Types} \Domain_{ty}$
+    assigns a value to a variable.
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-evaluation}
+    The \emph{Evaluation} of MFOTL terms $t$ under some valuation $v$ is (recursively) defined as followed:
+    \begin{align*}
+        &\downarrow_v c
+            &&:= c
+            && \text{for all constants } c \in \Domain\\
+        &\downarrow_v x
+            &&:= v(x)
+            && \text{for all variables } v \in \Variables\\
+        &\downarrow_v f\left(t_1,\dots,t_k\right)
+            &&:= \hat{f}\left(\downarrow_v t_1, \dots \downarrow_v t_k \right)
+            && \text{for all functions } f \in \Functions \text{ and all terms } t_i \\
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-satisfaction}
+    An MFOTL formula $\phi$ is \emph{satisfied} at some time-point $i$ in a trace $\sigma$ under
+    some valuation $v$ is denoted by
+    \begin{equation*}
+        v,i \models_\sigma \phi
+    \end{equation*}
+\end{definition}
+If it is clear from context the subscript $\sigma$ can be omitted.
+\begin{definition}
+    \label{def:mfotl-semantics}
+    The \emph{Semantics of MFOTL} for a fixed, infinite trace $\sigma$ is defined as followed
+    \begin{align*}
+        v, i &\models \top \\
+        v, i &\models \neg \phi
+            &&\text{iff } v, i \not\models \phi \\
+        v, i &\models \phi \wedge \psi
+            &&\text{iff } v, i \models \phi \text{ and } v, i \models \psi \\
+        v, i &\models e(t_1, \dots, t_k)
+            &&\text{iff } e(\downarrow_v t_1, \dots, \downarrow_v t_k) \in D_i \\
+        v, i &\models \exists x. \phi
+            &&\text{iff } v[x \mapsto d], i \models \phi \text{ for some } d \in \Domain \\
+        v, i &\models \Next_I \phi
+            &&\text{iff } v, i+1 \models \phi \text{ and } \tau_{i+1} - \tau_i \in I \\
+        v, i &\models \Prev_I \phi
+            &&\text{iff } i>0 \text{ and } v, i-1 \models \phi
+            \text{ and } \tau_i - \tau_{i-1} \in I \\
+        v, i &\models \phi \Until_I \psi
+            &&\text{iff } v, j \models \psi \text{ for some } j \geq i
+            \text{ with } \tau_j - \tau_i \in I \\
+            &&&
+            \text{ and } v, k \models \phi \text{ for all } i \leq k < j \\
+        v, i &\models \phi \Since_I \psi
+            &&\text{iff } v, j \models \psi \text{ for some } j \leq i
+            \text{ with } \tau_i - \tau_j \in I \\
+            &&&
+            \text{ and } v, k \models \phi \text{ for all } j < k \leq i \\
+        v, i &\models \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
+            &&\text{iff } \dots % TODO:
+            % in the (lex) tax code example aggregation is seemingly used to define "variables" with integer values using CNT and SUM
+        \\
+        v, i &\models \LLet{e(x_1, \dots, x_k)}{\phi}{\psi}
+            && \text{iff } v, i \models_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \models \phi \right\rbrace \right]} \psi
+    \end{align*}
+    
+    Where $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
+    $x \in \Variables$,
+    $f \in \Functions$,
+    $e \in \Events$,
+    and $I \in \Intervals$.
+    
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-syntactic-sugar}
+    \emph{MFOTL Syntactic Sugar}
+    
+\end{definition}
+
+
+\begin{definition}
+    \label{def:mfotl-typing-rules}
+    \emph{(E)MFOTL Typing Rules} % TODO: maybe only introduce after introducing enforcement
+\end{definition}
+
+\section{Proactive Runtime Enforcement}
 
 % TODO: introduce the notion of a System under Scrutiny (SuS)
-
 \begin{definition}
     \label{def:enf-function}
    An \emph{Enforcer Function}
@@ -148,10 +286,15 @@ We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable
 \section{The Lex Language}
 
 \subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
+Hublet et. al \cite{lex} introduces a meta-logic based on
+constitutive, regulative, and exception rules (CRE meta-logic).
+The CRE meta-logic underpins the Lex programming language
+and formalizes how a Lex specification would compile
+to an underlying MFOTL formula.
 
 \begin{definition}
-    \label{def:cre-rules} % TODO: call this a CRE-Policy?
-    \emph{CRE Rules or CRE-Policy} ... TODO
+    \label{def:cre-meta-logic} % TODO: call this a CRE-Policy?
+    The \emph{CRE Meta-Logic} 
     
 \end{definition}
 
