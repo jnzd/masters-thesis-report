@@ -8,7 +8,9 @@
 \section{Metric First-Order Temporal Logic}
 Metric First-Order Logic (MFOTL)
 \cite{basin2015monitoring, chomicki1995efficient}
-is frequently used as a policy language in
+combines first-order predicate logic with temporal operators such as
+$\Next$ ("next"), $\Prev$ ("previous"), $\Until$ ("until"), and $\Since$ ("since").
+MFOTL is frequently used as a policy language in
 runtime verification \cite{whyenf, lex, }. %TODO: more references and reformulate this introductory part
 Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
@@ -208,10 +210,23 @@ If it is clear from context the subscript $\sigma$ can be omitted.
     
 \end{definition}
 
+We define the following operators based on the basic operators above as
+"syntactic sugar".
 \begin{definition}
     \label{def:mfotl-syntactic-sugar}
     \emph{MFOTL Syntactic Sugar}
-    
+    \begin{align*}
+        \bot &:= \neg\top \\
+        \phi \to \psi &:= \neg \phi \vee \psi \\
+        \phi \vee \psi &:= \neg(\neg\phi \wedge \neg\psi) \\
+        \phi \leftrightarrow \psi
+            &:= (\phi \to \psi) \wedge (\psi \to \phi) \\
+        \forall x. \phi &:= \neg(\exists x. \neg \phi) \\
+        \Eventually_I \phi &:= \top \Until_I \phi && \text{(eventually)}\\
+        \Once_I \phi &:= \top \Since_I \phi && \text{(once)}\\
+        \Always_I \phi &:= \neg \Eventually \neg \phi && \text{(always)} \\
+        \Historically_I \phi &:= \neg \Once_I \neg \phi && \text{(historically)}
+    \end{align*}    
 \end{definition}
 
 
