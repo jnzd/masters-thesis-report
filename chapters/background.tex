@@ -1,9 +1,18 @@
 \chapter{Background}
 
 \section{Runtime Verification}
+Runtime Verification (RV) concerns itself with the behavior of
+some System under Scrutiny (SuS) with regards to some policy.
+$\dots$ TODO
+
 \subsection{Runtime Monitoring}
+Runtime Monitoring is used to detect a policy violation either in an
+online (real-time) or offline fashion. $\dots$ TODO
 
 \subsection{Runtime Enforcement}
+Runtime Enforcement is used to actively cause or prevent certain system behaviors.
+Due to this interactive nature of runtime enforcement it is inherently online.
+$\dots$ TODO
 
 \section{Metric First-Order Temporal Logic}
 Metric First-Order Logic (MFOTL)
@@ -84,7 +93,7 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:time-point}
-    A \emph{time-point} $0 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
+    A \emph{time-point} $1 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
 \end{definition}
 
 \begin{definition}
@@ -300,7 +309,13 @@ We define the following operators based on the basic operators above as
     \emph{(E)MFOTL Typing Rules} % TODO: maybe only introduce after introducing enforcement
 \end{definition}
 
-\section{Proactive Runtime Enforcement}
+\section{Proactive Runtime Enforcement using MFOTL}
+
+A SuS can be modeled as an event system.
+\begin{definition}
+    \label{def:sus-event-system}
+    An \emph{SuS Event System} $\dots$ TODO 
+\end{definition}
 
 % TODO: introduce the notion of a System under Scrutiny (SuS)
 \begin{definition}
@@ -331,20 +346,53 @@ makes the existence of events that may not (always) be externally visible explic
 Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
 to assign a capability to all events with some event name $e \in \Events$.
 Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
-We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
+% We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
+
 % TODO: insert WhyEnf and Lex/CRE capability lattices
+
+\begin{definition}
+    \label{def:capability-lattice}
+    The \emph{Capability Lattice} $\left( \Capabilities, \sqsubseteq \right)$
+    
+    % \begin{figure}
+    \centering
+    \begin{tikzpicture}
+        % \node[text depth=0.1cm] (itl) at (1,1) {\texttt{internal}};
+        \node[text depth=0.1cm] (cau_sup) at (1,0) {\texttt{causable suppressable}};
+        
+        \node[text depth=0.1cm] (cau_obs) at (-1,-1) {\texttt{causable observable}};
+        \node[text depth=0.1cm] (sup) at (3,-1) {\texttt{suppressable}};
+        
+        \node[text depth=0.1cm] (obs) at (1,-2) {\texttt{observable}};
+        \node[text depth=0.1cm] (cau) at (-3,-2) {\texttt{causable}};
+        
+        \node[text depth=0.1cm] (bot) at (-1,-3) {$\bot$};
+        % \draw[->, dashed] (cau_sup) -- (itl);
+        \draw[->] (sup) -- (cau_sup);
+        \draw[->] (cau_obs) -- (cau_sup);
+        \draw[->] (cau) -- (cau_obs);
+        \draw[->] (obs) -- (cau_obs);
+        \draw[->] (obs) -- (sup);
+        \draw[->] (bot) -- (obs);
+        \draw[->] (bot) -- (cau);
+    \end{tikzpicture}
+    % \caption{Capability lattice}
+    % \end{figure}
+\end{definition}
 
 \begin{definition}
     \label{def:cau-events}
     The subset of \emph{Causable Events}
-    $\Events_{Cau} = \left\lbrace e~|~\text{Cau} \sqsubseteq \kappa(e) \right\rbrace$
+    $\Events_{Cau} =
+    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace$
     consists of all event names which are can be caused by the enforcer.
 \end{definition}
 
 \begin{definition}
     \label{def:cau-events}
     The subset of \emph{Suppressable Events}
-    $\Events_{Sup} = \left\lbrace e~|~\text{Sup} \sqsubseteq \kappa(e) \right\rbrace$
+    $\Events_{Sup} =
+    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace$
     consists of all event names which can be suppressed by the enforcer.
 \end{definition}
 
@@ -504,7 +552,7 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
 \begin{definition}
     \label{def:lex-specification}
     A \emph{Lex Specification} 
-    $S = \left(\Sigma, \phi, \kappa \right)$
+    $\Specification = \left(\Sigma, \phi, \kappa \right)$
     is a triple consisting of some signature
     $\Sigma = \left(\Domain, \Events, \Functions, \iota \right)$,
     some CRE-rules
@@ -577,9 +625,26 @@ In this section we recall refinement of event systems as defined in Sprenger et.
 \cite{igloo}.
 
 \begin{definition}
-    
+    \label{def:event-system}
+    An \emph{Event System} is a labeled transition system
+    $$
+    \EventSystem = \left(\ESStates, \ESEvents, \Transitionrelation{}{} \right)
+    $$
+    consisting of a set of states $\ESStates$,
+    a set of events $\ESEvents$,
+    and a transition relation
+    $\Transitionrelation{}{} \subseteq \ESStates \times \ESEvents \times \ESStates$.
 \end{definition}
 
+It is important to note that the set of events $\ESEvents$ in an event system
+are unrelated to our definition of event names $\Events$ in MFOTL.
+$(s,e,s') \in \Transitionrelation{}{}$ can also be written as
+$s \Transitionrelation{}{e} s'$.
+
+\begin{definition}
+    \label{def:event-system-trace}
+    The transition relation 
+\end{definition}
 
 \section{Runtime Enforcement as an Event System}
 % TODO: probably move out of background chapter
