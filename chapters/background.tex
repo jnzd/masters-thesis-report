@@ -640,10 +640,74 @@ It is important to note that the set of events $\ESEvents$ in an event system
 are unrelated to our definition of event names $\Events$ in MFOTL.
 $(s,e,s') \in \Transitionrelation{}{}$ can also be written as
 $s \Transitionrelation{}{e} s'$.
+Sprenger et. al \cite{igloo} extend the transition relation for finite sequents of events
+$\tau$.
+We make a tiny change to their notation by renaming finite seequents of events from $\tau$
+to $\rho$ to avoid overloading $\tau$ which we already use for MFOTL timestamps.
+Similarly we add a subscript $e$ to $\emptytrace_e$ to designate empty
+event sequences and make the distinction between empty event sequents and MFOTL
+traces explicit.
+The extension of the transition relation is explained in the following definition.
+
+\begin{definition}
+    \label{def:transition-relation-extension}
+    The transition relation is inductively expanded for finite sequents $\rho$
+    of events $\ESStates$ for all
+    $s,s',s'' \in \ESStates$
+    \begin{align}
+        s &\Transitionrelation{}{\emptytrace_e} s \\
+        s &\Transitionrelation{}{\rho \cdot \left\langle e \right\rangle} s'
+        && \text{whenever } 
+        s \Transitionrelation{}{\rho} s' \text{ and }
+        s' \Transitionrelation{}{e} s''
+    \end{align}
+\end{definition}
+
+Next we recall the definition of traces of Event Systems as in Sprenger et. al
+\cite{igloo}. Here it is again important to note that these traces are not
+directly related to traces in MFOTL (and CRE).
+
+\begin{definition}
+    \label{def:event-system-initial-states}
+    The set of \emph{Initial States} is a subset
+    $\ESInitialStates \subseteq \ESStates$.
+\end{definition}
 
 \begin{definition}
     \label{def:event-system-trace}
-    The transition relation 
+    Given a set of initial states $\ESInitialStates \subseteq \ESStates$
+    a \emph{Trace} of the event system
+    $\EventSystem = \left(\ESStates, \ESEvents, \Transitionrelation{}{} \right)$
+    starting in initial states $I$ is a sequent $\rho$ of events
+    such that $s \Transitionrelation{}{\rho} s'$ for some initial state
+    $s \in \ESInitialStates$ and a reachable state $s' \in \ESStates$.
+\end{definition}
+
+The set of all traces of an event system $\EventSystem$ starting in initial states
+$\ESInitialStates$ is denoted by $\EStraces\left(\EventSystem, \ESInitialStates \right)$.
+
+Sprenger et. al \cite{igloo} gives the following definition of refinement
+for event systems.
+
+\begin{definition}
+    \label{def:event-system-refinement}
+    Given two event systems
+    $\EventSystem_i = \left( \ESStates_i, \ESEvents_i, \Transitionrelation{i}{} \right)$
+    with initial states $\ESInitialStates_i$ for $i\in \lbrace1,2\rbrace$.
+    $\left(\EventSystem_2, \ESInitialStates_2\right)$ refines
+    $\left(\EventSystem_1, \ESInitialStates_1\right)$
+    modulo a mediator function $\pi : \ESEvents_2 \to \ESEvents_1$
+    if there exists a simulation relation $R \subseteq \ESEvents_2 \times \ESEvents_1$
+    such that
+    \begin{enumerate}
+        \item for all $s_2 \in \ESInitialStates_2$ there exists some
+        $s_1 \in \ESInitialStates_1$ such that $(s_2, s_1) \in R$, and
+        \item for all $s_1 \in \ESStates_1, s_2, s_2' \in ESStates_2$, and 
+        $e_2 \in \ESEvents_2$ such that
+        $s_2 \Transitionrelation{}{e_2} s_2'$ and $(s_2, s_1) \in R$
+        there exists some $s_1' \in \ESStates_1$ such that
+        $s_1 \Transitionrelation{}{\pi(e_2)} s_1'$.
+    \end{enumerate}
 \end{definition}
 
 \section{Runtime Enforcement as an Event System}
@@ -718,7 +782,7 @@ The parameters of the abstract system are the following
     \Sigma_A &= \left(\Domain, \Events_A, \Functions, \iota_A \right) \\
     \Statespace_A &= \Nat \times \Traces_A & \text{State space of traces of signature $\Sigma_A$}\\
     \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
-    \phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
+    \Phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
     S_A &= \left(\Sigma_A, \phi_A, \kappa_A \right)
     % \\
     % \mu_{\phi_A} && \text{An enforcer function for policy $\phi_A$} \\
@@ -729,7 +793,7 @@ And the parameters for the concrete system are
     \Sigma_C &= \left(\Domain, \Events_C, \Functions, \iota_C \right) \\
     \Statespace_C &= \Nat \times \Traces_C & \text{State space of traces of signature $\Sigma_C$}\\
     \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
-    \phi_C &= \left( C_C, R_C, E_C \right) \\
+    \Phi_C &= \left( C_C, R_C, E_C \right) \\
     S_C &= \left(\Sigma_C, \phi_C, \kappa_C \right)
     % \\
     % \mu_{\phi_C} && \text{An enforcer function for policy $\phi_C$} \\
