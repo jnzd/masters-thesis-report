@@ -129,10 +129,64 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
 \end{definition}
 
 \begin{definition}
+    \label{def:mfotl-term-typing-rules}
+    \emph{MFOTL Terms must follow the these typing rules}
+    \begin{gather*}
+        \prftree[r]{\text{Constant}}
+            {c \in \Domain}
+            {\Gamma \vdash c} \qquad
+        \prftree[r]{\text{Variable}}
+            {v \in Variables}
+            {\Gamma \vdash v} \\
+        \prftree[r]{\text{Function}}
+            {f \in \Functions}
+            {\forall 1 \leq i \leq k. \Gamma \vdash t_i}
+            {\Gamma \vdash f\left(t_1,\dots,t_k\right)}            
+    \end{gather*}
+\end{definition}
+
+\begin{definition}
     \label{def:mfotl-typing-rules}
     A MFOTL formula $\phi$ is \emph{Well Typed} if it follows the following typing rules
-    
-    TODO
+    \begin{gather*}
+        \prftree[r]{\text{True}}
+            {}
+            {\Gamma \vdash \top} \qquad
+        \prftree[r]{\text{Not}}
+            {\Gamma \not\vdash \phi}
+            {\Gamma \vdash \neg \phi} \qquad
+        \prftree[r]{\text{And}}
+            {\Gamma \vdash \phi}{\Gamma \vdash \psi}
+            {\Gamma \vdash \phi \wedge \psi} \\
+        \prftree[r]{\text{Event}}
+            {e \in \Events}{\forall 1 \leq i \leq k . x_i \in (Terms) TODO} % TODO: typing rules for terms
+            {\Gamma \vdash e\left(x_1, \dots, x_k\right)} \qquad
+        \prftree[r]{\text{Exists}}
+            {\Gamma \vdash \phi}{x \in \Variables}
+            {\Gamma \vdash \exists x. \phi} \\
+        \prftree[r]{\text{Next}}
+            {\Gamma \vdash \phi}{I \in \Intervals}
+            {\Gamma \vdash \Next_I \phi} \qquad
+        \prftree[r]{\text{Previous}}
+            {\Gamma \vdash \phi}{I \in \Intervals}
+            {\Gamma \vdash \Prev_I \phi} \\
+        \prftree[r]{\text{Until}}
+            {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
+            {\Gamma \vdash \phi \Until_I \psi} \qquad
+        \prftree[r]{\text{Since}}
+            {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
+            {\Gamma \vdash \phi \Since_I \psi} \\
+        \prftree[r]{\text{Aggregation}} % TODO: what are the typing rules for aggregation?
+            {\Gamma \vdash \phi}{x \in \Variables }{\bar{y} \text{ TODO}}
+                {t \text{ TODO}}{\omega \text{ TODO}}
+            {\Gamma \vdash \Aggreg{x}{\omega}{t}{y_1,\dots,y_k}{\phi}} \\
+        \prftree[r]{\text{Let}}
+            {\Gamma \vdash \phi}
+            { \Gamma[\Events \mapsto \Events \cup \left\lbrace e \right\rbrace]
+                \vdash \psi}
+            {\forall 1 \leq i \leq k. x_i \in Terms} % TODO how should this actually be?
+            {\Gamma \vdash \LLet{e\left(x_1, \dots, x_k \right)}{\phi}{\psi}}
+    \end{gather*}
 \end{definition}
 
 \begin{definition}
@@ -143,7 +197,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
 
 \begin{definition}
     \label{def:mfotl-evaluation}
-    The \emph{Evaluation} of MFOTL terms $t$ under some valuation $v$ is (recursively) defined as followed:
+    The \emph{Evaluation} of well-typed MFOTL terms $t$ under some valuation $v$ is (recursively) defined as followed:
     \begin{align*}
         &\downarrow_v c
             &&:= c
@@ -162,7 +216,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     An MFOTL formula $\phi$ is \emph{satisfied} at some time-point $i$ in a trace $\sigma$ under
     some valuation $v$ is denoted by
     \begin{equation*}
-        v,i \models_\sigma \phi
+        v,i \vDash \sigma \phi
     \end{equation*}
 \end{definition}
 If it is clear from context the subscript $\sigma$ can be omitted.
@@ -170,36 +224,36 @@ If it is clear from context the subscript $\sigma$ can be omitted.
     \label{def:mfotl-semantics}
     The \emph{Semantics of MFOTL} for a fixed, infinite trace $\sigma$ is defined as followed
     \begin{align*}
-        v, i &\models \top \\
-        v, i &\models \neg \phi
-            &&\text{iff } v, i \not\models \phi \\
-        v, i &\models \phi \wedge \psi
-            &&\text{iff } v, i \models \phi \text{ and } v, i \models \psi \\
-        v, i &\models e(t_1, \dots, t_k)
+        v, i &\vDash  \top \\
+        v, i &\vDash  \neg \phi
+            &&\text{iff } v, i \not\vDash  \phi \\
+        v, i &\vDash  \phi \wedge \psi
+            &&\text{iff } v, i \vDash  \phi \text{ and } v, i \vDash  \psi \\
+        v, i &\vDash  e(t_1, \dots, t_k)
             &&\text{iff } e(\downarrow_v t_1, \dots, \downarrow_v t_k) \in D_i \\
-        v, i &\models \exists x. \phi
-            &&\text{iff } v[x \mapsto d], i \models \phi \text{ for some } d \in \Domain \\
-        v, i &\models \Next_I \phi
-            &&\text{iff } v, i+1 \models \phi \text{ and } \tau_{i+1} - \tau_i \in I \\
-        v, i &\models \Prev_I \phi
-            &&\text{iff } i>0 \text{ and } v, i-1 \models \phi
+        v, i &\vDash  \exists x. \phi
+            &&\text{iff } v[x \mapsto d], i \vDash  \phi \text{ for some } d \in \Domain \\
+        v, i &\vDash  \Next_I \phi
+            &&\text{iff } v, i+1 \vDash  \phi \text{ and } \tau_{i+1} - \tau_i \in I \\
+        v, i &\vDash  \Prev_I \phi
+            &&\text{iff } i>0 \text{ and } v, i-1 \vDash  \phi
             \text{ and } \tau_i - \tau_{i-1} \in I \\
-        v, i &\models \phi \Until_I \psi
-            &&\text{iff } v, j \models \psi \text{ for some } j \geq i
+        v, i &\vDash  \phi \Until_I \psi
+            &&\text{iff } v, j \vDash  \psi \text{ for some } j \geq i
             \text{ with } \tau_j - \tau_i \in I \\
             &&&
-            \text{ and } v, k \models \phi \text{ for all } i \leq k < j \\
-        v, i &\models \phi \Since_I \psi
-            &&\text{iff } v, j \models \psi \text{ for some } j \leq i
+            \text{ and } v, k \vDash  \phi \text{ for all } i \leq k < j \\
+        v, i &\vDash  \phi \Since_I \psi
+            &&\text{iff } v, j \vDash  \psi \text{ for some } j \leq i
             \text{ with } \tau_i - \tau_j \in I \\
             &&&
-            \text{ and } v, k \models \phi \text{ for all } j < k \leq i \\
-        v, i &\models \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
+            \text{ and } v, k \vDash  \phi \text{ for all } j < k \leq i \\
+        v, i &\vDash  \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
             &&\text{iff } \dots % TODO:
             % in the (lex) tax code example aggregation is seemingly used to define "variables" with integer values using CNT and SUM
         \\
-        v, i &\models \LLet{e(x_1, \dots, x_k)}{\phi}{\psi}
-            && \text{iff } v, i \models_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \models \phi \right\rbrace \right]} \psi
+        v, i &\vDash  \LLet{e(x_1, \dots, x_k)}{\phi}{\psi}
+            && \text{iff } v, i \vDash_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \vDash \phi \right\rbrace \right]} \psi
     \end{align*}
     
     Where $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
@@ -229,6 +283,17 @@ We define the following operators based on the basic operators above as
     \end{align*}    
 \end{definition}
 
+% TODO: possibly include definition of MFOLT language
+\begin{definition}
+    \label{def:mfotl-formula-language}
+    The \emph{Language} of a MFOTL formula $\phi$ is
+    $$
+    \mathcal{L}(\phi)
+    = \left\lbrace
+    \sigma \in \Traces_\omega \mid \exists v. v,0 \vDash \sigma
+    \right\rbrace
+    $$
+\end{definition}
 
 \begin{definition}
     \label{def:mfotl-typing-rules}
@@ -308,9 +373,132 @@ and formalizes how a Lex specification would compile
 to an underlying MFOTL formula.
 
 \begin{definition}
-    \label{def:cre-meta-logic} % TODO: call this a CRE-Policy?
-    The \emph{CRE Meta-Logic} 
-    
+    \label{def:cre-rule-labels}
+    The \emph{set of rule labels} is denoted by $\RLabels$.
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-mfotl-signature}
+    The \emph{CRE-MFOTL Signature} is 
+    $$
+    \Sigma' = \left(
+    \left(\Domain_{ty} \right)_{ty \in\Types}, 
+    \Events \cup \Events',
+    \Functions,
+    \iota \cup \iota'
+    \right).
+    $$
+\end{definition}
+
+\begin{definition}
+    \label{def:set-of-mfotl-formulae}
+    The \emph{set of all MFOTL formulae} over the CRE-MFOTL signature
+    $\Sigma'$ is denoted by $\formulae$.
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-internal-events}
+    The set of \emph{Internal Event Names} $\Events'$ is disjoint from
+    the set of (external) event names $E$, i.e. $\Events' \cap \Events = \emptyset$
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-internal-arity-function}
+    The \emph{Arity Function} $\iota': \Events' \to \Types^*$
+    assigns every internal event a list of argument types.
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-internal-predicates}
+    The set of \emph{Internal Predicates} is
+    $$
+    \pred{\Events'}
+    = \left\lbrace e\left(\bar{t}\right) \mid
+    e \in \Events', e\left(\bar{t}\right) \text{ is well-typed} \right\rbrace
+    $$
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-constitutive-rule}
+    For  $r \in \RLabels$, $\phi\in \formulae$,
+    and $p \in \pred{\Events'}$,
+    \begin{equation*}
+        r: \phi \Rightarrow p \qquad \text {"} \phi \text{ counts as } p \text{"}
+    \end{equation*}
+    is a \emph{Constitutive Rule}.
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-regulative-rule}
+    For $r \in \RLabels$ and $\phi, \psi \in \formulae$
+    \begin{equation*}
+        r: \phi \Rightarrow \psi \qquad
+        \text{" if } \phi \text{ holds, then } \psi \text{ must hold"}
+    \end{equation*}
+    is a \emph{Regulative Rule}
+\end{definition}
+
+\begin{definition}
+    \label{def:cre-exeption-rule}
+    For $r,s \in \RLabels$ and $\phi \in \formulae$
+    \begin{equation*}
+        r: \phi \Rightarrow \exc\left(s\right)
+        \qquad
+        \text{"if } \phi \text{ holds, then rule } s \text{ shall not apply"}
+    \end{equation*}
+    is an \emph{Exception Rule}
+\end{definition}
+
+% {\small
+% \begin{tabular}{lllll}
+%     \hline
+%     \textbf{Set} & \textbf{Type} & \multicolumn{2}{l}{\textbf{Syntax of items}} & \textbf{Meaning} \\
+%     \hline
+%     $C$ & Constitutive & $r: \phi \Rightarrow p$ & $r \in \mathcal{R}$, $\phi \in \mathcal{F}$, $p \in \pred{\Events'}$ & $\phi$ counts as $p$ \\
+%     $R$ & Regulative & $r: \phi \Rightarrow \psi$ & $r \in \mathcal{R}$, $\phi,\psi \in \mathcal{F}$ & if $\phi$ holds, then $\psi$ must hold \\
+%     $E$ & Exception & $r: \phi \Rightarrow \exc(s)$ & $r,s \in \mathcal{R}$, $\phi \in \mathcal{F}$ & if $\phi$ holds, then rule $s$ shall not apply \\
+%     \hline
+% \end{tabular}
+% }
+
+\begin{definition}
+    \label{def:cre-policy}
+    A \emph{CRE Policy} is a triple $\Phi = \left(C, R, E\right)$
+    where $C$ is a set of constitutive rules, $R$ is a set of regulative
+    rules, and $E$ is a set of exception rules such that
+    every rule in $C \cup R \cup E$ has a unique label.
+\end{definition}
+
+The following semantics of the CRE meta-logic expand the logic of $\formulae$ if that
+logic is captured by $\gamma \vDash \phi$.
+
+\begin{definition}
+    \label{def:cre-semantics}
+    The \emph{Semantics of the CRE Meta-Logic} are given by the following 3 rules
+    \begin{gather*}
+        \prftree[r]{\text{CON}}
+            {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
+            {\gamma \vDash p} \\
+        \prftree[r]{\text{REG}}
+            {r: \phi \Rightarrow \psi \in R}{\gamma \vDash (\phi \to \psi) \vee \exc(r)}
+            {\gamma \vDash \comply(r)} \\
+        \prftree[r]{\text{EXC}}
+            {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
+            {\gamma \vDash \exc(s)}
+    \end{gather*}
+\end{definition}
+
+These semantics can be expanded to define compliance for an entire CRE-policy.
+
+\begin{definition}
+    \label{cre-compliance}
+    A CRE-policy $\Phi = \left(C,R,R \right)$ is complied with ($\gamma \vDash \Phi$), if
+    all its regulative rules are complied with, which is captured in the rule:
+    \begin{equation*}
+        \prftree[r]{\text{CRE-Compliance}}
+            {\forall r: \phi \Rightarrow \psi \in R.\ \comply(r)}
+            {\gamma \vDash \Phi}
+    \end{equation*}
 \end{definition}
 
 \begin{definition}
