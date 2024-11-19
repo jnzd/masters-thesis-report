@@ -1,19 +1,5 @@
 \chapter{Background}
 
-\section{Runtime Verification}
-Runtime Verification (RV) concerns itself with the behavior of
-some System under Scrutiny (SuS) with regards to some policy.
-$\dots$ TODO
-
-\subsection{Runtime Monitoring}
-Runtime Monitoring is used to detect a policy violation either in an
-online (real-time) or offline fashion. $\dots$ TODO
-
-\subsection{Runtime Enforcement}
-Runtime Enforcement is used to actively cause or prevent certain system behaviors.
-Due to this interactive nature of runtime enforcement it is inherently online.
-$\dots$ TODO
-
 \section{Metric First-Order Temporal Logic}
 Metric First-Order Logic (MFOTL)
 \cite{basin2015monitoring, chomicki1995efficient}
@@ -52,9 +38,12 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:event}
-    An \emph{Event} $e(p_1,\dots,p_k)$ consists of an event name
-    $e \in \Events$ and parameters $(p_1,\dots,p_k)$ such that
-    for every $1 \leq i \leq k$, $p_i \in \Domain_{\iota(e)_i}$.
+    An \emph{Event} is a tuple
+    $\left(e, \left(p_1, \dots, p_k \right) \right)
+    \in \Events \times \Domain^{k}$
+    where $k=\left|\iota\left(e\right)\right|$ and
+    for all $i \in \left[1,k\right]$, $p_i \in \Domain_{\iota\left(e\right)_i}$.
+    We also write $e\left(p_1,\dots,p_k\right)$.
 \end{definition}
 \begin{example}
     \label{ex:event}
@@ -304,37 +293,11 @@ We define the following operators based on the basic operators above as
     $$
 \end{definition}
 
-\begin{definition}
-    \label{def:mfotl-typing-rules}
-    \emph{(E)MFOTL Typing Rules} % TODO: maybe only introduce after introducing enforcement
-\end{definition}
-
-\section{Proactive Runtime Enforcement using MFOTL}
-
-A SuS can be modeled as an event system.
-\begin{definition}
-    \label{def:sus-event-system}
-    An \emph{SuS Event System} $\dots$ TODO 
-\end{definition}
-
-% TODO: introduce the notion of a System under Scrutiny (SuS)
-\begin{definition}
-    \label{def:enf-function}
-   An \emph{Enforcer Function}
-   $\mu_\phi : \Traces \times \Nat \times (\Databases \cup \lbrace\tick\rbrace) \to (\Databases \cup \lbrace \bot \rbrace)$
-   for some policy $\phi$ takes as input a trace $\sigma \in \Traces$,
-   a timestamp $\tau \in \Nat$, and either a database $D \in \Databases$
-   or the special event $\tick$ which symbolizes a clock tick of the underlying
-   System under Scrutiny (SuS) and outputs either
-   a database $D' \in \Databases$ or nothing (marked by the special symbol $\bot$)
-   and if the trace $\sigma \in P(\phi)$, it ensures that
-   $\sigma \cdot \left(\tau, D'\right) \in P(\phi)$.
-   $\bot$ (nothing) is only a valid output if the third argument (the event) is $\tick$.
-   % TODO: is this remark about \bot / nothing correct?
-\end{definition} % TODO: is there an additional requirement that \tau must be \geq than the largest timestamp in \sigma?
-
-% TODO: elaborate on functionality of a proactive enforcer
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Enforceable MFOTL}
+% Hublet et al. \cite{whyenf} introduces a subset of MFOTL called Enforceable MFOTL,
+% where every event gets marked with some capability which indicates the levels of power
+% an enforcer has over an event.
 Capabilities are an integral part of the proactive enforcement
 approach introduced by Hublet et. al \cite{whyenf}.
 Under this approach an enforcer can have different capabilities, or ways of interacting
@@ -383,18 +346,149 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
 \begin{definition}
     \label{def:cau-events}
     The subset of \emph{Causable Events}
-    $\Events_{Cau} =
-    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace$
-    consists of all event names which are can be caused by the enforcer.
+    $$
+    \Events_{Cau} =
+    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace
+    $$
+    consists of all event names which are can be caused by the enforcer,
+    i.e. which have a capability of at least $\texttt{causable}$.
 \end{definition}
 
 \begin{definition}
     \label{def:cau-events}
     The subset of \emph{Suppressable Events}
-    $\Events_{Sup} =
-    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace$
-    consists of all event names which can be suppressed by the enforcer.
+    $$
+    \Events_{Sup} =
+    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace
+    $$
+    consists of all event names which can be suppressed by the enforcer, 
+    i.e. which have a capability of at least $\texttt{suppressable}$.
 \end{definition}
+
+The addition of capabilities leads to a different set of typing rules that
+describe an enforceable subset of MFOTL formulae.
+
+\begin{definition}
+    \label{def:mfotl-typing-rules}
+    \emph{(E)MFOTL Typing Rules} % TODO: maybe only introduce after introducing enforcement
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Runtime Verification}
+Runtime Verification (RV) concerns itself with the behavior of
+some System under Scrutiny (SuS) with regards to some policy.
+$\dots$ TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Runtime Monitoring}
+Runtime Monitoring is used to detect a policy violation either in an
+online (real-time) or offline fashion. $\dots$ TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Runtime Enforcement}
+Runtime Enforcement is used to actively cause or prevent certain system behaviors.
+Due to this interactive nature of runtime enforcement it is inherently online.
+$\dots$ TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Proactive Runtime Enforcement using MFOTL}
+
+\begin{figure}
+    \begin{center}
+        \begin{tikzpicture}
+            \node at (-3.7,0.2) {$X$};
+            \draw (-2.8,-0.6) rectangle (-1.8,1);
+            \node at (-2.3,0.2) {$S$};
+            \draw (5.8,-0.6) rectangle (6.8,1);
+            \node at (6.3,0.2) {$E$};
+            \draw[->,blue] (-1.5,0.8) to node[above] {1.1: set of events $D$} (5.5,0.8);
+            \draw[<-,blue] (-1.5,0.2) to node[above]
+                {1.2: $\mathsf{R}$-command
+                $\ReOrd(D_{\mathbb{C}},D_{\mathbb{S}})$} (5.5,0.2);
+            \draw[<-,purple] (-1.5,-0.4) to node[above]
+                {2: $\mathsf{P}$-command $\PrOrd(D_{\mathbb{C}})$} (5.5,-0.4);
+            \draw[<-] (7.1,0.5) to node[above] {policy\,$P$} (8.1,0.5);
+            \draw[<->] (-3.4,0.2) to node[above] {} (-3.1,0.2);
+            \draw[<-] (7.1,-0.2) to node[above] {time\,$\tau$} (8.1,-0.2);
+        \end{tikzpicture}
+    \end{center}
+    \caption{Proactive real-time first-order enforcement system model}
+    \label{fig:system-model}
+\end{figure}
+
+We consider the system model of Hublet et. al \cite{whyenf} which is shown
+in Figure \ref{fig:system-model}.
+The system (under scrutiny) $S$ runs in some environment $X$.
+The environment $X$ is not under the control of the enforcer $E$.
+The enforcer $E$ must ensure that the system $S$ complies with some
+policy $P$. To this end the enforcer is given two main ways of interaction
+with the system. First, it can react to observable events happening in the system
+via issuing $\mathsf{R}$-commands (reactively) by causing events of its own
+and/or suppressing events before they are visible to the environment.
+And second, the enforcer can issue $\mathsf{P}$-commands (proactively)
+by causing certain events at some time-stamp $\tau$.
+
+% TODO: elaborate and reformulate enforcement model
+
+Hublet et al. \cite{whyenf} introduces the following three kinds of commands.
+In the following the event names of events in sets denoted by
+$D_\mathbb{C}$ are all assumed to be in $\Events_{Cau}$ and
+$D_\mathbb{S}$ are all assumed to be in $\Events_{Sup}$.
+
+\begin{definition}
+    \label{def:enf-r-cmd}
+    A \emph{R-Command} has the form
+    $\ReOrd\left(D_{\mathbb{C}}, D_{\mathbb{S}}\right)$.
+    This command is a reaction of the enforcer to some set of events $D$,
+    that the system sent to the enforcer.
+    The trace of the enforced system will contain the set
+    $D_{\mathbb{C}} \cup \left(D \setminus D_{\mathbb{S}} \right)$ of events.
+\end{definition}
+
+\begin{definition}
+    \label{def:enf-p-cmd}
+    A \emph{P-Command} has the form
+    $\PrOrd \left( D_{\mathbb{C}} \right)$.
+    This command can be proactively issued by the enforcer before any
+    clock tick to issue the set of events $D_{\mathbb{C}}$.
+\end{definition}
+
+\begin{definition}
+    \label{def:enf-no-cmd}
+    \emph{No-Command} has the form $\NoOrd$ and indicates that the enforcer takes
+    no action.
+\end{definition}
+
+\begin{definition}
+    The set of all commands is $\mathcal{C}$.
+\end{definition}
+
+\begin{definition}
+    \label{dfe:enf-update-function}
+    An \emph{Enforcer Update Function}
+    $\mu : \Traces_f \times \SuSStates
+    \times \left( \Nat \cup \left\lbrace \bot \right\rbrace \right)$
+\end{definition}
+
+\begin{definition}
+    \label{def:enf-function}
+   An \emph{Enforcer Function}
+   $\mu_\phi : \Traces \times \Nat \times (\Databases \cup \lbrace\tick\rbrace) \to (\Databases \cup \lbrace \bot \rbrace)$
+   for some policy $\phi$ takes as input a trace $\sigma \in \Traces$,
+   a timestamp $\tau \in \Nat$, and either a database $D \in \Databases$
+   or the special event $\tick$ which symbolizes a clock tick of the underlying
+   System under Scrutiny (SuS) and outputs either
+   a database $D' \in \Databases$ or nothing (marked by the special symbol $\bot$)
+   and if the trace $\sigma \in P(\phi)$, it ensures that
+   $\sigma \cdot \left(\tau, D'\right) \in P(\phi)$.
+   $\bot$ (nothing) is only a valid output if the third argument (the event) is $\tick$.
+   % TODO: is this remark about \bot / nothing correct?
+\end{definition} % TODO: is there an additional requirement that \tau must be \geq than the largest timestamp in \sigma?
+
+% TODO: elaborate on functionality of a proactive enforcer
+
 
 \begin{theorem}
     A Function $\mu_\phi : \Traces \times \Nat \times \Databases \to \Databases$
@@ -411,8 +505,12 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
     TODO
 \end{proof}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Lex Language}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
 Hublet et. al \cite{lex} introduces a meta-logic based on
 constitutive, regulative, and exception rules (CRE meta-logic).
@@ -555,11 +653,12 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
     $\Specification = \left(\Sigma, \phi, \kappa \right)$
     is a triple consisting of some signature
     $\Sigma = \left(\Domain, \Events, \Functions, \iota \right)$,
-    some CRE-rules
-    $\phi = \left(C, R, E\right)$,
+    some CRE policy
+    $\Phi = \left(C, R, E\right)$,
     and a capability-mapping $\kappa$.
 \end{definition}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of Lex specifications}
 In this subsection we refresh refinement of Lex specifications as it is described in
 Hublet et. al \cite{lex}.
@@ -613,12 +712,18 @@ Hublet et. al \cite{lex}.
     $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
 \end{definition}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Refinement Mappings}
 In Abadi and Lamport \cite{refinement-mappings} the concept of refinement mappings
 between specifications is explored.
 
 TODO
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Refinement of Event Systems}
 
 In this section we recall refinement of event systems as defined in Sprenger et. al
@@ -702,7 +807,7 @@ for event systems.
     \begin{enumerate}
         \item for all $s_2 \in \ESInitialStates_2$ there exists some
         $s_1 \in \ESInitialStates_1$ such that $(s_2, s_1) \in R$, and
-        \item for all $s_1 \in \ESStates_1, s_2, s_2' \in ESStates_2$, and 
+        \item for all $s_1 \in \ESStates_1, s_2, s_2' \in \ESStates_2$, and 
         $e_2 \in \ESEvents_2$ such that
         $s_2 \Transitionrelation{}{e_2} s_2'$ and $(s_2, s_1) \in R$
         there exists some $s_1' \in \ESStates_1$ such that
@@ -710,10 +815,20 @@ for event systems.
     \end{enumerate}
 \end{definition}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Runtime Enforcement as an Event System}
 % TODO: probably move out of background chapter
 
-We first define enforcement as an event system and then show how the notion of refinement as in Sprenger et. al \cite{igloo} works for such an event system.
+% We first define enforcement of a CRE-Policy as an event system
+% and then show how the notion of refinement
+% as in Sprenger et. al \cite{igloo} works for such an event system.
+
+We describe how an enforced system can be seen as an event system and
+how CRE-policies induce specific event systems.
+We then draw a comparison between the definition of CRE-specification
+refinement and the refinement of (CRE) enforcement event systems.
 
 \begin{definition}
     \label{def:enf-state-space}
@@ -764,6 +879,7 @@ started at an arbitrary timestamp.
     \end{align}
 \end{definition}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of Enforcement Event Systems}
 
 For Enforcement Event Systems we will now define refinement
@@ -832,14 +948,31 @@ Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its ar
     $R \subseteq \Statespace_C \times \Statespace_A$ defines a correspondence of
     concrete and abstract states.
     We define $R$ with respect to some mediator function $\pi$ as
+    % $$
+    % R =
+    % \left\lbrace
+    % \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
+    % \mid
+    % \left|\sigma_C\right| =
+    % \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\,
+    % \pi\left( \sigma_{C,\dots<i}, \tau_{C,i}, \sigma_{C,i} \right) = \sigma_{A,i} 
+    % \right\rbrace
+    % $$
     $$
-    R = \left\lbrace \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right) | \left|\sigma_C\right| = \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\, \pi\left( \sigma_{C,\dots<i}, \tau, \sigma_{C,i} \right) = \sigma_{A,i} \right\rbrace
+    R =
+    \left\lbrace
+    \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
+    \mid
+    \vec{\pi}\left(\sigma_C \right) = \sigma_A
+    \right\rbrace
     $$
 \end{definition}
 Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than $i$.
 
 \begin{theorem}
     \label{theo:lex-refinement-and-event-system-refinement}
+    
+    
     If a concrete event system is a refinement of the abstract event system
     through the mediator function $\pi$ and the simulation relation $R$,
     then the concrete specification $S_C$ is a refinement of the abstract
@@ -853,9 +986,16 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
 
 \begin{theorem}
     \label{theo:existence-of-concrete-enforcer}
-    If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
-    the event system defined by $\mu_A$, then there exists a concrete enforcer
-    $\mu_C$.
+    If a CRE specification $S_C = \dots$
+    refines a CRE specification $S_A = \dots $
+    and $S_A$ is enforceable (i.e. there exists a sound enforcer
+    $\mathcal{E}_A = \dots$ for $S_A$),
+    then $S_C$ is enforceable (i.e. there exists a sound enforcer
+    $\mathcal{E}_C = \dots$ for $S_C$).
+    
+    % If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
+    % the event system defined by $\mu_A$, then there exists a concrete enforcer
+    % $\mu_C$.
 \end{theorem}
 
 \begin{proof}
