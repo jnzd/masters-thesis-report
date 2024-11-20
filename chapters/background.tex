@@ -1,6 +1,11 @@
 \chapter{Background}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Metric First-Order Temporal Logic}
+
 Metric First-Order Logic (MFOTL)
 \cite{basin2015monitoring, chomicki1995efficient}
 combines first-order predicate logic with temporal operators such as
@@ -347,7 +352,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
     \label{def:cau-events}
     The subset of \emph{Causable Events}
     $$
-    \Events_{Cau} =
+    \Events_{\Cau} =
     \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace
     $$
     consists of all event names which are can be caused by the enforcer,
@@ -355,14 +360,40 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
 \end{definition}
 
 \begin{definition}
-    \label{def:cau-events}
+    \label{def:sup-events}
     The subset of \emph{Suppressable Events}
     $$
-    \Events_{Sup} =
+    \Events_{\Sup} =
     \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace
     $$
     consists of all event names which can be suppressed by the enforcer, 
     i.e. which have a capability of at least $\texttt{suppressable}$.
+\end{definition}
+
+\begin{definition}
+    \label{def:cau-databases}
+    The set of \emph{Causable Databases} $\Databases_\Cau$ contains all
+    sets of events that are at least causable.
+    $$
+        \Databases_\Cau =
+        \left\{
+        D \in \Databases \mid
+        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Cau
+        \right\}
+    $$
+\end{definition}
+
+\begin{definition}
+    \label{def:sup-databases}
+    The set of \emph{Suppressable Databases} $\Databases_\Sup$ contains all sets
+    of events that are at least suppressable.
+    $$
+        \Databases_\Sup =
+        \left\{
+        D \in \Databases \mid
+        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Sup
+        \right\}
+    $$
 \end{definition}
 
 The addition of capabilities leads to a different set of typing rules that
@@ -406,9 +437,9 @@ $\dots$ TODO
             \draw[->,blue] (-1.5,0.8) to node[above] {1.1: set of events $D$} (5.5,0.8);
             \draw[<-,blue] (-1.5,0.2) to node[above]
                 {1.2: $\mathsf{R}$-command
-                $\ReOrd(D_{\mathbb{C}},D_{\mathbb{S}})$} (5.5,0.2);
+                $\ReOrd(D_{\Cau},D_{\Sup})$} (5.5,0.2);
             \draw[<-,purple] (-1.5,-0.4) to node[above]
-                {2: $\mathsf{P}$-command $\PrOrd(D_{\mathbb{C}})$} (5.5,-0.4);
+                {2: $\mathsf{P}$-command $\PrOrd(D_{\Cau})$} (5.5,-0.4);
             \draw[<-] (7.1,0.5) to node[above] {policy\,$P$} (8.1,0.5);
             \draw[<->] (-3.4,0.2) to node[above] {} (-3.1,0.2);
             \draw[<-] (7.1,-0.2) to node[above] {time\,$\tau$} (8.1,-0.2);
@@ -434,25 +465,25 @@ by causing certain events at some time-stamp $\tau$.
 
 Hublet et al. \cite{whyenf} introduces the following three kinds of commands.
 In the following the event names of events in sets denoted by
-$D_\mathbb{C}$ are all assumed to be in $\Events_{Cau}$ and
-$D_\mathbb{S}$ are all assumed to be in $\Events_{Sup}$.
+$D_\Cau$ are all assumed to be in $\Events_{\Cau}$ and
+$D_\Sup$ are all assumed to be in $\Events_{\Sup}$.
 
 \begin{definition}
     \label{def:enf-r-cmd}
     A \emph{R-Command} has the form
-    $\ReOrd\left(D_{\mathbb{C}}, D_{\mathbb{S}}\right)$.
+    $\ReOrd\left(D_{\Cau}, D_{\Sup}\right)$.
     This command is a reaction of the enforcer to some set of events $D$,
     that the system sent to the enforcer.
     The trace of the enforced system will contain the set
-    $D_{\mathbb{C}} \cup \left(D \setminus D_{\mathbb{S}} \right)$ of events.
+    $D_{\Cau} \cup \left(D \setminus D_{\Sup} \right)$ of events.
 \end{definition}
 
 \begin{definition}
     \label{def:enf-p-cmd}
     A \emph{P-Command} has the form
-    $\PrOrd \left( D_{\mathbb{C}} \right)$.
+    $\PrOrd \left( D_{\Cau} \right)$.
     This command can be proactively issued by the enforcer before any
-    clock tick to issue the set of events $D_{\mathbb{C}}$.
+    clock tick to issue the set of events $D_{\Cau}$.
 \end{definition}
 
 \begin{definition}
@@ -465,11 +496,40 @@ $D_\mathbb{S}$ are all assumed to be in $\Events_{Sup}$.
     The set of all commands is $\mathcal{C}$.
 \end{definition}
 
+This leads us to Hublet et al.'s \cite{whyenf} definition of an enforcer
 \begin{definition}
-    \label{dfe:enf-update-function}
-    An \emph{Enforcer Update Function}
-    $\mu : \Traces_f \times \SuSStates
-    \times \left( \Nat \cup \left\lbrace \bot \right\rbrace \right)$
+    \label{dfe:enforcer}
+    An \emph{Enforcer} $\Enforcer$ is a triple
+    $\left(\EnfStates, s_0, \mu \right)$, where $\EnfStates$ is a set of states
+    $s_0 \in \EnfStates$ is an initial state and
+    $\mu : \Traces_f \times \EnfStates
+    \times \left( \Nat \cup \left\{ \bot \right\} \right)$
+    is a computable update function such that the following two
+    conditions hold
+    \begin{enumerate}
+        \item  $ \forall \sigma \in \Traces_f, \tau \in \Nat,
+            D \in \Databases, s \in \EnfStates
+            .\ \exists D_{\Cau} \in \Databases_{\Cau},
+            D_{\Sup} \in \Databases_{\Sup}, s' \in \EnfStates .\  $
+            \begin{equation*}
+                \mu\left( \sigma \cdot \left(\tau, D \right), s, \bot \right)
+                = \left( \ReOrd \left( D_{\Cau}, D_{\Sup} \right), s' \right)
+                \wedge D_{\Sup} \subseteq D
+            \end{equation*}
+        
+        \item $ \forall \sigma \in \Traces_f, \tau \in \Nat,
+        s \in \EnfStates .\
+        \exists D_\Cau \in \Databases_\Cau, s' \in \EnfStates .$
+        \begin{equation*}
+            \mu\left( \sigma, \tau, s \right) \in
+            \left\{ \left( \PrOrd\left(D_\Cau \right), s' \right),
+            \left( \NoOrd, s' \right) \right\}
+        \end{equation*}
+        
+    \end{enumerate}
+    
+    % $\mu : \Traces_f \times \SuSStates
+    % \times \left( \Nat \cup \left\lbrace \bot \right\rbrace \right)$
 \end{definition}
 
 \begin{definition}
@@ -495,8 +555,8 @@ $D_\mathbb{S}$ are all assumed to be in $\Events_{Sup}$.
     is a valid enforcer function for some (Lex or MFOTL) policy $\phi$ iff
     for all $\sigma \in \Traces$, $\tau \in \Nat$, and $D \in \Databases$
     \begin{enumerate}
-        \item $\mu_\phi(\sigma, \tau, D) \setminus D \subseteq \Events_{Cau}$ and
-        \item $D \setminus \mu_\phi(\sigma, \tau, D) \subseteq \Events_{Sup}$
+        \item $\mu_\phi(\sigma, \tau, D) \setminus D \subseteq \Events_{\Cau}$ and
+        \item $D \setminus \mu_\phi(\sigma, \tau, D) \subseteq \Events_{\Sup}$
     \end{enumerate}
 \end{theorem}
 
@@ -707,7 +767,7 @@ Hublet et. al \cite{lex}.
     If we require the following additional condition in Definition \ref{def:lex-refinement}
     \begin{enumerate}
         \setcounter{enumi}{3}
-        \item 
+        \item $R_A \subseteq R_C$
     \end{enumerate}
     $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
 \end{definition}
@@ -724,7 +784,7 @@ TODO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Refinement of Event Systems}
+\section{Event Systems}
 
 In this section we recall refinement of event systems as defined in Sprenger et. al
 \cite{igloo}.
@@ -733,15 +793,15 @@ In this section we recall refinement of event systems as defined in Sprenger et.
     \label{def:event-system}
     An \emph{Event System} is a labeled transition system
     $$
-    \EventSystem = \left(\ESStates, \ESEvents, \Transitionrelation{}{} \right)
+    \EventSystem = \left(\Statespace, \Eventspace, \Transitionrelation{}{} \right)
     $$
-    consisting of a set of states $\ESStates$,
-    a set of events $\ESEvents$,
+    consisting of a set of states $\Statespace$,
+    a set of events $\Eventspace$,
     and a transition relation
-    $\Transitionrelation{}{} \subseteq \ESStates \times \ESEvents \times \ESStates$.
+    $\Transitionrelation{}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
 \end{definition}
 
-It is important to note that the set of events $\ESEvents$ in an event system
+It is important to note that the set of events $\Eventspace$ in an event system
 are unrelated to our definition of event names $\Events$ in MFOTL.
 $(s,e,s') \in \Transitionrelation{}{}$ can also be written as
 $s \Transitionrelation{}{e} s'$.
@@ -757,8 +817,8 @@ The extension of the transition relation is explained in the following definitio
 \begin{definition}
     \label{def:transition-relation-extension}
     The transition relation is inductively expanded for finite sequents $\rho$
-    of events $\ESStates$ for all
-    $s,s',s'' \in \ESStates$
+    of events $\Statespace$ for all
+    $s,s',s'' \in \Statespace$
     \begin{align}
         s &\Transitionrelation{}{\emptytrace_e} s \\
         s &\Transitionrelation{}{\rho \cdot \left\langle e \right\rangle} s'
@@ -775,42 +835,47 @@ directly related to traces in MFOTL (and CRE).
 \begin{definition}
     \label{def:event-system-initial-states}
     The set of \emph{Initial States} is a subset
-    $\ESInitialStates \subseteq \ESStates$.
+    $\Initialstates \subseteq \Statespace$.
 \end{definition}
 
 \begin{definition}
     \label{def:event-system-trace}
-    Given a set of initial states $\ESInitialStates \subseteq \ESStates$
+    Given a set of initial states $\Initialstates \subseteq \Statespace$
     a \emph{Trace} of the event system
-    $\EventSystem = \left(\ESStates, \ESEvents, \Transitionrelation{}{} \right)$
-    starting in initial states $I$ is a sequent $\rho$ of events
+    $\EventSystem = \left(\Statespace, \Eventspace, \Transitionrelation{}{} \right)$
+    starting in initial states $\Initialstates$ is a sequent $\rho$ of events
     such that $s \Transitionrelation{}{\rho} s'$ for some initial state
-    $s \in \ESInitialStates$ and a reachable state $s' \in \ESStates$.
+    $s \in \Initialstates$ and a reachable state $s' \in \Statespace$.
 \end{definition}
 
 The set of all traces of an event system $\EventSystem$ starting in initial states
-$\ESInitialStates$ is denoted by $\EStraces\left(\EventSystem, \ESInitialStates \right)$.
+$\Initialstates$ is denoted by $\EStraces\left(\EventSystem, \Initialstates \right)$.
 
 Sprenger et. al \cite{igloo} gives the following definition of refinement
 for event systems.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Refinement of Event Systems}
+
 \begin{definition}
     \label{def:event-system-refinement}
     Given two event systems
-    $\EventSystem_i = \left( \ESStates_i, \ESEvents_i, \Transitionrelation{i}{} \right)$
-    with initial states $\ESInitialStates_i$ for $i\in \lbrace1,2\rbrace$.
-    $\left(\EventSystem_2, \ESInitialStates_2\right)$ refines
-    $\left(\EventSystem_1, \ESInitialStates_1\right)$
-    modulo a mediator function $\pi : \ESEvents_2 \to \ESEvents_1$
-    if there exists a simulation relation $R \subseteq \ESEvents_2 \times \ESEvents_1$
+    $\EventSystem_i = \left( \Statespace, \Eventspace, \Transitionrelation{i}{} \right)$
+    with initial states $\Initialstates$ for $i\in \lbrace1,2\rbrace$.
+    $\left(\EventSystem_2, \Initialstates\right)$ refines
+    $\left(\EventSystem_1, \Initialstates\right)$
+    modulo a mediator function $\pi : \Eventspace \to \Eventspace$
+    if there exists a simulation relation $R \subseteq \Eventspace \times \Eventspace$
     such that
     \begin{enumerate}
-        \item for all $s_2 \in \ESInitialStates_2$ there exists some
-        $s_1 \in \ESInitialStates_1$ such that $(s_2, s_1) \in R$, and
-        \item for all $s_1 \in \ESStates_1, s_2, s_2' \in \ESStates_2$, and 
-        $e_2 \in \ESEvents_2$ such that
+        \item for all $s_2 \in \Initialstates$ there exists some
+        $s_1 \in \Initialstates$ such that $(s_2, s_1) \in R$, and
+        \item for all $s_1 \in \Statespace, s_2, s_2' \in \Statespace$, and 
+        $e_2 \in \Eventspace$ such that
         $s_2 \Transitionrelation{}{e_2} s_2'$ and $(s_2, s_1) \in R$
-        there exists some $s_1' \in \ESStates_1$ such that
+        there exists some $s_1' \in \Statespace$ such that
         $s_1 \Transitionrelation{}{\pi(e_2)} s_1'$.
     \end{enumerate}
 \end{definition}
@@ -824,6 +889,18 @@ for event systems.
 % We first define enforcement of a CRE-Policy as an event system
 % and then show how the notion of refinement
 % as in Sprenger et. al \cite{igloo} works for such an event system.
+
+Any enforced system can be seen as an event system.
+In this section we describe how any enforceable CRE specification
+$S = \left( \Sigma, \Phi, \kappa \right)$ with
+$\Sigma = \left( \Domain, \Events, \Functions, \iota \right)$
+and $\Phi = \left( C, R E \right)$ induces an event system
+$\EventSystem = \left( \Statespace, \Eventspace, \Transitionrelation{}{} \right)$
+and initial states $\Initialstates$.
+
+The enforceability condition on the specification $S$ implies
+that there exists a sound
+enforcer $\Enforcer_\Phi$ with an update function $\mu$ for $S$.
 
 We describe how an enforced system can be seen as an event system and
 how CRE-policies induce specific event systems.
@@ -841,43 +918,51 @@ and $\sigma$ the trace up until timestamp $\tau$.
 \begin{definition}
     \label{def:enf-initial-states}
     The set of \emph{Initial States}
-    $\Initialstates = \lbrace (\tau, \emptytrace) | \tau \in \Nat \rbrace$
+    $\Initialstates = \lbrace (\tau, \emptytrace) \mid \tau \in \Nat \rbrace$
     consists of all states with an arbitrary timestamp $\tau$ and the empty trace
     $\emptytrace$.
 \end{definition}
-Intuitively this can be interpreted as that an enforced system may be
-started at an arbitrary timestamp.
+An enforced system may be started at an arbitrary timestamp and its trace will
+be empty at that moment.
 
 \begin{definition}
     \label{def:enf-event-space}
-    The \emph{Event Space} $\Eventspace=\Databases \cup \lbrace\tick\rbrace$ is the union of databases and the special event $\tick$ which stands for a clock tick
+    The \emph{Event Space} $\Eventspace=\Databases \cup \lbrace\tick\rbrace$
+    consists of the set of databases and the special event
+    $\tick$ which stands for a clock tick
     (incrementing a timestamp by one).
+    % The \emph{Event Space}
+    % $\Eventspace = \left\{ \true, \false \right\} \times \Databases$
+    % of tuples $(t, D)$ where $t$ is a boolean value indicating whether or
+    % not the clock will be incremented and $D$ is a set of events.
 \end{definition}
 
 \begin{definition}
     \label{def:enf-transition-relation}
     The \emph{Transition Relation} is a subset
-    $\Transitionrelation{\phi}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
-    We write $(\tau, \sigma) \Transitionrelation{\phi}{e} (\tau', \sigma')$
+    $\Transitionrelation{\Phi}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
+    We write $(\tau, \sigma) \Transitionrelation{\Phi}{e} (\tau', \sigma')$
     as a shorthand for
-    $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\phi}{}$.
-    A Transition Relation is valid for some policy $\phi$, if there exists an
-    enforcer function $\mu_\phi$ for $\phi$ and all allowed transitions match
+    $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\Phi}{}$.
+    A Transition Relation is valid for some policy $\Phi$, if there exists an
+    enforcer function $\mu_\Phi$ for $\Phi$ and all allowed transitions match
     one of the three following transitions.
     \begin{align}
         (\tau, \sigma)
-        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, D))}
-        (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, D)) \\
+        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, D))}
+        (\tau, \sigma \cdot (\tau, \mu_\Phi(\sigma, \tau, D)) \\
         (\tau, \sigma)
-        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))}
-        (\tau, \sigma \cdot (\tau, \mu_\phi(\sigma, \tau, \tick))
-        &\text{ if } \mu_\phi(\sigma, \tau, \tick) \neq \bot \\
+        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, \tick))}
+        (\tau + 1, \sigma \cdot (\tau, \mu_\Phi(\sigma, \tau, \tick))
+        &\text{ if } \mu_\Phi(\sigma, \tau, \tick) \neq \bot \\
         (\tau, \sigma)
-        &\Transitionrelation{\phi}{\mu_\phi(\sigma, \tau, \tick))}
-        (\tau, \sigma)
-        &\text{ if } \mu_\phi(\sigma, \tau, \tick) = \bot
+        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, \tick))}
+        (\tau + 1, \sigma)
+        &\text{ if } \mu_\Phi(\sigma, \tau, \tick) = \bot
     \end{align}
 \end{definition}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of Enforcement Event Systems}
@@ -970,13 +1055,21 @@ Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its ar
 Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than $i$.
 
 \begin{theorem}
-    \label{theo:lex-refinement-and-event-system-refinement}
+    \label{theo:existence-of-concrete-enforcer}
+    If a CRE specification
+    $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
+    with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    and $\Phi_C = \left( \C_C, R_C, E_C \right)$
+    refines a CRE specification
+    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right) $
+    and $S_A$ is enforceable (i.e. there exists a sound enforcer
+    $\Enforcer_A = \left( \EnfStates_A, s_{A,0}, \mu_A \right)$ for $S_A$),
+    then $S_C$ is enforceable (i.e. there exists a sound enforcer
+    $\Enforcer_C = \left( \EnfStates_C, s_{C,0}, \mu_C \right)$ for $S_C$).
     
-    
-    If a concrete event system is a refinement of the abstract event system
-    through the mediator function $\pi$ and the simulation relation $R$,
-    then the concrete specification $S_C$ is a refinement of the abstract
-    specification $S_A$.
+    % If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
+    % the event system defined by $\mu_A$, then there exists a concrete enforcer
+    % $\mu_C$.
 \end{theorem}
 
 \begin{proof}
@@ -985,17 +1078,23 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
 \end{proof}
 
 \begin{theorem}
-    \label{theo:existence-of-concrete-enforcer}
-    If a CRE specification $S_C = \dots$
-    refines a CRE specification $S_A = \dots $
-    and $S_A$ is enforceable (i.e. there exists a sound enforcer
-    $\mathcal{E}_A = \dots$ for $S_A$),
-    then $S_C$ is enforceable (i.e. there exists a sound enforcer
-    $\mathcal{E}_C = \dots$ for $S_C$).
+    \label{theo:lex-refinement-and-event-system-refinement}
+    If a CRE Specification $S_C = \left( \Sigma_C , \Phi_C, \kappa_c \right)$
+    with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    and $\Phi_C = \left( \C_C, R_C, E_C \right)$
+    is a refinement of a CRE Specification
+    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
+    with $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    and $\Phi_A = \left( \C_A, R_A, E_A \right)$
+    according to
+    Definition \ref{def:lex-refinement},
+    then the event system $\EventSystem_C = \left( \right)$
+    is a refinement of the event system $\EventSystem_A = \left( \right)$
     
-    % If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
-    % the event system defined by $\mu_A$, then there exists a concrete enforcer
-    % $\mu_C$.
+    If a concrete event system is a refinement of the abstract event system
+    through the mediator function $\pi$ and the simulation relation $R$,
+    then the concrete specification $S_C$ is a refinement of the abstract
+    specification $S_A$.
 \end{theorem}
 
 \begin{proof}
