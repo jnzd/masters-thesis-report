@@ -1,10 +1,228 @@
-\chapter{Methodology}
+\chapter{Methodology} % TODO: does this title fit/ do the section in this chapter fit into methodology?
+\label{chapter:methodology}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Traces}
+\label{section:different-trace-definition}
+We use a slightly different, but completely analogous definition of a trace as
+in Definition \ref{def:trace}.
+
+\begin{definition}
+    \label{def:trace-with-ticks}
+    A \emph{Trace} is a finite or infinite sequence of events from the set
+    $$\Databases \cup \left\{ \tick \right\}$$
+    where $\tick$ symbolizes a clock tick in the system.
+\end{definition}
+
+\begin{lemma}
+    \label{lem:trace-equivalence}
+    There exists a bijective mapping between traces as in Definition \ref{def:trace}
+    and in Definition \ref{def:trace-with-ticks}. And thus the two definitions
+    are equivalent.
+\end{lemma}
+
+\begin{proof}
+    \label{proof:trace-equivalence}
+    A trace of this form can be converted to the timestamp plus database  via a
+    trace converter function
+    $$
+    \mathsf{c}: \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
+    \left( \Nat \times \Databases \right)^*
+    $$ and the helper function
+    \begin{align*}
+    \mathsf{c'}: \Nat \times \left( \Nat \times \Databases \right)^* \times
+    \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
+    \Nat \times \left( \Nat \times \Databases \right)^* \times
+    \left( \Databases \cup \left\{ \tick \right\} \right)^*
+    \end{align*}
+    \begin{align*}
+    \mathsf{c'}(\tau, \sigma, \sigma') =
+        \begin{cases}
+            \left(\tau, \sigma, \emptytrace \right)
+                & \text{if } \sigma' = \emptytrace \\
+            \mathsf{c'}(\tau+1, \sigma, \sigma'')
+                & \text{if } \sigma' = \tick \cdot \sigma'' \\
+            \mathsf{c'}(\tau, \left( \tau, D \right) \cdot \sigma, \sigma'')
+                & \text{if } \sigma' = D \cdot \sigma'' \\
+        \end{cases}
+    \end{align*}
+    Then $c$ is defined as followed.
+    \begin{align*}
+        \mathsf{c}(\sigma) = \mathsf{c'}(0, \emptytrace, \sigma).
+    \end{align*}
+
+    TODO: show other direction
+\end{proof}
+Intuitively $\mathsf{c}$ and $\mathsf{c'}$ count the clock ticks and store them
+explicitly as integer timestamps.
+% It is apparent, that this process is invertible
+% and the two definitions are thus equivalent.
+We believe that it is clear which definition is used based on the context.
+At times we may use the function $\mathsf{c}$ to make it more explicit.
+For both definitions, a property is a subset of all possible traces.
+For conversion of properties we use $\mathsf{c}$ with arguments being sets of
+traces in which case $\mathsf{c}$ simply gets mapped on each element of the set.
+As in Sprenger et. al \cite{igloo} and Abadi and Lamport \cite{refinement-mappings}
+traces of this second form can be extended with a stuttering step
+$\sskip$, where traces are equivalent if they are the same with all
+$\sskip$ steps removed.
+Thus the set of events gets extended to be
+$$
+    \Databases \cup \left\{ \tick \right\} \cup \left\{ \sskip \right\} 
+$$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Refinement of MFOTL Specifications}
+\label{section:refinement-of-mfotl-specifications}
+
+Without loss of generality we can consider any MFOTL formula with let bindings 
+as an ordered list of let bindings
+$l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
+where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
+bindings for all $1 \leq i \leq k$
+and some MFOTL formula $\psi$ with no let bindings.
+
+\begin{definition}
+    \label{def:mfotl-refinement}
+    An MFOTL formula
+    $$
+    \Phi =
+    \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
+    \phi_{k+1} \right)
+    $$
+    refines an MFOTL formula
+    $$
+    \Psi =
+    \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
+    \psi_{k+1} \right)
+    $$
+    iff
+    \begin{enumerate}
+        \item For all events in $\Psi$, there exists a let binding in
+        $\Phi$ defining that event
+        \item
+    \end{enumerate}
+    $$
+    \Phi \implies \Psi
+    $$
+\end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Runtime Enforcement as an Event System}
-% TODO: probably move out of background chapter
+\label{section:runtime-enforcement-event-system}
+
+
+We use a slightly different model of an enforcer as that of
+Hublet et al. \cite{whyenf} described in subsection
+\ref{subsection:proactive-runtime-enforcement}.
+We take a less declarative approach that considers the enforcer as function.
+
+\begin{definition}
+    \label{def:enf-function}
+    A function
+    $$
+       \mu : \Traces_f \times \Nat \times
+       \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)
+       \to \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)
+    $$
+    is an \emph{Enforcer Function} iff
+    for all $\sigma \in \Traces$, $\tau \in \Nat$,
+    and $D \in \Databases$
+    \begin{enumerate}
+        \item $\mu(\sigma, \tau, D) \setminus D \in \Databases_\Cau$ and
+        \item $D \setminus \mu(\sigma, \tau, D) \in \Databases_\Sup$
+    \end{enumerate}
+    and $\mu(\sigma, \tau, \tick)
+    \in \left( \Databases_\Cau \cup \left\{ \tick \right\} \right)$
+\end{definition}
+
+Such an enforcer function looks similar to the update function in Definition
+\ref{def:enforcer-triple}.
+The notable difference is that we remove the notion of commands all together and
+instead it directly modifies a database of events or tick, while the update
+function "only" produced the corresponding commands necessary to
+achieve the same modifications.
+We define soundness notions for enforcer functions that are analogous to
+soundness of an enforcer in Subsection
+\ref{subsection:proactive-runtime-enforcement}.
+
+\begin{definition}
+    \label{def:enf-function-soundness-property}
+    An enforcer function $\mu$ is \emph{sound} with respect to some
+    property $P \subseteq \Traces$ iff
+    $\emptytrace \in P$ and
+    \begin{equation*}
+       \forall \sigma \in P~
+       % \tau \in \Nat,~
+       \tau \geq \tau_{|\sigma|},~
+       e \in \left( \Databases \cup \left\{ \tick \right\} \right).~
+       \sigma \cdot \mu(\sigma, \tau, e) \in P
+    \end{equation*}
+    where $\tau_i$ is the $i$-th timestamp in $\sigma$ for all $1 \leq i \leq |\sigma|$.
+\end{definition}
+
+\begin{definition}
+    \label{def:enf-function-soundness-policy}
+    An enforcer function $\mu$ is \emph{sound} with respect to some
+    policy $\phi$ with $\Language(\phi) \subseteq \Traces$ iff
+    $\emptytrace \in \Language(\phi)$ and
+    \begin{equation*}
+       \forall \sigma \in \Language(\phi)~
+       % \tau \in \Nat,~
+       \tau \geq \tau_{|\sigma|},~
+       e \in \left( \Databases \cup \left\{ \tick \right\} \right).~
+       \sigma \cdot \mu(\sigma, \tau, e) \in \Language(\phi)
+    \end{equation*}
+    where $\tau_i$ is the $i$-th timestamp in $\sigma$ for all $1 \leq i \leq |\sigma|$.
+\end{definition}
+
+% \begin{lemma}
+%     \label{lem:enforcer-soundness-and-enforcer-function-soundness-property}
+%     If an enforcer function $\mu$ is sound for some
+%     property $P$ (or policy $\phi$ with $\Language(\phi) = P$
+%     Then ...
+    
+%     TODO (a corresponding enforcer as in Definition \ref{def:enforcer-triple}
+%     is also sound for $\mathsf{c^{-1}}(P)$
+    
+%     TODO: is system state maybe necessary for our enforcer function after all?
+%     Or can it be argued that the state in the update function of an enforcer
+%     cannot use the system state to choose a new database or $\tick$?
+%     % TODO 
+        
+% \end{lemma}
+
+\begin{lemma}
+    \label{lem:enforcer-soundness-and-enforcer-function-soundness-property}
+    For any sound enforcer function
+    $\mu :  \Traces_f \times \Nat \times
+    \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)
+    \to \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)$
+    with respect to a property $P$ (or policy $\phi$ with $P := \Language(\phi)$)
+    and SuS with state space $\EnfStates$ with initial state $s_0$ and 
+    state transition relation TODO, there  exists a sound  enforcer
+    $\Enforcer = \left(\EnfStates, s_0, \mu' \right)$ for property
+    $\mathsf{c^{-1}}(P)$.
+\end{lemma}
+
+\begin{proof}
+    \label{proof:soundness-definitions-are-equivalent-proof}
+\end{proof}
+
+\begin{definition}
+    \label{def:enforcer-function-transparency}
+    TODO: when is an enforcer function transparent?
+
+    (First finish soundness)
+\end{definition}
+
 
 % We first define enforcement of a CRE-Policy as an event system
 % and then show how the notion of refinement
@@ -27,61 +245,110 @@ how CRE-policies induce specific event systems.
 We then draw a comparison between the definition of CRE-specification
 refinement and the refinement of (CRE) enforcement event systems.
 
+% \begin{definition}
+%     \label{def:enf-state-space}
+%     The \emph{Enforcement State Space} $\Statespace = \Nat \times \Traces$
+%     contains tuples $(\tau,\sigma)$.
+% \end{definition}
+% The timestamp $\tau$ can be seen as the \emph{current} timestamp
+% and $\sigma$ the trace up until timestamp $\tau$.
+
 \begin{definition}
     \label{def:enf-state-space}
-    The \emph{Enforcement State Space} $\Statespace = \Nat \times \Traces$
-    contains tuples $(\tau,\sigma)$.
+    The \emph{Enforcement State Space} $\Statespace = \Traces$
+    consists of all traces of the kind with $\tick$ and $\sskip$ events.
 \end{definition}
-The timestamp $\tau$ can be seen as the \emph{current} timestamp
-and $\sigma$ the trace up until timestamp $\tau$.
+
+% \begin{definition}
+%     \label{def:enf-initial-states}
+%     The set of \emph{Initial States}
+%     $\Initialstates = \lbrace (\tau, \emptytrace) \mid \tau \in \Nat \rbrace$
+%     consists of all states with an arbitrary timestamp $\tau$ and the empty trace
+%     $\emptytrace$.
+% \end{definition}
+% An enforced system may be started at an arbitrary timestamp and its trace will
+% be empty at that moment.
 
 \begin{definition}
     \label{def:enf-initial-states}
-    The set of \emph{Initial States}
-    $\Initialstates = \lbrace (\tau, \emptytrace) \mid \tau \in \Nat \rbrace$
-    consists of all states with an arbitrary timestamp $\tau$ and the empty trace
-    $\emptytrace$.
+    The single initial state is the empty trace $\emptytrace$.
+    $$\Initialstates = \lbrace \emptytrace \rbrace$$
 \end{definition}
-An enforced system may be started at an arbitrary timestamp and its trace will
-be empty at that moment.
 
+% \begin{definition}
+%     \label{def:enf-event-space}
+%     The \emph{Event Space} $\Eventspace=\Databases \cup \lbrace\tick\rbrace$
+%     consists of the set of databases and the special event
+%     $\tick$ which stands for a clock tick
+%     (incrementing a timestamp by one).
+%     % The \emph{Event Space}
+%     % $\Eventspace = \left\{ \true, \false \right\} \times \Databases$
+%     % of tuples $(t, D)$ where $t$ is a boolean value indicating whether or
+%     % not the clock will be incremented and $D$ is a set of events.
+% \end{definition}
 \begin{definition}
     \label{def:enf-event-space}
-    The \emph{Event Space} $\Eventspace=\Databases \cup \lbrace\tick\rbrace$
-    consists of the set of databases and the special event
-    $\tick$ which stands for a clock tick
-    (incrementing a timestamp by one).
-    % The \emph{Event Space}
-    % $\Eventspace = \left\{ \true, \false \right\} \times \Databases$
-    % of tuples $(t, D)$ where $t$ is a boolean value indicating whether or
-    % not the clock will be incremented and $D$ is a set of events.
+    The \emph{Event Space}
+    $$
+        \Eventspace=\Databases \cup \lbrace\tick\rbrace \cup \lbrace\sskip\rbrace
+    $$
+    consists of sets of events or the two special events $\tick$ and $\sskip$.
 \end{definition}
+
+% \begin{definition}
+%     \label{def:enf-transition-relation}
+%     The \emph{Transition Relation} is a subset
+%     $\Transitionrelation{}{} \subseteq
+%     \Statespace \times \Eventspace \times \Statespace$.
+%     We write $(\tau, \sigma) \Transitionrelation{}{e} (\tau', \sigma')$
+%     as a shorthand for
+%     $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{}{}$.
+%     A Transition Relation is valid for some policy $\Phi$, if there exists an
+%     enforcer function $\mu$ and all allowed transitions match
+%     one of the three following transitions.
+%     \begin{align}
+%         (\tau, \sigma)
+%         &\Transitionrelation{}{\mu(\sigma, \tau, D))}
+%         (\tau, \sigma \cdot (\tau, \mu(\sigma, \tau, D)) \\
+%         (\tau, \sigma)
+%         &\Transitionrelation{}{\mu(\sigma, \tau, \tick))}
+%         (\tau + 1, \sigma \cdot (\tau, \mu(\sigma, \tau, \tick))
+%         &\text{ if } \mu(\sigma, \tau, \tick) \neq \bot \\
+%         (\tau, \sigma)
+%         &\Transitionrelation{}{\mu(\sigma, \tau, \tick))}
+%         (\tau + 1, \sigma)
+%         &\text{ if } \mu(\sigma, \tau, \tick) = \bot
+%     \end{align}
+% \end{definition}
 
 \begin{definition}
     \label{def:enf-transition-relation}
     The \emph{Transition Relation} is a subset
-    $\Transitionrelation{\Phi}{} \subseteq \Statespace \times \Eventspace \times \Statespace$.
-    We write $(\tau, \sigma) \Transitionrelation{\Phi}{e} (\tau', \sigma')$
+    $\Transitionrelation{}{} \subseteq
+    \Statespace \times \Eventspace \times \Statespace$.
+    We write $(\tau, \sigma) \Transitionrelation{}{e} (\tau', \sigma')$
     as a shorthand for
-    $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{\Phi}{}$.
+    $\left(\left(\tau,\sigma\right), e, \left(\tau',\sigma'\right)\right) \in \Transitionrelation{}{}$.
     A Transition Relation is valid for some policy $\Phi$, if there exists an
-    enforcer function $\mu_\Phi$ for $\Phi$ and all allowed transitions match
+    enforcer function $\mu$ and all allowed transitions match
     one of the three following transitions.
     \begin{align}
-        (\tau, \sigma)
-        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, D))}
-        (\tau, \sigma \cdot (\tau, \mu_\Phi(\sigma, \tau, D)) \\
-        (\tau, \sigma)
-        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, \tick))}
-        (\tau + 1, \sigma \cdot (\tau, \mu_\Phi(\sigma, \tau, \tick))
-        &\text{ if } \mu_\Phi(\sigma, \tau, \tick) \neq \bot \\
-        (\tau, \sigma)
-        &\Transitionrelation{\Phi}{\mu_\Phi(\sigma, \tau, \tick))}
-        (\tau + 1, \sigma)
-        &\text{ if } \mu_\Phi(\sigma, \tau, \tick) = \bot
+        \sigma
+        &\Transitionrelation{}{\mu(\sigma, D)}
+        \sigma \cdot \mu(\sigma, D) \\
+        \sigma
+        &\Transitionrelation{}{\mu(\sigma, \tick)}
+        \sigma \cdot \mu(\sigma, \tau, \tick) \\
+        \sigma
+        &\Transitionrelation{}{\mu(\sigma, \sskip)}
+        \sigma \cdot \mu(\sigma, \tau, \sskip)
+        % &\text{ if } \mu(\sigma, \tau, \tick) \neq \bot \\
+        % \sigma
+        % &\Transitionrelation{}{\mu(\sigma, \tick))}
+        % \sigma
+        % &\text{ if } \mu(\sigma, \tick) = \bot
     \end{align}
 \end{definition}
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,9 +369,9 @@ The parameters of the abstract system are the following
 \begin{align*}
     \Sigma_A &= \left(\Domain, \Events_A, \Functions, \iota_A \right) \\
     \Statespace_A &= \Nat \times \Traces_A & \text{State space of traces of signature $\Sigma_A$}\\
-    \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
+    \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
     \Phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
-    S_A &= \left(\Sigma_A, \phi_A, \kappa_A \right)
+    S_A &= \left(\Sigma_A, \Phi_A, \kappa_A \right)
     % \\
     % \mu_{\phi_A} && \text{An enforcer function for policy $\phi_A$} \\
 \end{align*}
@@ -113,9 +380,9 @@ And the parameters for the concrete system are
 \begin{align*}
     \Sigma_C &= \left(\Domain, \Events_C, \Functions, \iota_C \right) \\
     \Statespace_C &= \Nat \times \Traces_C & \text{State space of traces of signature $\Sigma_C$}\\
-    \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) | \tau \in \Nat \right\rbrace \\
+    \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
     \Phi_C &= \left( C_C, R_C, E_C \right) \\
-    S_C &= \left(\Sigma_C, \phi_C, \kappa_C \right)
+    S_C &= \left(\Sigma_C, \Phi_C, \kappa_C \right)
     % \\
     % \mu_{\phi_C} && \text{An enforcer function for policy $\phi_C$} \\
 \end{align*}

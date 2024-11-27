@@ -67,4 +67,14 @@
 
 \usepackage{tikz}
 
-
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicmatch{\textbf{case}}
+\algrenewcommand\algorithmicfunction{\textbf{let}}
+\algnewcommand\algorithmicwith{\textbf{of}}
+\algdef{SE}[MATCH]{Match}{EndMatch}[1]{\algorithmicmatch\ #1\ \algorithmicwith}{\algorithmicend\ \algorithmicmatch}
+\algdef{SE}[FUNCTION]{Function}{EndFunction}[2]{\algorithmicfunction\ #1 #2\ =}{\algorithmicend\ \algorithmicmatch}
+\algdef{SE}[CASE]{MatchCase}{EndCase}[2]{$\mid$ #1 $\Rightarrow$ #2}{}
+\algtext*{EndMatch}
+\algtext*{EndCase}
+\algtext*{EndFunction}

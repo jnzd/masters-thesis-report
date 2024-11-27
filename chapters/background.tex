@@ -1,15 +1,17 @@
 \chapter{Background}
+\label{chapter:background}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Metric First-Order Temporal Logic}
+\label{section:mfotl}
 
 Metric First-Order Logic (MFOTL)
 \cite{basin2015monitoring, chomicki1995efficient}
 combines first-order predicate logic with temporal operators such as
-$\Next$ ("next"), $\Prev$ ("previous"), $\Until$ ("until"), and $\Since$ ("since").
+$\Next$ ("next"), $\Prev$ ("previous"), $\UUntil$ ("until"), and $\Since$ ("since").
 MFOTL is frequently used as a policy language in
 runtime verification \cite{whyenf, lex, }. %TODO: more references and reformulate this introductory part
 Let $\Types$ be a set of base types and $\Variables$ a set of variables.
@@ -125,7 +127,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
         t &::= &&c \mid x \mid f(t,\dots,t) \\
         \phi &::= &&\top \mid e(t,\dots,t) \mid t=t \mid \neg \phi \mid
             \phi \wedge \phi \mid  \exists.\ \phi \mid \Next_I \phi \mid
-            \Prev_I \phi \mid \phi \Until_I \phi \mid \phi \Since_I \phi \\
+            \Prev_I \phi \mid \phi \UUntil_I \phi \mid \phi \Since_I \phi \\
             &&& \mid \Aggreg{x}{\omega}{t}{x,\dots,x}{\phi} \mid
             \LLet{e \left(x,\dots,x \right)}{\phi}{\phi}
     \end{align*}
@@ -175,7 +177,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
             {\Gamma \vdash \Prev_I \phi} \\
         \prftree[r]{\text{Until}}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
-            {\Gamma \vdash \phi \Until_I \psi} \qquad
+            {\Gamma \vdash \phi \UUntil_I \psi} \qquad
         \prftree[r]{\text{Since}}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
             {\Gamma \vdash \phi \Since_I \psi} \\
@@ -241,7 +243,7 @@ If it is clear from context the subscript $\sigma$ can be omitted.
         v, i &\vDash  \Prev_I \phi
             &&\text{iff } i>0 \text{ and } v, i-1 \vDash  \phi
             \text{ and } \tau_i - \tau_{i-1} \in I \\
-        v, i &\vDash  \phi \Until_I \psi
+        v, i &\vDash  \phi \UUntil_I \psi
             &&\text{iff } v, j \vDash  \psi \text{ for some } j \geq i
             \text{ with } \tau_j - \tau_i \in I \\
             &&&
@@ -279,7 +281,7 @@ We define the following operators based on the basic operators above as
         \phi \leftrightarrow \psi
             &:= (\phi \to \psi) \wedge (\psi \to \phi) \\
         \forall x. \phi &:= \neg(\exists x. \neg \phi) \\
-        \Eventually_I \phi &:= \top \Until_I \phi && \text{(eventually)}\\
+        \Eventually_I \phi &:= \top \UUntil_I \phi && \text{(eventually)}\\
         \Once_I \phi &:= \top \Since_I \phi && \text{(once)}\\
         \Always_I \phi &:= \neg \Eventually \neg \phi && \text{(always)} \\
         \Historically_I \phi &:= \neg \Once_I \neg \phi && \text{(historically)}
@@ -300,6 +302,7 @@ We define the following operators based on the basic operators above as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Enforceable MFOTL}
+\label{subsection:emfotl}
 % Hublet et al. \cite{whyenf} introduces a subset of MFOTL called Enforceable MFOTL,
 % where every event gets marked with some capability which indicates the levels of power
 % an enforcer has over an event.
@@ -408,23 +411,27 @@ describe an enforceable subset of MFOTL formulae.
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Runtime Verification}
+\label{section:runtime-verification}
 Runtime Verification (RV) concerns itself with the behavior of
 some System under Scrutiny (SuS) with regards to some policy.
 $\dots$ TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Runtime Monitoring}
+\label{subsection:runtime-monitoring}
 Runtime Monitoring is used to detect a policy violation either in an
 online (real-time) or offline fashion. $\dots$ TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Runtime Enforcement}
+\label{subsection:runtime-enforcement}
 Runtime Enforcement is used to actively cause or prevent certain system behaviors.
 Due to this interactive nature of runtime enforcement it is inherently online.
 $\dots$ TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Proactive Runtime Enforcement using MFOTL}
+\label{subsection:proactive-runtime-enforcement}
 
 \begin{figure}
     \begin{center}
@@ -498,37 +505,7 @@ $D_\Sup$ are all assumed to be in $\Events_{\Sup}$.
 
 This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforcer
 \begin{definition}
-    % \label{dfe:enforcer}
-    % An \emph{Enforcer} $\Enforcer$ is a triple
-    % $\left(\EnfStates, s_0, \mu \right)$, where $\EnfStates$ is a set of states
-    % $s_0 \in \EnfStates$ is an initial state and
-    % $\mu : \Traces_f \times \EnfStates
-    % \times \left( \Nat \cup \left\{ \bot \right\} \right)
-    % \to \EnfCommands \times \EnfStates$
-    % is a computable update function such that the following two
-    % conditions hold
-    % \begin{enumerate}
-    %     \item  $ \forall \sigma \in \Traces_f, \tau \in \Nat,
-    %         D \in \Databases, s \in \EnfStates
-    %         .\ \exists D_{\Cau} \in \Databases_{\Cau},
-    %         D_{\Sup} \in \Databases_{\Sup}, s' \in \EnfStates .\  $
-    %         \begin{equation*}
-    %             \mu\left( \sigma \cdot \left(\tau, D \right), s, \bot \right)
-    %             = \left( \RCom \left( D_{\Cau}, D_{\Sup} \right), s' \right)
-    %             \wedge D_{\Sup} \subseteq D
-    %         \end{equation*}
-        
-    %     \item $ \forall \sigma \in \Traces_f, \tau \in \Nat,
-    %     s \in \EnfStates .\
-    %     \exists D_\Cau \in \Databases_\Cau, s' \in \EnfStates .$
-    %     \begin{equation*}
-    %         \mu\left( \sigma, \tau, s \right) \in
-    %         \left\{ \left( \PCom\left(D_\Cau \right), s' \right),
-    %         \left( \NCom, s' \right) \right\}
-    %     \end{equation*}
-        
-    % \end{enumerate}
-    
+    \label{def:enforcer-triple}
     An \emph{Enforcer} $\Enforcer$ is a triple
     $\left(\EnfStates, s_0, \mu \right)$, where $\EnfStates$ is a set of states
     $s_0 \in \EnfStates$ is an initial state and
@@ -562,55 +539,58 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
     
 \end{definition}
 
+% TODO: insert enforcer soundness conditions
+
+Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as followed.
+
 \begin{definition}
-    \label{def:enf-function}
-    A function
-    $$
-       \mu : \Traces_f \times \Nat \times
-       \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)
-       \to \left(\Databases \cup \left\lbrace \tick \right\rbrace \right)
-    $$
-    is an \emph{Enforcer Function} iff
-    for all $\sigma \in \Traces$, $\tau \in \Nat$,
-    and $e \in \left( \Databases \cup \left\{ \tick \right\} \right)$
-    \begin{enumerate}
-        \item $\mu(\sigma, \tau, D) \setminus D \subseteq \Events_{\Cau}$ and
-        \item $D \setminus \mu(\sigma, \tau, D) \subseteq \Events_{\Sup}$
-    \end{enumerate}
+  For any $\sigma \in \Traces$ and enforcer  $\Enforcer=(\EnfStates,s_0,\mu)$, the
+  \emph{enforced trace} $\Enforcer(\sigma)$ is defined co-recursively in Algorithm~\ref{alg:loop}.
+  \begin{algorithm}[t]
+  \begin{algorithmic}[1]
+    \State $\run(s,\sigma,\sigma',\tau)=$~\Case\;$\sigma'$ \OOf
+    \State $\mid \varepsilon \Rightarrow \varepsilon$
+    \State $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' > \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,\mathsf{tick})$ \IIn{}
+    \State \quad \Case\;$o$ \OOf~$\mid\PCom(D_\Cau) \Rightarrow (\tau,D_\Cau) \cdot \run(s',\sigma\cdot (\tau, D_\Cau),\sigma',\tau+1)$
+    \State \qquad\qquad\quad\, $\mid\NCom \Rightarrow \run(s',\sigma,\sigma',\tau+1)$
+    \State  $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' = \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,D); D' = (D \setminus D_\Sup) \cup D_\Cau)$ \IIn
+    \State \quad \Case\;$o$ \OOf ~$\mid \RCom(D_\Cau,D_\Sup) \Rightarrow (\tau, D') \cdot \run(s',\sigma \cdot (\tau, D'),\sigma'',\tau+1)$
+    \State $\Enforcer(\sigma)=\run(s_0,\emptytrace,\sigma,\Ternaryop{\sigma=\emptytrace}{0}{\fts(\sigma)})$
+  \end{algorithmic}
+  \caption{Enforced trace\label{alg:loop}}
+  \vspace{-1ex}
+\end{algorithm}
 \end{definition}
 
 \begin{definition}
-    \label{def:enf-function-soundness-property}
-    An enforcer function $\mu$ is \emph{sound} with respect to some
-    property $P \subseteq \Traces$ if
-    \begin{equation*}
-       \forall \sigma \in P~
-       % \tau \in \Nat,~
-       \tau \geq \tau_{|\sigma|},~
-       e \in \left( \Databases \cup \left\{ \tick \right\} \right).~
-       \sigma \cdot \mu(\sigma, \tau, e) \in P
-    \end{equation*}
-    where $\tau_i$ is the $i$-th timestamp in $\sigma$ for all $1 \leq i \leq |\sigma|$.
+    \label{def:enf-sound-property}
+    An enforcer $\Enforcer$ is \emph{sound} with respect to some property $P$, iff
+    for any trace $\sigma \in \Traces_\omega$, $\Enforcer(\sigma) \in P$.
 \end{definition}
 
 \begin{definition}
-    \label{def:enf-function-soundness-policy}
-    An enforcer function $\mu$ is \emph{sound} with respect to some
-    policy $\phi$ with $\Language(\phi) \subseteq \Traces$ if
-    \begin{equation*}
-       \forall \sigma \in \Language(\phi)~
-       % \tau \in \Nat,~
-       \tau \geq \tau_{|\sigma|},~
-       e \in \left( \Databases \cup \left\{ \tick \right\} \right).~
-       \sigma \cdot \mu(\sigma, \tau, e) \in \Language(\phi)
-    \end{equation*}
-    where $\tau_i$ is the $i$-th timestamp in $\sigma$ for all $1 \leq i \leq |\sigma|$.
+    \label{def:enf-transparent-property}
+    An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
+    with respect to some property $P$ iff for all $\sigma \in P$,
+    $\Enforcer(\sigma) = \sigma$.
 \end{definition}
 
-A property or policy is said to be \emph{enforceable} if there exists a sound enforcer
-for the policy or property.
+\begin{definition}
+    \label{def:enf-sound-policy}
+    An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$, iff
+    for any trace $\sigma \in \Traces_\omega$, $\Enforcer(\sigma) \in \Language(\phi)$.
+\end{definition}
 
-% TODO: elaborate on functionality of a proactive enforcer
+\begin{definition}
+    \label{def:enf-transparent-policy}
+    An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
+    with respect to some policy $\phi$ iff for all $\sigma \in \Language(\phi)$,
+    $\Enforcer(\sigma) = \sigma$.
+\end{definition}
+
+A property or policy is said to be \emph{(transparently) enforceable} if there
+exists a (transparent) sound enforcer for the policy or property.
+
 
 
 
@@ -618,9 +598,11 @@ for the policy or property.
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Lex Language}
+\label{section:lex-language}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
+\label{subsection:cre-meta-logic}
 Hublet et. al \cite{lex} introduces a meta-logic based on
 constitutive, regulative, and exception rules (CRE meta-logic).
 The CRE meta-logic underpins the Lex programming language
@@ -825,6 +807,7 @@ Hublet et. al \cite{lex}.
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Refinement Mappings}
+\label{section:refinement-mappings}
 In Abadi and Lamport \cite{refinement-mappings} the concept of refinement mappings
 between specifications is explored.
 
@@ -834,6 +817,7 @@ TODO
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Event Systems}
+\label{section:event-systems}
 
 Sprenger et al. \cite{igloo} defines event systems in the following way.
 
@@ -896,6 +880,7 @@ $\Initialstates$ is denoted by $\EStraces\left(\EventSystem, \Initialstates \rig
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Refinement of Event Systems}
+\label{section:event-system-refinement}
 
 In this section we recall refinement of event systems as defined in Sprenger et. al
 \cite{igloo}.

@@ -1,7 +1,7 @@
 \newcommand{\Traces}{\mathbb{T}}
 \newcommand{\Events}{\mathbb{E}}
 \newcommand{\Functions}{\mathbb{F}}
-\newcommand{\Databases}{\mathbb{DB}}
+\newcommand{\Databases}{\mathsf{DB}}
 \newcommand{\Domain}{\mathbb{D}}
 \newcommand{\Variables}{\mathsf{Var}}
 \newcommand{\Types}{\mathsf{Ty}}
@@ -9,7 +9,7 @@
 \newcommand*{\Prev}{\mathop{\CIRCLE}\nolimits}
 \newcommand*{\Next}{\mathop{\Circle}\nolimits}
 \newcommand*{\Since}{\mathbin{\mathsf{S}}}
-\newcommand*{\Until}{\mathbin{\mathsf{U}}}
+\newcommand*{\UUntil}{\mathbin{\mathsf{U}}}
 \newcommand*{\Always}{\operatorname{\square}}
 \newcommand*{\Historically}{\operatorname{\blacksquare}}
 \newcommand*{\Eventually}{\operatorname{\lozenge}}
@@ -36,6 +36,7 @@
 % \newcommand{\ESInitialStates}{\textsc{I}} % TODO: maybe differentiate it from intervals
 
 \newcommand{\tick}{\mathsf{tick}}
+\newcommand{\sskip}{\mathsf{skip}}
 
 \newcommand{\Capabilities}{\mathbb{K}}
 
@@ -61,3 +62,18 @@
 \newcommand{\Sup}{\mathbb{S}}
 
 \newcommand{\Language}{\mathcal{L}}
+
+\newcommand{\run}{\mathsf{run}}
+
+\newcommand{\Let}{\textbf{let}}
+\newcommand{\IIn}{\textbf{in}}
+\newcommand{\Case}{\textbf{case}}
+\newcommand{\OOf}{\textbf{of}}
+\newcommand{\When}{\textbf{when}}
+\newcommand{\Ifa}{\textbf{if}}
+\newcommand{\Thena}{\textbf{then}}
+\newcommand{\Elsea}{\textbf{else}}
+\newcommand{\Ternaryop}[3]{\Ifa\;{#1}\;\Thena\;{#2}\;\Elsea\;{#3}}
+
+\newcommand{\fts}{\mathsf{fts}}
+
