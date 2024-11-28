@@ -4,56 +4,156 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Traces}
-\label{section:different-trace-definition}
+\section{Updated Enforcement Model}
+\label{section:updated-enforcement-model}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{System Traces}
+\label{subsection:system-traces}
 We use a slightly different, but completely analogous definition of a trace as
 in Definition \ref{def:trace}.
 
 \begin{definition}
-    \label{def:trace-with-ticks}
-    A \emph{Trace} is a finite or infinite sequence of events from the set
-    $$\Databases \cup \left\{ \tick \right\}$$
-    where $\tick$ symbolizes a clock tick in the system.
+    \label{def:system-trace}
+    A \emph{System Trace} is a finite or infinite sequence of events
+    \begin{equation*}
+        \Sequence[1 \leq i \leq k]{e_i},
+        k \in \Nat \cup \lbrace \infty \rbrace
+    \end{equation*}
+    where for every $i \in [1, k]$,
+    \begin{equation}
+        e_i \in  \Databases \cup \left\{ \tick \right\}.
+    \end{equation}
+     The special event $\tick$ symbolizes a clock tick in the system.
 \end{definition}
 
 \begin{lemma}
     \label{lem:trace-equivalence}
-    There exists a bijective mapping between traces as in Definition \ref{def:trace}
-    and in Definition \ref{def:trace-with-ticks}. And thus the two definitions
+    There exists a bijective mapping between MFOTL traces as in
+    Definition \ref{def:trace} and system traces in Definition
+    \ref{def:system-trace}. And thus the two definitions
     are equivalent.
 \end{lemma}
+
+We use
+$\Traces_{\text{sys},f} \subseteq 
+\left( \Databases \cup \left\{\tick \right\} \right)^*$,
+$\Traces_{\text{sys}, \omega}
+\left( \Databases \cup \left\{\tick \right\} \right)^\infty$,
+and
+$\Traces_{\text{sys}} = 
+\Traces_{\text{sys},f} \cup \Traces_{\text{sys}, \omega}$
+to denote the sets of finite system traces, infinite system traces,
+and all system traces respectively.
+Whenever it is clear that system traces are meant and not 
+MFOTL traces as in Section \ref{section:mfotl}, we ommit the
+"sys" subscript.
+We also use $\emptytrace_{\text{sys}}$ to denote an empty system
+trace and will ommit the subscript if the meaning is clear from
+context.
 
 \begin{proof}
     \label{proof:trace-equivalence}
     A trace of this form can be converted to the timestamp plus database  via a
     trace converter function
     $$
-    \mathsf{c}: \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
-    \left( \Nat \times \Databases \right)^*
+    \mathsf{c}:
+    \Traces_{\text{sys}} \to \Traces
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
+    % \left( \Nat \times \Databases \right)^*
     $$ and the helper function
     \begin{align*}
-    \mathsf{c'}: \Nat \times \left( \Nat \times \Databases \right)^* \times
-    \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
-    \Nat \times \left( \Nat \times \Databases \right)^* \times
-    \left( \Databases \cup \left\{ \tick \right\} \right)^*
+    \mathsf{c'}:
+    \Nat \times \Traces \times \Traces_{\text{sys}}
+    \to
+    \Traces
+    % \Nat \times \Traces \times \Traces_{\text{sys}}
+    % \Nat \times \left( \Nat \times \Databases \right)^* \times
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^* \to 
+    % \Nat \times \left( \Nat \times \Databases \right)^* \times
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^*
     \end{align*}
     \begin{align*}
     \mathsf{c'}(\tau, \sigma, \sigma') =
         \begin{cases}
-            \left(\tau, \sigma, \emptytrace \right)
-                & \text{if } \sigma' = \emptytrace \\
+            % \left(\tau, \sigma, \emptytrace_{\text{sys}} \right)
+            \sigma
+                & \text{if } \sigma' = \emptytrace_{\text{sys}} \\
             \mathsf{c'}(\tau+1, \sigma, \sigma'')
                 & \text{if } \sigma' = \tick \cdot \sigma'' \\
             \mathsf{c'}(\tau, \left( \tau, D \right) \cdot \sigma, \sigma'')
                 & \text{if } \sigma' = D \cdot \sigma'' \\
         \end{cases}
     \end{align*}
-    Then $c$ is defined as followed.
+    Then, for all $\sigma \in \Traces_{\text{sys}}$, $c$ is defined as followed
     \begin{align*}
         \mathsf{c}(\sigma) = \mathsf{c'}(0, \emptytrace, \sigma).
     \end{align*}
 
-    TODO: show other direction
+    In the other direction we can define
+    $$
+    \mathsf{c^{-1}}:
+    \Traces \to \Traces_{\text{sys}}
+    % \left( \Nat \times \Databases \right)^* \to 
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^*
+    $$
+    via another helper function
+    \begin{align*}
+    \mathsf{c''}:
+    \Nat \times \Traces_{\text{sys}} \times \Traces
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^*
+    % \times
+    % \left( \Nat \times \Databases \right)^*
+    \to \Traces_\text{sys}
+    % \Nat \times \Traces_{\text{sys}} \times \Traces
+    % \left( \Databases \cup \left\{ \tick \right\} \right)^*
+    % \times
+    % \left( \Nat \times \Databases \right)^*
+    \end{align*}
+
+    \begin{align*}
+        \mathsf{c''}(\tau, \sigma, \sigma') =
+        \begin{cases}
+            % \left( \tau, \sigma, \emptytrace \right)
+            \sigma
+                &\text{if } \sigma' = \emptytrace \\
+            \mathsf{c''}(\tau, \sigma \cdot D, \sigma'')
+                &\text{if } \sigma' = (\tau, D) \cdot \sigma'' \\
+            \mathsf{c''}(\tau+1, \sigma \cdot \tick, \sigma'')
+                &\text{if } \sigma' = (\tau', D) \cdot \sigma''
+                \text{ and } \tau' > \tau
+        \end{cases}
+    \end{align*}
+
+    Then $\mathsf{c^{-1}}$ is computed as
+    \begin{equation*}
+        \mathsf{c^{-1}} = \mathsf{c''}(0, \emptytrace_{\text{sys}}, \sigma).
+    \end{equation*}
+
+    We can now show that $\mathsf{c^{-1}}$ is the inverse function of
+    $\mathsf{c}$ by proofing that
+    \begin{equation*}
+        \forall \sigma \in
+        \left( \Nat \times \Databases \right)^* .~
+        \mathsf{c}(\mathsf{c^{-1}}(\sigma)) = \sigma
+    \end{equation*}
+
+    We proof this by induction.
+    First let
+    $\sigma = \emptytrace \in  \Traces^*$
+    % $\sigma = \emptytrace \in  \left( \Nat \times \Databases \right)^*$
+    Then
+    \begin{align*}
+        \mathsf{c}({\mathsf{c^{-1}}}(\sigma))
+        &= \mathsf{c}(\mathsf{c^{-1}}(\emptytrace)) \\
+        &= \mathsf{c}(\mathsf{c''}(0, \emptytrace_\text{sys}, \emptytrace)) \\
+        &= \mathsf{c}(\emptytrace_\text{sys}) \\
+        &= \mathsf{c'}(0, \emptytrace, \emptytrace_\text{sys}) \\
+        &= \emptytrace \\
+        &= \sigma \\
+    \end{align*}
+
+
 \end{proof}
 Intuitively $\mathsf{c}$ and $\mathsf{c'}$ count the clock ticks and store them
 explicitly as integer timestamps.
@@ -74,48 +174,8 @@ $$
 $$
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                              %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Refinement of MFOTL Specifications}
-\label{section:refinement-of-mfotl-specifications}
-
-Without loss of generality we can consider any MFOTL formula with let bindings 
-as an ordered list of let bindings
-$l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
-where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
-bindings for all $1 \leq i \leq k$
-and some MFOTL formula $\psi$ with no let bindings.
-
-\begin{definition}
-    \label{def:mfotl-refinement}
-    An MFOTL formula
-    $$
-    \Phi =
-    \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
-    \phi_{k+1} \right)
-    $$
-    refines an MFOTL formula
-    $$
-    \Psi =
-    \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
-    \psi_{k+1} \right)
-    $$
-    iff
-    \begin{enumerate}
-        \item For all events in $\Psi$, there exists a let binding in
-        $\Phi$ defining that event
-        \item
-    \end{enumerate}
-    $$
-    \Phi \implies \Psi
-    $$
-\end{definition}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                              %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Runtime Enforcement as an Event System}
-\label{section:runtime-enforcement-event-system}
+\subsection{Runtime Enforcement as an Event System}
+\label{subsection:runtime-enforcement-event-system}
 
 
 We use a slightly different model of an enforcer as that of
@@ -147,21 +207,19 @@ We take a less declarative approach that considers the enforcer as function.
     $$
        \mu : \Traces_f \times 
        \left(\Databases
-       \cup \left\lbrace \tick \right\rbrace
-       \cup \left\lbrace \sskip \right\rbrace \right)
+       \cup \left\lbrace \tick, \sskip \right\rbrace \right)
        \to \left(\Databases
-       \cup \left\lbrace \tick \right\rbrace
-       \cup \left\lbrace \sskip \right\rbrace \right)
+       \cup \left\lbrace \tick, \sskip \right\rbrace \right)
     $$
     is an \emph{Enforcer Function} iff
     for all $\sigma \in \Traces$ and $D \in \Databases$
     \begin{enumerate}
-        \item $\mu(\sigma, D) \setminus D \in \Databases_\Cau$ and
-        \item $D \setminus \mu(\sigma, D) \in \Databases_\Sup$
+        \item $\mu(\sigma, D) \setminus D \in \Databases_\Cau$,
+        \item $D \setminus \mu(\sigma, D) \in \Databases_\Sup$,
+        \item  $\mu(\sigma, \tick)
+            \in \left( \Databases_\Cau \cup \left\{ \sskip \right\} \right)$, and
+        \item $\mu(\sigma, \sskip) = \sskip $.
     \end{enumerate}
-    and $\mu(\sigma, \tick)
-    \in \left( \Databases_\Cau \cup \left\{ \tick \right\} \right)$
-    and $\mu(\sigma, \sskip) = \sskip $.
 \end{definition}
 
 Such an enforcer function looks similar to the update function in Definition
@@ -365,10 +423,10 @@ refinement and the refinement of (CRE) enforcement event systems.
         \sigma \cdot \mu(\sigma, D) \\
         \sigma
         &\Transitionrelation{}{\mu(\sigma, \tick)}
-        \sigma \cdot \mu(\sigma, \tau, \tick) \\
+        \sigma \cdot \mu(\sigma, \tick) \cdot \tick \\
         \sigma
         &\Transitionrelation{}{\mu(\sigma, \sskip)}
-        \sigma \cdot \mu(\sigma, \tau, \sskip)
+        \sigma \cdot \mu(\sigma, \sskip)
         % &\text{ if } \mu(\sigma, \tau, \tick) \neq \bot \\
         % \sigma
         % &\Transitionrelation{}{\mu(\sigma, \tick))}
@@ -376,6 +434,12 @@ refinement and the refinement of (CRE) enforcement event systems.
         % &\text{ if } \mu(\sigma, \tick) = \bot
     \end{align}
 \end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Refinement}
+\label{section:refinement}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -557,3 +621,94 @@ Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than 
         \mu_\phi(\sigma, \tau, \tick) = \bot
     \end{align}
 \end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Refinement of MFOTL Specifications}
+\label{subsection:refinement-of-mfotl-specifications}
+
+Without loss of generality we can consider any MFOTL formula with let bindings 
+as an ordered list of let bindings
+$l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
+where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
+bindings for all $1 \leq i \leq k$
+and some MFOTL formula $\psi$ with no let bindings.
+
+\begin{definition}
+    \label{def:mfotl-refinement}
+    An MFOTL formula
+    $$
+    \Phi =
+    \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
+    \phi_{k+1} \right)
+    $$
+    refines an MFOTL formula
+    $$
+    \Psi =
+    \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
+    \psi_{k+1} \right)
+    $$
+    iff
+    \begin{enumerate}
+        \item For all events in $\Psi$, there exists a let binding in
+        $\Phi$ defining that event
+        \item
+    \end{enumerate}
+    $$
+    \Phi \implies \Psi
+    $$
+\end{definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Refinement of CRE Specifications}
+\label{subsection:refinement-of-cre-specifications}
+In this subsection we refresh refinement of Lex specifications as it is described in
+Hublet et. al \cite{lex}.
+
+\begin{definition}
+    \label{def:lex-refinement}
+    A specification
+    $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
+    with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    and CRE-rules $\Phi_C = \left(C_C, R_C, E_C \right)$
+    refines a specification
+    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
+    with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    and CRE-rules $\Phi_A = \left(C_A, R_A, E_A \right)$
+    under condition $\Psi = \left(C_C, R_A \setminus R_C, E_C \right)$
+    iff all of the following hold
+    \begin{enumerate}
+        \item 
+        $\Events_A \setminus \kappa_A^{-1} 
+        (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
+        \subseteq \Events_C$
+        and
+        for all
+        $e \in \Events_A \cap \Events_C,
+        \iota_A(e) = \iota_C(e)$
+        and
+        $\kappa_A(e) \sqsubseteq \kappa_C(e)$;
+        \item
+        $C_A \subseteq C_C$ and
+        there exists
+        $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
+        all events appearing in $\phi$ are in
+        $\Events_C \setminus \Events_A$
+        and
+        $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
+        \item
+        For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
+        a rule labeled by $s$ exists in
+        $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
+    \end{enumerate}
+    
+\end{definition}
+
+\begin{definition}
+    \label{def:lex-inconditional-refinement}
+    If we require the following additional condition in Definition \ref{def:lex-refinement}
+    \begin{enumerate}
+        \setcounter{enumi}{3}
+        \item $R_A \subseteq R_C$
+    \end{enumerate}
+    $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
+\end{definition}

@@ -66,7 +66,7 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
     \label{def:trace}
     A \emph{Trace} $\sigma \in \Traces$ is a sequence
     $\Sequence[1 \leq i \leq k]{(\tau_i, D_i)}$, $k \in \Nat \cup \lbrace \infty \rbrace$
-    of timestamps $\tau_i \in \Nat$ and finite databases $D_i \in Databases$,
+    of timestamps $\tau_i \in \Nat$ and finite databases $D_i \in \Databases$,
     where timestamps grow \emph{monotonically}
     ($\forall i < |\sigma|.\,\tau_i \leq \tau_{i+1}$)
     and \emph{progress}
@@ -79,12 +79,26 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:infinite-trace}
-    The set of \emph{Infinite Traces} is denoted by $\Traces_\omega$.
+    The set of \emph{Infinite Traces} is denoted by
+    \begin{equation*}
+        \Traces_\omega
+        \subseteq 
+        \left(
+        \Nat \times \Databases
+        \right)^{\infty}
+    \end{equation*}
 \end{definition}
 
 \begin{definition}
     \label{def:finite-trace}
-    The set of \emph{Finite Traces} is denoted by $\Traces_f$.
+    The set of \emph{Finite Traces} is denoted by
+    \begin{equation*}
+        \Traces_f
+        \subseteq 
+        \left(
+        \Nat \times \Databases
+        \right)^*
+    \end{equation*}
 \end{definition}
 
 \begin{definition}
@@ -749,59 +763,6 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
     and a capability-mapping $\kappa$.
 \end{definition}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Refinement of Lex specifications}
-In this subsection we refresh refinement of Lex specifications as it is described in
-Hublet et. al \cite{lex}.
-
-\begin{definition}
-    \label{def:lex-refinement}
-    A specification
-    $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
-    with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-    and CRE-rules $\Phi_C = \left(C_C, R_C, E_C \right)$
-    refines a specification
-    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
-    with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-    and CRE-rules $\Phi_A = \left(C_A, R_A, E_A \right)$
-    under condition $\Psi = \left(C_C, R_A \setminus R_C, E_C \right)$
-    iff all of the following hold
-    \begin{enumerate}
-        \item 
-        $\Events_A \setminus \kappa_A^{-1} 
-        (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
-        \subseteq \Events_C$
-        and
-        for all
-        $e \in \Events_A \cap \Events_C,
-        \iota_A(e) = \iota_C(e)$
-        and
-        $\kappa_A(e) \sqsubseteq \kappa_C(e)$;
-        \item
-        $C_A \subseteq C_C$ and
-        there exists
-        $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
-        all events appearing in $\phi$ are in
-        $\Events_C \setminus \Events_A$
-        and
-        $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
-        \item
-        For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
-        a rule labeled by $s$ exists in
-        $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
-    \end{enumerate}
-    
-\end{definition}
-
-\begin{definition}
-    \label{def:lex-inconditional-refinement}
-    If we require the following additional condition in Definition \ref{def:lex-refinement}
-    \begin{enumerate}
-        \setcounter{enumi}{3}
-        \item $R_A \subseteq R_C$
-    \end{enumerate}
-    $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
-\end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
