@@ -21,35 +21,34 @@ in Definition \ref{def:trace}.
         k \in \Nat \cup \lbrace \infty \rbrace
     \end{equation*}
     where for every $i \in [1, k]$,
-    \begin{equation}
+    \begin{equation*}
         e_i \in  \Databases \cup \left\{ \tick \right\}.
-    \end{equation}
-     The special event $\tick$ symbolizes a clock tick in the system.
+    \end{equation*}
+     The special event $\tick$ represents a clock tick in the system.
 \end{definition}
 
 \begin{lemma}
     \label{lem:trace-equivalence}
     There exists a bijective mapping between MFOTL traces as in
     Definition \ref{def:trace} and system traces in Definition
-    \ref{def:system-trace}. And thus the two definitions
-    are equivalent.
+    \ref{def:system-trace}. Thus, the two definitions are equivalent.
 \end{lemma}
 
 We use
 $\Traces_{\text{sys},f} \subseteq 
 \left( \Databases \cup \left\{\tick \right\} \right)^*$,
-$\Traces_{\text{sys}, \omega}
+$\Traces_{\text{sys}, \omega} \subseteq
 \left( \Databases \cup \left\{\tick \right\} \right)^\infty$,
 and
 $\Traces_{\text{sys}} = 
 \Traces_{\text{sys},f} \cup \Traces_{\text{sys}, \omega}$
 to denote the sets of finite system traces, infinite system traces,
-and all system traces respectively.
-Whenever it is clear that system traces are meant and not 
-MFOTL traces as in Section \ref{section:mfotl}, we ommit the
-"sys" subscript.
+and all system traces, respectively.
+Whenever it is clear that the system traces are meant and not the
+MFOTL traces as in Section \ref{section:mfotl}, we omit the
+subscript "sys".
 We also use $\emptytrace_{\text{sys}}$ to denote an empty system
-trace and will ommit the subscript if the meaning is clear from
+trace and will omit the subscript if the meaning is clear from
 context.
 
 \begin{proof}
@@ -168,10 +167,13 @@ As in Sprenger et. al \cite{igloo} and Abadi and Lamport \cite{refinement-mappin
 traces of this second form can be extended with a stuttering step
 $\sskip$, where traces are equivalent if they are the same with all
 $\sskip$ steps removed.
-Thus the set of events gets extended to be
+Thus the set of events in system traces $\Traces_\text{sys}$
+gets extended to be
 $$
-    \Databases \cup \left\{ \tick \right\} \cup \left\{ \sskip \right\} 
+    \Databases \cup \left\{ \tick, \sskip \right\}.
 $$
+The isomorphism from Lemma \ref{lem:trace-equivalence} still works, if
+we remove all $\sskip$ events before doing the trace conversion.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Runtime Enforcement as an Event System}
@@ -181,7 +183,7 @@ $$
 We use a slightly different model of an enforcer as that of
 Hublet et al. \cite{whyenf} described in subsection
 \ref{subsection:proactive-runtime-enforcement}.
-We take a less declarative approach that considers the enforcer as function.
+We take a less declarative approach that considers the enforcer as a function.
 
 % \begin{definition}
 %     \label{def:enf-function}
@@ -205,26 +207,36 @@ We take a less declarative approach that considers the enforcer as function.
     \label{def:enf-function}
     A function
     $$
-       \mu : \Traces_f \times 
+       \mu : \Traces_f \times
        \left(\Databases
        \cup \left\lbrace \tick, \sskip \right\rbrace \right)
        \to \left(\Databases
-       \cup \left\lbrace \tick, \sskip \right\rbrace \right)
+       \cup \left\lbrace \tick, \sskip \right\rbrace \right)^*
     $$
     is an \emph{Enforcer Function} iff
     for all $\sigma \in \Traces$ and $D \in \Databases$
     \begin{enumerate}
-        \item $\mu(\sigma, D) \setminus D \in \Databases_\Cau$,
-        \item $D \setminus \mu(\sigma, D) \in \Databases_\Sup$,
-        \item  $\mu(\sigma, \tick)
-            \in \left( \Databases_\Cau \cup \left\{ \sskip \right\} \right)$, and
-        \item $\mu(\sigma, \sskip) = \sskip $.
+        \item
+            $\mu(\sigma, D) \setminus D = \langle D_\Cau \rangle$
+            for some
+            $D_\Cau \in \Databases_\Cau$,
+        \item
+            $D \setminus \mu(\sigma, D) = \langle D_\Sup \rangle$
+            for some 
+            $ D_\Sup \in \Databases_\Sup$,
+        \item 
+            $\mu(\sigma, \tick) = \langle e, \tick \rangle$
+            for some
+            $ e \in \left( \Databases_\Cau \cup \left\{ \sskip \right\} \right)$, and
+        \item
+            $\mu(\sigma, \sskip) = \langle \sskip \rangle $.
     \end{enumerate}
 \end{definition}
 
+
 Such an enforcer function looks similar to the update function in Definition
 \ref{def:enforcer-triple}.
-The notable difference is that we remove the notion of commands all together and
+The notable difference is that we remove the notion of commands all together, and
 instead it directly modifies a database of events or tick, while the update
 function "only" produced the corresponding commands necessary to
 achieve the same modifications.
@@ -235,16 +247,13 @@ soundness of an enforcer in Subsection
 \begin{definition}
     \label{def:enf-function-soundness-property}
     An enforcer function $\mu$ is \emph{sound} with respect to some
-    property $P \subseteq \Traces$ iff
-    $\emptytrace \in P$ and
+    property $P \subseteq \Traces_\text{sys}$ iff
+    $\emptytrace_\text{sys} \in P$ and
     \begin{equation*}
-       \forall \sigma \in P~
-       % \tau \in \Nat,~
-       \tau \geq \tau_{|\sigma|},~
-       e \in \left( \Databases \cup \left\{ \tick \right\} \right).~
-       \sigma \cdot \mu(\sigma, \tau, e) \in P
+       \forall \sigma \in P,~
+       e \in \left( \Databases \cup \left\{ \tick, \sskip \right\} \right).~
+       \sigma \cdot \mu(\sigma, e) \in P
     \end{equation*}
-    where $\tau_i$ is the $i$-th timestamp in $\sigma$ for all $1 \leq i \leq |\sigma|$.
 \end{definition}
 
 \begin{definition}
