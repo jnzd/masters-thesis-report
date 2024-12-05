@@ -27,12 +27,14 @@ in Definition \ref{def:trace}.
      The special event $\tick$ represents a clock tick in the system.
 \end{definition}
 
-\begin{lemma}
-    \label{lem:trace-equivalence}
-    There exists a bijective mapping between MFOTL traces as in
-    Definition \ref{def:trace} and system traces in Definition
-    \ref{def:system-trace}. Thus, the two definitions are equivalent.
-\end{lemma}
+\begin{definition}
+    \label{def:trim-system-traces}
+    The function $\mathsf{trim}: \Traces_\text{sys} \to \Traces_\text{sys}$
+    removes all $\tick$ events from the end of a system trace
+    that are not followed by a database.
+\end{definition}
+
+
 
 We use
 $\Traces_{\text{sys},f} \subseteq 
@@ -51,6 +53,21 @@ We also use $\emptytrace_{\text{sys}}$ to denote an empty system
 trace and will omit the subscript if the meaning is clear from
 context.
 
+\begin{lemma}
+    \label{lem:trace-equivalence}
+    There exists a bijective mapping between MFOTL traces $\Traces$ 
+    and trimmed system traces  $ \mathsf{trim}(\Traces_\text{sys}) :=
+    \left\{ \mathsf{trim}(\sigma) \mid \sigma \in \Traces_\text{sys} \right\}$.
+\end{lemma}
+
+The intuition behind the necessity of trimming system traces to make
+them fully comparable with MFOTL traces is that MFOTL traces only capture
+some last timestamp at which a database was logged, while system traces
+can capture a current timestamp (the total number of ticks in a system trace)
+which may be greater than the last time stamp at which a database was logged
+(the number of ticks up until the last database).
+Next we proof Lemma \ref{lem:trace-equivalence}.
+
 \begin{proof}
     \label{proof:trace-equivalence}
     A trace of this form can be converted to the timestamp plus database  via a
@@ -65,19 +82,22 @@ context.
         \to \Traces
     \end{align*}
     \begin{align*}
-    \mathsf{c'}(\tau, \sigma) =
+    \mathsf{c'}(\tau, \sigma_\text{sys}) :=
         \begin{cases}
-            \sigma
-                & \text{if } \sigma = \emptytrace_{\text{sys}} \\
-            \mathsf{c'}(\tau+1, \sigma')
-                & \text{if } \sigma' = \tick \cdot \sigma' \\
-            \left( \tau, D \right) \cdot \mathsf{c'}(\tau, \sigma')
-                & \text{if } \sigma' = D \cdot \sigma' \\
+            \emptytrace
+                & \text{if } \sigma_\text{sys} = \emptytrace_{\text{sys}} \\
+            \mathsf{c'}(\tau+1, \sigma'_\text{sys})
+                & \text{if } \sigma = \tick \cdot \sigma'_\text{sys} \\
+            \left( \tau, D \right) \cdot \mathsf{c'}(\tau, \sigma'_\text{sys})
+                & \text{if } \sigma = D \cdot \sigma'_\text{sys}
+                % \text{for some } D \in \Databases
+                \\
         \end{cases}
     \end{align*}
-    Then, for all $\sigma \in \Traces_{\text{sys}}$, $c$ is defined as followed
+    Then, for all $\sigma_\text{sys} \in \Traces_{\text{sys}}$,
+    $c$ is defined as followed
     \begin{align*}
-        \mathsf{c}(\sigma) = \mathsf{c'}(0, \sigma).
+        \mathsf{c}(\sigma_\text{sys}) := \mathsf{c'}(0, \sigma_\text{sys}).
     \end{align*}
 
     In the other direction we can define
@@ -91,21 +111,21 @@ context.
     \end{align*}
 
     \begin{align*}
-        \mathsf{d'}(\tau, \sigma) =
+        \mathsf{d'}(\tau, \sigma) :=
         \begin{cases}
-            \sigma
+            \emptytrace_\text{sys}
                 &\text{if } \sigma = \emptytrace \\
             D \cdot \mathsf{d'}(\tau, \sigma')
                 &\text{if } \sigma = (\tau, D) \cdot \sigma' \\
-            \tick \cdot \mathsf{d'}(\tau+1, \sigma')
+            \tick \cdot \mathsf{d'}(\tau+1, \sigma)
                 &\text{if } \sigma = (\tau', D) \cdot \sigma'
                 \text{ and } \tau' > \tau
         \end{cases}
     \end{align*}
 
-    Then $\mathsf{d}$ is computed as
+    Then $\mathsf{d}$ is defined as
     \begin{equation*}
-        \mathsf{d} = \mathsf{d'}(0, \sigma).
+        \mathsf{d} := \mathsf{d'}(0, \sigma).
     \end{equation*}
 
     We can now show that $\mathsf{d}$ is the inverse function of
@@ -115,35 +135,70 @@ context.
         % \left( \Nat \times \Databases \right)^*
         \Traces
         .~
-        \mathsf{c}(\mathsf{d}(\sigma)) = \sigma
+        \mathsf{c}(\mathsf{d}(\sigma)) = \sigma.
     \end{equation*}
+    In fact we can proof a more general property over the two helper functions
+    $\mathsf{c'}$ and $\mathsf{d'}$ for all traces 
+    $\sigma \in \Traces$ and timestamps $\tau \in \Nat$, where
+    % TODO Introduce first timestamp function
+    either $\sigma = \emptytrace$ or $\tau \leq \fts(\sigma)$
+    \begin{equation*}
+        \sigma = \mathsf{c'}(\tau, \mathsf{d'}(\tau, \sigma)).
+    \end{equation*}
+    This property does imply the first one. The parameter $\tau$ can
+    simply be fixed as 0.
 
-    We proof this by induction.
-    First let
-    $\sigma = \emptytrace \in  \Traces$
-    % $\sigma = \emptytrace \in  \left( \Nat \times \Databases \right)^*$
-    Then
+    We proof this by induction over traces $\Traces$ for an arbitrary
+    $\tau \in \Nat$.
+
+    \textbf{Base Case:}
+    $\sigma = \emptytrace$ (and $\tau \in \Nat$)
+
     \begin{align*}
-        \mathsf{c}({\mathsf{d}}(\sigma))
-        &= \mathsf{c}(\mathsf{d}(\emptytrace)) \\
-        &= \mathsf{c}(\mathsf{d'}(0, \emptytrace)) \\
-        &= \mathsf{c}(\emptytrace_\text{sys}) \\
-        &= \mathsf{c'}(0, \emptytrace_\text{sys}) \\
+        \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
+        &= \mathsf{c'}(\tau, {\mathsf{d}}(\tau, \emptytrace)) \\
+        &= \mathsf{c'}(\tau, \emptytrace_\text{sys}) \\
         &= \emptytrace \\
         &= \sigma \\
     \end{align*}
 
-    The Induction Hypothesis ... TODO
+    \textbf{Induction Hypothesis:} 
+    For every suffix $\sigma' \in \Traces$ of a trace $\sigma \in \Traces$
+    with $|\sigma'| < |\sigma|$ and any $\tau \in \Nat$,
+    \begin{equation*}
+        \sigma' = \mathsf{c'}(\tau, \mathsf{d'}(\tau, \sigma')).
+    \end{equation*}
 
-    \begin{align*}
-        \dots \text{TODO}
-    \end{align*}
+    \textbf{Induction Step:}
+    Let $\sigma \neq \emptytrace \in \Traces$ and $\tau \in \Nat$.
+    We know that
+    $\sigma = \left(\tau', D \right) \cdot \sigma'$
+    for some $\tau' \in \Nat$, some $D \in \Databases$ and
+    a suffix $\sigma' \in \Traces$.
 
-    Induction step ... TODO
+    Next we make a case distinction
+    \begin{itemize}
+        \item 
+            $\tau = \tau'$
+            \begin{align*}
+                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
+                &=  \mathsf{c'}(\tau, D \cdot {\mathsf{d'}}(\tau, \sigma'))
+            \end{align*}
+        \item
+            $\tau < \tau'$
+            \begin{align*}
+                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
+                &= 
+            \end{align*}
+        \item
+            $\tau > \tau'$
+            \begin{align*}
+                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
+                &= 
+            \end{align*}
+    \end{itemize}
 
-    \begin{align*}
-        \dots \text{TODO}
-    \end{align*}
+    
 
 \end{proof}
 Intuitively $\mathsf{c}$ and $\mathsf{c'}$ count the clock ticks and store them
@@ -192,6 +247,12 @@ update functions, one for the proactive and one for the reactive case
     $$
     set of events by suppressing (deleting) and causing
     (inserting) certain events if needed.
+    Where for all $\sigma \in \Traces_f$
+    and $D \in \Databases$
+    \begin{itemize}
+        \item $D \setminus \delta(\sigma, D) \in \Databases_\Sup$
+        \item $\delta(\sigma, D) \setminus D \in \Databases_\Cau$
+    \end{itemize}
 \end{definition}
 
 \begin{definition}
@@ -199,9 +260,10 @@ update functions, one for the proactive and one for the reactive case
     A \emph{Proactive Update Function}
     $$
        \omega :
-       \Traces_f \times \left\{ \tick \right\}
+       \Traces_f
+       % \Traces_f \times \left\{ \tick \right\}
        \to
-       \Databases \cup \left\{ \sskip \right\}
+       \Databases_\Cau \cup \left\{ \sskip \right\}
     $$
     indicates whether or not some events must be caused (inserted)
     before a clock tick happens.
@@ -267,17 +329,12 @@ refinement and the refinement of (CRE) enforcement event systems.
     % one of the following transitions.
     \begin{align*}
         \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
-            && 
             && \text{Skip} \\
-        \sigma &\Transitionrelation{}{D} \sigma \cdot D'
-            && \text{if } \delta(\sigma, D) = D'
+        \sigma &\Transitionrelation{}{D} \sigma \cdot \delta(\sigma, D)
             && \text{Step-R} \\
-        \sigma &\Transitionrelation{}{\tick} \sigma \cdot \tick
-            && \text{if } \omega(\sigma, \tick) = \sskip
-            && \text{Tick-N} \\
-        \sigma &\Transitionrelation{}{\tick} \sigma \cdot D \cdot \tick
-            && \text{if } \omega(\sigma, \tick) = D
-            && \text{Tick-P} \\
+        \sigma &\Transitionrelation{}{\tick}
+            \sigma \cdot \omega(\sigma) \cdot \tick
+            && \text{Step-P} \\
     \end{align*}
 \end{definition}
 
