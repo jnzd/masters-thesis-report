@@ -112,6 +112,32 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 \end{definition}
 
 \begin{definition}
+    \label{def:first-time-stamp}
+    The function $\fts : \Traces \to \Nat \cup \left\{ \bot \right\}$
+    gives the first time stamp in a trace unless it is empty.
+    \begin{align*}
+        \fts(\sigma) :=
+        \begin{cases}
+            \bot & \text{if } \sigma = \emptytrace \\
+            \tau & \text{if } \sigma = \left( \tau, D \right) \cdot \sigma'
+        \end{cases}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    \label{def:last-time-stamp}
+    The function $\lts : \Traces \to \Nat \cup \left\{ \bot \right\}$
+    gives the first time stamp in a trace unless it is empty.
+    \begin{align*}
+        \lts(\sigma) :=
+        \begin{cases}
+            \bot & \text{if } \sigma = \emptytrace \\
+            \tau & \text{if } \sigma = \sigma' \cdot \left( \tau, D \right)
+        \end{cases}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
     \label{def:property}
     A \emph{Property} is a subset $P\subseteq \Traces_\omega$.
 \end{definition}

@@ -29,7 +29,7 @@ in Definition \ref{def:trace}.
 
 \begin{definition}
     \label{def:trim-system-traces}
-    The function $\mathsf{trim}: \Traces_\text{sys} \to \Traces_\text{sys}$
+    The function $\trim: \Traces_\sys \to \Traces_\sys$
     removes all $\tick$ events from the end of a system trace
     that are not followed by a database.
 \end{definition}
@@ -37,27 +37,27 @@ in Definition \ref{def:trace}.
 
 
 We use
-$\Traces_{\text{sys},f} \subseteq 
+$\Traces_{\sys, f} \subseteq 
 \left( \Databases \cup \left\{\tick \right\} \right)^*$,
-$\Traces_{\text{sys}, \omega} \subseteq
+$\Traces_{\sys, \omega} \subseteq
 \left( \Databases \cup \left\{\tick \right\} \right)^\infty$,
 and
-$\Traces_{\text{sys}} = 
-\Traces_{\text{sys},f} \cup \Traces_{\text{sys}, \omega}$
+$\Traces_\sys = 
+\Traces_{\sys, f} \cup \Traces_{\sys, \omega}$
 to denote the sets of finite system traces, infinite system traces,
 and all system traces, respectively.
 Whenever it is clear that the system traces are meant and not the
 MFOTL traces as in Section \ref{section:mfotl}, we omit the
 subscript "sys".
-We also use $\emptytrace_{\text{sys}}$ to denote an empty system
+We also use $\emptytrace_\sys$ to denote an empty system
 trace and will omit the subscript if the meaning is clear from
 context.
 
 \begin{lemma}
     \label{lem:trace-equivalence}
     There exists a bijective mapping between MFOTL traces $\Traces$ 
-    and trimmed system traces  $ \mathsf{trim}(\Traces_\text{sys}) :=
-    \left\{ \mathsf{trim}(\sigma) \mid \sigma \in \Traces_\text{sys} \right\}$.
+    and trimmed system traces  $ \mathsf{trim}(\Traces_\sys) :=
+    \left\{ \mathsf{trim}(\sigma) \mid \sigma \in \Traces_\sys \right\}$.
 \end{lemma}
 
 The intuition behind the necessity of trimming system traces to make
@@ -72,149 +72,177 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
     \label{proof:trace-equivalence}
     A trace of this form can be converted to the timestamp plus database  via a
     trace converter function
-    $$
-    \mathsf{c}:
-    \Traces_{\text{sys}} \to \Traces
-    $$ and the helper function
+    \begin{equation*}
+        \cConv: \Traces_\sys \to \Traces
+    \end{equation*}
+    and the helper function
     \begin{align*}
-        \mathsf{c'}:
-        \Nat \times \Traces_{\text{sys}}
+        \cConv':
+        \Nat \times \Traces_\sys
         \to \Traces
     \end{align*}
     \begin{align*}
-    \mathsf{c'}(\tau, \sigma_\text{sys}) :=
+    \cConv'(\tau, \sigma_\sys) :=
         \begin{cases}
             \emptytrace
-                & \text{if } \sigma_\text{sys} = \emptytrace_{\text{sys}} \\
-            \mathsf{c'}(\tau+1, \sigma'_\text{sys})
-                & \text{if } \sigma = \tick \cdot \sigma'_\text{sys} \\
-            \left( \tau, D \right) \cdot \mathsf{c'}(\tau, \sigma'_\text{sys})
-                & \text{if } \sigma = D \cdot \sigma'_\text{sys}
+                & \text{if } \sigma_\sys = \emptytrace_\sys \\
+            \cConv'(\tau+1, \sigma'_\sys)
+                & \text{if } \sigma = \tick \cdot \sigma'_\sys \\
+            \left( \tau, D \right) \cdot \cConv'(\tau, \sigma'_\sys)
+                & \text{if } \sigma = D \cdot \sigma'_\sys
                 % \text{for some } D \in \Databases
                 \\
         \end{cases}
     \end{align*}
-    Then, for all $\sigma_\text{sys} \in \Traces_{\text{sys}}$,
+    Then, for all $\sigma_\sys \in \Traces_\sys$,
     $c$ is defined as followed
     \begin{align*}
-        \mathsf{c}(\sigma_\text{sys}) := \mathsf{c'}(0, \sigma_\text{sys}).
+        \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
     \end{align*}
+
 
     In the other direction we can define
-    $$
-        \mathsf{d}: \Traces \to \Traces_{\text{sys}}
-    $$
+    \begin{equation*}
+        \dConv: \Traces \to \trim(\Traces_\sys)
+    \end{equation*}
     via another helper function
     \begin{align*}
-        \mathsf{d'}:
-        \Nat \times \Traces \to \Traces_\text{sys}
+        \dConv':
+        \Nat \times \Traces \to \trim(\Traces_\sys)
     \end{align*}
 
     \begin{align*}
-        \mathsf{d'}(\tau, \sigma) :=
+        \dConv'(\tau, \sigma) :=
         \begin{cases}
-            \emptytrace_\text{sys}
+            \emptytrace_\sys
                 &\text{if } \sigma = \emptytrace \\
-            D \cdot \mathsf{d'}(\tau, \sigma')
-                &\text{if } \sigma = (\tau, D) \cdot \sigma' \\
-            \tick \cdot \mathsf{d'}(\tau+1, \sigma)
+            D \cdot \dConv'(\tau, \sigma')
                 &\text{if } \sigma = (\tau', D) \cdot \sigma'
-                \text{ and } \tau' > \tau
+                \text{ and } \tau = \tau'
+                \\
+            \tick \cdot \dConv'(\tau+1, \sigma)
+                &\text{if } \sigma = (\tau', D) \cdot \sigma'
+                \text{ and } \tau < \tau
         \end{cases}
     \end{align*}
 
-    Then $\mathsf{d}$ is defined as
+    Then, for all $\sigma \in \Traces$, $\dConv$ is defined as
     \begin{equation*}
-        \mathsf{d} := \mathsf{d'}(0, \sigma).
+        \dConv(\sigma) := \dConv'(0, \sigma).
     \end{equation*}
+    It is important to note that $\dConv'(\tau, \sigma)$
+    is only defined, if
+    $\tau \leq \fts(\sigma)$ or $\sigma = \emptytrace$.
+    $\dConv$ however, is defined for all $\sigma \in \Traces$,
+    since timestamps in any trace must increase monotonically,
+    and the timestamp argument passed to $\dConv'$ is $0$.
+    To see that the ranges of both $\dConv$ and $\dConv$
+    for all allowed inputs is $\trim(\Traces_\sys)$ and
+    not $\Traces_\sys$, note that a $\tick$ is only added when
+    the trace is not yet empty, thus any inserted $\tick$ will
+    eventually be followed by some database $D$.
 
-    We can now show that $\mathsf{d}$ is the inverse function of
-    $\mathsf{c}$ by proofing that
-    \begin{equation*}
-        \forall \sigma \in
-        % \left( \Nat \times \Databases \right)^*
-        \Traces
-        .~
-        \mathsf{c}(\mathsf{d}(\sigma)) = \sigma.
-    \end{equation*}
+    We can now show that $\dConv : \Traces \to \trim(\Traces_\sys)$
+    is the inverse function of $\cConv$ with the domain restricted to
+    trimmed system traces (i.e. $\cConv : \trim(\Traces_\sys) \to \Traces$)
+    by showing that
+    \begin{equation}
+        \forall \sigma \in \Traces .~
+        \cConv(\dConv(\sigma)) = \sigma.
+    \end{equation}
     In fact we can proof a more general property over the two helper functions
-    $\mathsf{c'}$ and $\mathsf{d'}$ for all traces 
-    $\sigma \in \Traces$ and timestamps $\tau \in \Nat$, where
-    % TODO Introduce first timestamp function
+    $\cConv'$ and $\dConv'$ for all traces 
+    $\sigma \in \Traces$ and timestamps $\tau \in \Nat$
+    (all inputs for which $\dConv'$ is defined), where
     either $\sigma = \emptytrace$ or $\tau \leq \fts(\sigma)$
-    \begin{equation*}
-        \sigma = \mathsf{c'}(\tau, \mathsf{d'}(\tau, \sigma)).
-    \end{equation*}
+    \begin{equation}
+        \sigma = \cConv'(\tau, \dConv'(\tau, \sigma)).
+    \end{equation}
     This property does imply the first one. The parameter $\tau$ can
     simply be fixed as 0.
 
-    We proof this by induction over traces $\Traces$ for an arbitrary
-    $\tau \in \Nat$.
+    We proof this by structural induction over traces $\sigma \in \Traces$
+    for all $\tau \in \Nat$ where either $\tau \leq \fts(\sigma)$ or
+    $\sigma = \emptytrace$.
 
     \textbf{Base Case:}
-    $\sigma = \emptytrace$ (and $\tau \in \Nat$)
+    $\sigma = \emptytrace$ (and some $\tau \in \Nat$)
 
     \begin{align*}
-        \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
-        &= \mathsf{c'}(\tau, {\mathsf{d}}(\tau, \emptytrace)) \\
-        &= \mathsf{c'}(\tau, \emptytrace_\text{sys}) \\
+        \cConv'(\tau, \dConv'(\tau, \sigma))
+        &= \cConv'(\tau, \dConv(\tau, \emptytrace)) \\
+        &= \cConv'(\tau, \emptytrace_\sys) \\
         &= \emptytrace \\
         &= \sigma \\
     \end{align*}
 
     \textbf{Induction Hypothesis:} 
-    For every suffix $\sigma' \in \Traces$ of a trace $\sigma \in \Traces$
-    with $|\sigma'| < |\sigma|$ and any $\tau \in \Nat$,
+    For every true suffix $\sigma'$ of a trace $\sigma \in \Traces$
+    that is not the entire trace $\sigma$, i.e.
+    $\sigma = \sigma'' \cdot \sigma'$ and $\sigma'' \neq \emptytrace$,
+    and for every timestamp $\tau \in \Nat$
+    which is less than the first timestamp
+    ($\tau \leq \fts(\sigma')$)
+    in $\sigma'$, unless $\sigma' = \emptytrace$ it holds that
     \begin{equation*}
-        \sigma' = \mathsf{c'}(\tau, \mathsf{d'}(\tau, \sigma')).
+        \sigma' = \cConv'(\tau, \dConv'(\tau, \sigma')).
     \end{equation*}
 
     \textbf{Induction Step:}
-    Let $\sigma \neq \emptytrace \in \Traces$ and $\tau \in \Nat$.
-    We know that
+    Let $\sigma \neq \emptytrace$
+    and $\tau \leq \fts(\sigma)$.
+    Because $\sigma$ is not empty,
     $\sigma = \left(\tau', D \right) \cdot \sigma'$
-    for some $\tau' \in \Nat$, some $D \in \Databases$ and
+    for some $\tau' \geq \tau$, some $D \in \Databases$ and
     a suffix $\sigma' \in \Traces$.
 
-    Next we make a case distinction
-    \begin{itemize}
+    We make a case distinction on $\tau$ and $\tau'$
+    \begin{enumerate}
         \item 
             $\tau = \tau'$
             \begin{align*}
-                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
-                &=  \mathsf{c'}(\tau, D \cdot {\mathsf{d'}}(\tau, \sigma'))
+                \label{c1}
+                \cConv'(\tau, \dConv'(\tau, \sigma))
+                &= \cConv'(\tau, D \cdot \dConv'(\tau, \sigma')) \\
+                &= \left(\tau, D \right) \cdot \cConv'(\tau, \dConv'(\tau, \sigma')) \\
+                &\stackrel{\text{IH}}{=} \left(\tau, D \right) \cdot \sigma' \\
+                &= \sigma
             \end{align*}
         \item
-            $\tau < \tau'$
+            $\tau < \tau'$, i.e. $\tau' = \tau + k$ for some $k > 0$
             \begin{align*}
-                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
-                &= 
+                \cConv'(\tau, \dConv'(\tau, \sigma))
+                &= \cConv'(\tau, \tick \cdot \dConv'(\tau + 1, \sigma)) \\
+                & \qquad \vdots \\
+                &= \cConv'(\tau, \underbrace{\tick \cdots \tick}_{k \text{ times}}
+                \cdot \dConv'(\tau + k, \sigma)) \\
+                &= \cConv'(\tau + 1, \underbrace{\tick \cdots \tick}_{k-1 \text{ times}}
+                \cdot \dConv'(\tau + k, \sigma)) \\
+                & \qquad \vdots \\
+                &= \cConv'(\tau + (k-1), \tick \cdot \dConv'(\tau + k, \sigma)) \\
+                &= \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
+                &= \cConv'(\tau', \dConv'(\tau', \sigma)) \\
+                & \stackrel{\text{Case } \ref{c1}}{=} \sigma
             \end{align*}
-        \item
-            $\tau > \tau'$
-            \begin{align*}
-                \mathsf{c'}(\tau, {\mathsf{d'}}(\tau, \sigma))
-                &= 
-            \end{align*}
-    \end{itemize}
+    \end{enumerate}
 
     
 
 \end{proof}
-Intuitively $\mathsf{c}$ and $\mathsf{c'}$ count the clock ticks and store them
+Intuitively $\cConv$ and $\cConv'$ count the clock ticks and store them
 explicitly as integer timestamps.
 % It is apparent, that this process is invertible
 % and the two definitions are thus equivalent.
 We believe that it is clear which definition is used based on the context.
-At times we may use the function $\mathsf{c}$ to make it more explicit.
+At times we may use the function $\cConv$ to make it more explicit.
 For both definitions, a property is a subset of all possible traces.
-For conversion of properties we use $\mathsf{c}$ with arguments being sets of
-traces in which case $\mathsf{c}$ simply gets mapped on each element of the set.
+For conversion of properties we use $\cConv$ with arguments being sets of
+traces in which case $\cConv$ simply gets mapped on each element of the set.
 As in Sprenger et. al \cite{igloo} and Abadi and Lamport \cite{refinement-mappings}
 traces of this second form can be extended with a stuttering step
 $\sskip$, where traces are equivalent if they are the same with all
 $\sskip$ steps removed.
-Thus the set of events in system traces $\Traces_\text{sys}$
+Thus the set of events in system traces $\Traces_\sys$
 gets extended to be
 $$
     \Databases \cup \left\{ \tick, \sskip \right\}.
@@ -329,12 +357,12 @@ refinement and the refinement of (CRE) enforcement event systems.
     % one of the following transitions.
     \begin{align*}
         \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
-            && \text{Skip} \\
+            & \text{(Skip)} \\
         \sigma &\Transitionrelation{}{D} \sigma \cdot \delta(\sigma, D)
-            && \text{Step-R} \\
+            & \text{(Step-R)} \\
         \sigma &\Transitionrelation{}{\tick}
             \sigma \cdot \omega(\sigma) \cdot \tick
-            && \text{Step-P} \\
+            & \text{(Step-P)} \\
     \end{align*}
 \end{definition}
 
@@ -358,8 +386,8 @@ soundness of an enforcer in Subsection
     An enforcement event system
     $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
     is \emph{sound} with respect to some
-    property $P \subseteq \Traces_\text{sys}$ iff
-    $\emptytrace_\text{sys} \in P$ and
+    property $P \subseteq \Traces_\sys$ iff
+    $\emptytrace_\sys \in P$ and
     % \begin{equation*}
     %    \forall \sigma \in P,~
     %    e \in \left( \Databases \cup \left\{ \tick, \sskip \right\} \right).~
@@ -389,7 +417,7 @@ soundness of an enforcer in Subsection
 %     Then ...
     
 %     TODO (a corresponding enforcer as in Definition \ref{def:enforcer-triple}
-%     is also sound for $\mathsf{d}(P)$
+%     is also sound for $\dConv(P)$
     
 %     TODO: is system state maybe necessary for our enforcer function after all?
 %     Or can it be argued that the state in the update function of an enforcer
@@ -414,7 +442,7 @@ soundness of an enforcer in Subsection
     and SuS with state space $\EnfStates$ with initial state $s_0$ and 
     state transition relation TODO, there  exists a sound  enforcer
     $\Enforcer = \left(\EnfStates, s_0, \mu' \right)$ for property
-    $\mathsf{d}(P)$.
+    $\dConv(P)$.
 \end{lemma}
 
 \begin{proof}
