@@ -618,14 +618,14 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
 \begin{definition}
     \label{def:enf-sound-policy}
     An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$, iff
-    for any trace $\sigma \in \Traces_\omega$, $\Enforcer(\sigma) \in \Language(\phi)$.
+    it is sound for the language $\Language(\phi)$.
 \end{definition}
 
 \begin{definition}
     \label{def:enf-transparent-policy}
     An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
-    with respect to some policy $\phi$ iff for all $\sigma \in \Language(\phi)$,
-    $\Enforcer(\sigma) = \sigma$.
+    with respect to some policy $\phi$ iff it is transparent for
+    the language $\Language(\phi)$.
 \end{definition}
 
 A property or policy is said to be \emph{(transparently) enforceable} if there

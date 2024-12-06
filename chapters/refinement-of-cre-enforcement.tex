@@ -81,8 +81,9 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
         \Nat \times \Traces_\sys
         \to \Traces
     \end{align*}
-    \begin{align*}
-    \cConv'(\tau, \sigma_\sys) :=
+    \begin{align}
+        \label{eq:cconv'}        
+        \cConv'(\tau, \sigma_\sys) :=
         \begin{cases}
             \emptytrace
                 & \text{if } \sigma_\sys = \emptytrace_\sys \\
@@ -93,12 +94,13 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
                 % \text{for some } D \in \Databases
                 \\
         \end{cases}
-    \end{align*}
+    \end{align}
     Then, for all $\sigma_\sys \in \Traces_\sys$,
     $c$ is defined as followed
-    \begin{align*}
+    \begin{align}
+        \label{eq:cconv}
         \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
-    \end{align*}
+    \end{align}
 
 
     In the other direction we can define
@@ -111,7 +113,8 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
         \Nat \times \Traces \to \trim(\Traces_\sys)
     \end{align*}
 
-    \begin{align*}
+    \begin{align}
+        \label{eq:dconv'}
         \dConv'(\tau, \sigma) :=
         \begin{cases}
             \emptytrace_\sys
@@ -124,12 +127,13 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
                 &\text{if } \sigma = (\tau', D) \cdot \sigma'
                 \text{ and } \tau < \tau
         \end{cases}
-    \end{align*}
+    \end{align}
 
     Then, for all $\sigma \in \Traces$, $\dConv$ is defined as
-    \begin{equation*}
+    \begin{equation}
+        \label{eq:dconv}
         \dConv(\sigma) := \dConv'(0, \sigma).
-    \end{equation*}
+    \end{equation}
     It is important to note that $\dConv'(\tau, \sigma)$
     is only defined, if
     $\tau \leq \fts(\sigma)$ or $\sigma = \emptytrace$.
@@ -147,6 +151,7 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
     trimmed system traces (i.e. $\cConv : \trim(\Traces_\sys) \to \Traces$)
     by showing that
     \begin{equation}
+        \label{eq:inverse-main-conversion-functions}
         \forall \sigma \in \Traces .~
         \cConv(\dConv(\sigma)) = \sigma.
     \end{equation}
@@ -156,6 +161,7 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
     (all inputs for which $\dConv'$ is defined), where
     either $\sigma = \emptytrace$ or $\tau \leq \fts(\sigma)$
     \begin{equation}
+        \label{eq:inverse-helper-conversion-functions}
         \sigma = \cConv'(\tau, \dConv'(\tau, \sigma)).
     \end{equation}
     This property does imply the first one. The parameter $\tau$ can
@@ -204,7 +210,9 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
                 \label{c1}
                 \cConv'(\tau, \dConv'(\tau, \sigma))
                 &= \cConv'(\tau, D \cdot \dConv'(\tau, \sigma')) \\
-                &= \left(\tau, D \right) \cdot \cConv'(\tau, \dConv'(\tau, \sigma')) \\
+                &\stackrel{\ref{eq:dconv'}}{=}
+                    \left(\tau, D \right) \cdot
+                    \cConv'(\tau, \dConv'(\tau, \sigma')) \\
                 &\stackrel{\text{IH}}{=} \left(\tau, D \right) \cdot \sigma' \\
                 &= \sigma
             \end{align*}
@@ -212,21 +220,28 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
             $\tau < \tau'$, i.e. $\tau' = \tau + k$ for some $k > 0$
             \begin{align*}
                 \cConv'(\tau, \dConv'(\tau, \sigma))
-                &= \cConv'(\tau, \tick \cdot \dConv'(\tau + 1, \sigma)) \\
+                &\stackrel{\ref{eq:dconv'}}{=}
+                    \cConv'(\tau, \tick \cdot \dConv'(\tau + 1, \sigma)) \\
                 & \qquad \vdots \\
-                &= \cConv'(\tau, \underbrace{\tick \cdots \tick}_{k \text{ times}}
-                \cdot \dConv'(\tau + k, \sigma)) \\
-                &= \cConv'(\tau + 1, \underbrace{\tick \cdots \tick}_{k-1 \text{ times}}
-                \cdot \dConv'(\tau + k, \sigma)) \\
+                &\stackrel{\ref{eq:dconv'}}{=}
+                    \cConv'(\tau, \underbrace{\tick \cdots \tick}_{k \text{ times}}
+                    \cdot \dConv'(\tau + k, \sigma)) \\
+                &\stackrel{\ref{eq:cconv'}}{=}
+                    \cConv'(\tau + 1, \underbrace{\tick \cdots \tick}_{k-1 \text{ times}}
+                    \cdot \dConv'(\tau + k, \sigma)) \\
                 & \qquad \vdots \\
-                &= \cConv'(\tau + (k-1), \tick \cdot \dConv'(\tau + k, \sigma)) \\
-                &= \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
+                &\stackrel{\ref{eq:cconv'}}{=}
+                    \cConv'(\tau + (k-1), \tick \cdot \dConv'(\tau + k, \sigma)) \\
+                &\stackrel{\ref{eq:cconv'}}{=}
+                    \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
                 &= \cConv'(\tau', \dConv'(\tau', \sigma)) \\
                 & \stackrel{\text{Case } \ref{c1}}{=} \sigma
             \end{align*}
     \end{enumerate}
 
-    
+    The two cases could also be combined into one, if we allowed $k=0$.
+    We have now shown \ref{eq:inverse-helper-conversion-functions} 
+    which does imply \ref{eq:inverse-main-conversion-functions}.
 
 \end{proof}
 Intuitively $\cConv$ and $\cConv'$ count the clock ticks and store them
@@ -297,49 +312,24 @@ update functions, one for the proactive and one for the reactive case
     before a clock tick happens.
 \end{definition}
 
-
-
-% We first define enforcement of a CRE-Policy as an event system
-% and then show how the notion of refinement
-% as in Sprenger et. al \cite{igloo} works for such an event system.
-
-Any enforced system can be seen as an event system.
-In this section we describe how any enforceable CRE specification
-$S = \left( \Sigma, \Phi, \kappa \right)$ with
-$\Sigma = \left( \Domain, \Events, \Functions, \iota \right)$
-and $\Phi = \left( C, R, E \right)$ induces an event system
-$\EventSystem = \left( \Statespace, \Eventspace, \Transitionrelation{}{} \right)$
-and initial states $\Initialstates$.
-
-The enforceability condition on the specification $S$ implies
-that there exists a sound
-enforcer $\Enforcer_\Phi$ with an update function $\mu$ for $S$.
-
-We describe how an enforced system can be seen as an event system and
-how CRE-policies induce specific event systems.
-We then draw a comparison between the definition of CRE-specification
-refinement and the refinement of (CRE) enforcement event systems.
-
-
 \begin{definition}
     \label{def:enf-state-space}
-    The \emph{Enforcement State Space} $\Statespace = \Traces$
-    consists of all traces of the kind with $\tick$ and $\sskip$ events.
+    The \emph{Enforcement State Space} $\Statespace = \Traces_\sys$
+    consists of all system traces (that may include $\sskip$).
 \end{definition}
-
 
 \begin{definition}
     \label{def:enf-initial-states}
-    The single initial state is the empty trace $\emptytrace$.
-    $$\Initialstates = \lbrace \emptytrace \rbrace$$
+    The single initial state is the empty trace $\emptytrace_\sys$.
+    $$\Initialstates = \lbrace \emptytrace_\sys \rbrace$$
 \end{definition}
 
 \begin{definition}
     \label{def:enf-event-space}
     The \emph{Event Space}
-    $$
+    \begin{equation*}
         \Eventspace=\Databases \cup \lbrace \tick, \sskip \rbrace
-    $$
+    \end{equation*}
     consists of sets of events or the two special events $\tick$ and $\sskip$.
 \end{definition}
 
@@ -347,20 +337,44 @@ refinement and the refinement of (CRE) enforcement event systems.
 \begin{definition}
     \label{def:enf-transition-relation}
     The \emph{Transition Relation} is a subset
-    $\Transitionrelation{}{} \subseteq
-    \Statespace \times \Eventspace \times \Statespace$.
+    % $\Transitionrelation{}{} \subseteq
+    % \Statespace \times \Eventspace \times \Statespace$.
+    \begin{equation*}
+        \Transitionrelation{}{} \subseteq
+        \Traces_\sys
+        \times \left( \Databases \cup \left\{\tick, \sskip \right\} \right)
+        \times \Traces_\sys
+    \end{equation*}
     We write $\sigma \Transitionrelation{}{e} \sigma'$
     as a shorthand for
     $\left(\sigma, e, \sigma'\right) \in \Transitionrelation{}{}$.
-    % A Transition Relation is valid for some policy $\Phi$, if there exists an
-    % enforcer function $\mu$ and all allowed transitions match
-    % one of the following transitions.
+    Further for events $e_1, e_2 \in \Eventspace$,
+    $\sigma \Transitionrelation{}{e_1 \cdot e_2} \sigma'$ iff
+    there exists $\sigma''$ such that
+    $\sigma \Transitionrelation{}{e_1} \sigma''$ and
+    $\sigma'' \Transitionrelation{}{e_2} \sigma'$.
+    This syntax can be extend to sequences of events (i.e. system traces)
+    $\rho_1, \rho_2 \in \Traces_\sys$,
+    $\sigma \Transitionrelation{}{\rho_1 \cdot \rho_2} \sigma'$ iff
+    there exists $\sigma''$ such that
+    $\sigma \Transitionrelation{}{\rho_1} \sigma''$ and
+    $\sigma'' \Transitionrelation{}{\rho_2} \sigma'$.
+
+    The transition relation is then defined via the following three transition
+    rules.
     \begin{align*}
+        % \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
+        %     & \text{(Skip)} \\
+        % \sigma &\Transitionrelation{}{D} \sigma \cdot \delta(\sigma, D)
+        %     & \text{(Step-R)} \\
+        % \sigma &\Transitionrelation{}{\tick}
+        %     \sigma \cdot \omega(\sigma) \cdot \tick
+        %     & \text{(Step-P)} \\
         \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
             & \text{(Skip)} \\
-        \sigma &\Transitionrelation{}{D} \sigma \cdot \delta(\sigma, D)
+        \sigma &\Transitionrelation{}{\delta(\sigma, D)} \sigma \cdot \delta(\sigma, D)
             & \text{(Step-R)} \\
-        \sigma &\Transitionrelation{}{\tick}
+        \sigma &\Transitionrelation{}{\omega(\sigma) \cdot \tick}
             \sigma \cdot \omega(\sigma) \cdot \tick
             & \text{(Step-P)} \\
     \end{align*}
@@ -372,10 +386,21 @@ refinement and the refinement of (CRE) enforcement event systems.
     $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
     is a tuple consisting of a state space $\Statespace = \Traces$,
     event space $\Eventspace = \Databases \cup \left\{ \tick, \sskip \right\}$,
-    a reactive update function $\delta$ and a proactive update function $\omega$.
+    a reactive update function
+    $\delta : \Traces_f \times \Databases \to \Databases$
+    and a proactive update function
+    $\omega : \Traces_f \to \Databases_\Cau \cup \left\{ \sskip \right\}$.
     Where the two update functions define a transition relation as 
-    defined in Definition \ref{def:enf-transition-relation}
+    defined in Definition \ref{def:enf-transition-relation}.
 \end{definition}
+
+We use the same definition of event traces for an enforcement event system 
+$\EventSystem$ with initial states $\Initialstates$ as for
+event systems inin Sprenger et al. \cite{igloo} (Section \ref{section:event-systems}),
+states $\Initialstates$.
+Our described system has the property that if the only initial state is
+the empty trace $\emptytrace_\sys$, the final state of the event system
+and the event trace of the system are identical.
 
 We define soundness notions for enforcement event systems that are analogous to
 soundness of an enforcer in Subsection
@@ -385,68 +410,37 @@ soundness of an enforcer in Subsection
     \label{def:enf-event-system-soundness-property}
     An enforcement event system
     $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
+    with $\Statespace = \Traces_\sys$,
+    $\Eventspace = \Databases \cup \{ \tick, \sskip \}$
     is \emph{sound} with respect to some
     property $P \subseteq \Traces_\sys$ iff
-    $\emptytrace_\sys \in P$ and
-    % \begin{equation*}
-    %    \forall \sigma \in P,~
-    %    e \in \left( \Databases \cup \left\{ \tick, \sskip \right\} \right).~
-    %    \sigma \cdot \mu(\sigma, e) \in P
-    % \end{equation*}
     \begin{equation*}
-       \forall \sigma \in P,~
-       e \in \left( \Databases \cup \left\{ \tick, \sskip \right\} \right).~
-       \exists \sigma' \in P.~
-       \sigma \Transitionrelation{}{e} \sigma'
-    \end{equation*}
+        \EventSystem, \{ \emptytrace_\sys \} \vDash P
+    \end{equation*}    
 \end{definition}
-
-\begin{definition}
-    \label{def:enf-function-soundness-policy}
-    An enforcement event system
-    $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
-    is \emph{sound} with respect to some
-    policy $\phi$ iff it is sound with respect to the language
-    $\Language(\phi)$.
-\end{definition}
-
-% \begin{lemma}
-%     \label{lem:enforcer-soundness-and-enforcer-function-soundness-property}
-%     If an enforcer function $\mu$ is sound for some
-%     property $P$ (or policy $\phi$ with $\Language(\phi) = P$
-%     Then ...
-    
-%     TODO (a corresponding enforcer as in Definition \ref{def:enforcer-triple}
-%     is also sound for $\dConv(P)$
-    
-%     TODO: is system state maybe necessary for our enforcer function after all?
-%     Or can it be argued that the state in the update function of an enforcer
-%     cannot use the system state to choose a new database or $\tick$?
-%     % TODO 
-        
-% \end{lemma}
+Or equivalently iff $\EStraces(\EventSystem, \{ \emptytrace_\sys \}) \subseteq P$.
 
 \begin{lemma}
-    \label{lem:enforcer-soundness-and-enforcer-function-soundness-property}
-    For any sound enforcer function
-    $$
-    \mu :  \Traces_f \times \Nat \times
-    \left(\Databases
-    \cup \left\lbrace \tick \right\rbrace
-    \cup \left\lbrace \sskip \right\rbrace \right)
-    \to \left(\Databases
-    \cup \left\lbrace \tick \right\rbrace
-    \cup \left\lbrace \sskip \right\rbrace \right)
-    $$
-    with respect to a property $P$ (or policy $\phi$ with $P := \Language(\phi)$)
-    and SuS with state space $\EnfStates$ with initial state $s_0$ and 
-    state transition relation TODO, there  exists a sound  enforcer
-    $\Enforcer = \left(\EnfStates, s_0, \mu' \right)$ for property
-    $\dConv(P)$.
+    \label{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}
+    For any sound enforcement event system
+    $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
+    with $\Statespace = \Traces_\sys$,
+    $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
+    $\Initialstates = \{ \emptytrace \}$
+    with respect to a property $P \subseteq \Traces_\sys$
+    (i.e. $\EventSystem, \Initialstates \vDash P$),
+    there  exists a sound  enforcer
+    $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
+    $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
+    (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
 \end{lemma}
 
 \begin{proof}
     \label{proof:soundness-definitions-are-equivalent-proof}
+    On a high level we can always issue a $\RCom$ for a transition based
+    on the reactive update function $\delta$ and either a $\PCom$ or a $\NCom$
+    for a transition based on the proactive update function $\omega$.
+    TODO $\dots$
 \end{proof}
 
 \begin{definition}
