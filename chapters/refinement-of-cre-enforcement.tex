@@ -78,11 +78,21 @@ The special event $\tick$ represents a clock tick in the system.
     \begin{equation*}
         \prefix_\sys : \Nat \times \Traces_\sys \to \Traces_{f,\sys}
     \end{equation*}
-    returns a prefix with a desired number of databases
+
+    \begin{align*}
+        \prefix_\sys(i, \sigma_\sys) =
+        \begin{cases}
+            \sigma_\sys &\text{if } \numDBs(\sigma_\sys) \leq i \\
+            \emptytrace_\sys &\text{if } \numDBs(\sigma_\sys) = 0 \\
+            \tick \cdot \prefix_\sys(i, \sigma_\sys')
+                &\text{if } \sigma_\sys = \tick \cdot \sigma_\sys' \\
+            D \cdot \prefix_\sys(i-1, \sigma_\sys')
+                &\text{if } \sigma_\sys = D \cdot \sigma_\sys'
+                \text{ and } D \in \Databases
+        \end{cases}
+    \end{align*}
+    returns the prefix with a desired number of databases
     for any system trace.
-    $\prefix_\sys(i, \sigma_\sys)$ returns the prefix of $\sigma_\sys$
-    with exactly $i$ databases, if $\sigma_\sys$ has at least $i$
-    databases and otherwise it returns $\sigma_\sys$.
 \end{definition}
 
 \begin{definition}
@@ -91,16 +101,68 @@ The special event $\tick$ represents a clock tick in the system.
     \begin{equation*}
         \prefix : \Nat \times \Traces \to \Traces_f
     \end{equation*}
-    returns a prefix of a desired length for any trace.
-    $\prefix(i, \sigma)$ returns the prefix of $\sigma$
-    with length exactly $i$, if $\sigma$ has at least length
-    $i$ and otherwise it returns $\sigma$.
+    \begin{align*}
+        \prefix(i, \sigma) =
+        \begin{cases}
+            \sigma &\text{if } |\sigma| \leq i \\
+            \emptytrace &\text{if } i = 0 \\
+            \left(\tau, D\right) \cdot \prefix(i-1, \sigma') 
+                &\text{if } \sigma = \left( \tau, D \right) \cdot \sigma'
+        \end{cases}
+    \end{align*}
+    returns the prefix of a desired length for any trace.
 \end{definition}
 
+\begin{definition}
+    \label{def:suffix-system-trace}
+    The \emph{(System) Suffix Function}
+    \begin{equation*}
+        \suffix_\sys : \Nat \times \Traces_\sys \to \Traces_\sys
+    \end{equation*}
+    \begin{align*}
+        \suffix_\sys(i, \sigma_\sys) =
+        \begin{cases}
+            \emptytrace_\sys &\text{if } i > \numDBs(\sigma_\sys) \\
+            \sigma_\sys &\text{if } i = 0 \\
+            \tick \cdot \suffix_\sys(i, \sigma_\sys')
+                &\text{if } \sigma_\sys = \tick \cdot \sigma_\sys' \\
+            \suffix_\sys(i-1, \sigma_\sys')
+                &\text{if } \sigma_\sys = D \cdot \sigma_\sys'
+                \text{ and } D \in \Databases
+        \end{cases}
+    \end{align*}
+    
+    returns the suffix starting at a desired database
+    for any system trace.
+\end{definition}
+
+It is important to note that the system suffix function does not remove
+ticks that come before a database.
+
+\begin{definition}
+    \label{def:suffix-mfotl-trace}
+    The \emph{(MFOTL) Suffix Function}
+    \begin{equation*}
+        \suffix : \Nat \times \Traces \to \Traces
+    \end{equation*}
+    \begin{align*}
+        \suffix(i, \sigma) =
+        \begin{cases}
+            \emptytrace &\text{if } i > |\sigma| \\
+            \sigma &\text{if } i = 0 \\
+            \suffix(i-1, \sigma')
+                &\text{if } \sigma = \left(\tau, D\right) \cdot \sigma'
+        \end{cases}
+    \end{align*}
+    returns the suffix starting at a given time-point.
+\end{definition}
 
 \begin{definition}
     \label{def:trim-system-traces}
-    The function $\trim: \Traces_\sys \to \Traces_\sys$
+    The function
+    \begin{equation*}
+        \trim: \Traces_\sys \to \Traces_\sys
+    \end{equation*}
     removes all $\tick$ events from the end of a system trace
     that are not followed by a database.
 \end{definition}
@@ -143,12 +205,12 @@ But first we define a few functions over traces that we will use in the proof.
 
 \begin{definition}
     \label{def:cconv'}
-    The extended \emph{System Trace Converter Function} converts system
+    The \emph{Finite Extended System Trace Converter Function} converts system
     traces starting at some timestamp to MFOTL traces.
     \begin{align*}
         \cConv':
-        \Nat \times \Traces_\sys
-        \to \Traces
+        \Nat \times \Traces_{f,\sys}
+        \to \Traces_f
     \end{align*}
     \begin{align*}
         % \label{eq:cconv'}        
