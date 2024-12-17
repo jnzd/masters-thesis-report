@@ -10,22 +10,93 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{System Traces}
 \label{subsection:system-traces}
-We use a slightly different, but completely analogous definition of a trace as
-in Definition \ref{def:trace}.
+We introduce a different trace definition as in Definition \ref{def:trace}
+and we will show that this new definition is at least as expressive as
+the old one.
 
 \begin{definition}
     \label{def:system-trace}
-    A \emph{System Trace} is a finite or infinite sequence of events
+    A \emph{System Trace} $\sigma_\sys \in \Traces_\sys$ 
+    is a finite or infinite sequence of events
     \begin{equation*}
         \Sequence[1 \leq i \leq k]{e_i},
         k \in \Nat \cup \lbrace \infty \rbrace
     \end{equation*}
     where for every $i \in [1, k]$,
     \begin{equation*}
-        e_i \in  \Databases \cup \left\{ \tick \right\}.
+        e_i \in  \Databases \cup \left\{ \tick \right\}
     \end{equation*}
-     The special event $\tick$ represents a clock tick in the system.
+    and the number of ticks progresses with the number of databases
+    (if $\numDBs(\sigma_\sys) = \infty$, then
+    $\lim_{i \to \infty} \numTicks(\prefix_\sys(i, \sigma_\sys)) = \infty $).
 \end{definition}
+The special event $\tick$ represents a clock tick in the system.
+
+\begin{definition}
+    \label{def:num-ticks}
+    The function
+    \begin{equation*}
+        \numTicks : \Traces_\sys \to \Nat \cup \{ \infty \}
+    \end{equation*}
+    \begin{align*}
+        \numTicks(\sigma_\sys) =
+        \begin{cases}
+            0 &\text{if } \sigma_\sys = \emptytrace_\sys \\
+            1 + \numTicks(\sigma'_\sys)
+                &\text{if } \sigma_\sys = \tick \cdot \sigma'_\sys \\
+            \numTicks(\sigma'_\sys)
+                &\text{if } \sigma_\sys = D \cdot \sigma'_\sys
+                \text{ and } D \in \Databases
+        \end{cases}
+    \end{align*}
+    gives the number of ticks in a system trace.
+\end{definition}
+
+\begin{definition}
+    \label{def:num-db}
+    The function
+    \begin{equation*}
+        \numDBs : \Traces_\sys \to \Nat \cup \{ \infty \}
+    \end{equation*}
+    \begin{align*}
+        \numDBs(\sigma_\sys) =
+        \begin{cases}
+            0 &\text{if } \sigma_\sys = \emptytrace_\sys \\
+            \numDBs(\sigma'_\sys)
+                &\text{if } \sigma_\sys = \tick \cdot \sigma'_\sys \\
+            1 + \numDBs(\sigma'_\sys)
+                &\text{if } \sigma_\sys = D \cdot \sigma'_\sys
+                \text{ and } D \in \Databases
+        \end{cases}
+    \end{align*}
+    gives the number of database events in a system trace.
+\end{definition}
+
+\begin{definition}
+    \label{def:prefix-system-trace}
+    The \emph{(System) Prefix Function}
+    \begin{equation*}
+        \prefix_\sys : \Nat \times \Traces_\sys \to \Traces_{f,\sys}
+    \end{equation*}
+    returns a prefix with a desired number of databases
+    for any system trace.
+    $\prefix_\sys(i, \sigma_\sys)$ returns the prefix of $\sigma_\sys$
+    with exactly $i$ databases, if $\sigma_\sys$ has at least $i$
+    databases and otherwise it returns $\sigma_\sys$.
+\end{definition}
+
+\begin{definition}
+    \label{def:prefix-mfotl-trace}
+    The \emph{(MFOTL) Prefix Function}
+    \begin{equation*}
+        \prefix : \Nat \times \Traces \to \Traces_f
+    \end{equation*}
+    returns a prefix of a desired length for any trace.
+    $\prefix(i, \sigma)$ returns the prefix of $\sigma$
+    with length exactly $i$, if $\sigma$ has at least length
+    $i$ and otherwise it returns $\sigma$.
+\end{definition}
+
 
 \begin{definition}
     \label{def:trim-system-traces}
@@ -34,8 +105,9 @@ in Definition \ref{def:trace}.
     that are not followed by a database.
 \end{definition}
 
-
-
+We say a system trace $\sigma_\sys \in \Traces_\sys$
+is finite iff $\numDBs(\sigma_\sys) \in \Nat$
+and it is infinite iff $\numDBs(\sigma_\sys) = \infty$.
 We use
 $\Traces_{\sys, f} \subseteq 
 \left( \Databases \cup \left\{\tick \right\} \right)^*$,
@@ -45,10 +117,10 @@ and
 $\Traces_\sys = 
 \Traces_{\sys, f} \cup \Traces_{\sys, \omega}$
 to denote the sets of finite system traces, infinite system traces,
-and all system traces, respectively.
+and all system traces respectively.
 Whenever it is clear that the system traces are meant and not the
 MFOTL traces as in Section \ref{section:mfotl}, we omit the
-subscript "sys".
+subscript "$\sys$".
 We also use $\emptytrace_\sys$ to denote an empty system
 trace and will omit the subscript if the meaning is clear from
 context.
@@ -67,22 +139,19 @@ can capture a current timestamp (the total number of ticks in a system trace)
 which may be greater than the last time stamp at which a database was logged
 (the number of ticks up until the last database).
 Next we proof Lemma \ref{lem:trace-equivalence}.
+But first we define a few functions over traces that we will use in the proof.
 
-\begin{proof}
-    \label{proof:trace-equivalence}
-    A trace of this form can be converted to the timestamp plus database  via a
-    trace converter function
-    \begin{equation*}
-        \cConv: \Traces_\sys \to \Traces
-    \end{equation*}
-    and the helper function
+\begin{definition}
+    \label{def:cconv'}
+    The extended \emph{System Trace Converter Function} converts system
+    traces starting at some timestamp to MFOTL traces.
     \begin{align*}
         \cConv':
         \Nat \times \Traces_\sys
         \to \Traces
     \end{align*}
-    \begin{align}
-        \label{eq:cconv'}        
+    \begin{align*}
+        % \label{eq:cconv'}        
         \cConv'(\tau, \sigma_\sys) :=
         \begin{cases}
             \emptytrace
@@ -94,26 +163,32 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
                 % \text{for some } D \in \Databases
                 \\
         \end{cases}
-    \end{align}
-    Then, for all $\sigma_\sys \in \Traces_\sys$,
-    $c$ is defined as followed
-    \begin{align}
-        \label{eq:cconv}
-        \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
-    \end{align}
+    \end{align*}
+\end{definition}
 
-
-    In the other direction we can define
+\begin{definition}
+    \label{def:cconv}
+    The \emph{System Trace Converter Function} converts system
+    traces starting at timestamp $0$ to MFOTL traces.
     \begin{equation*}
-        \dConv: \Traces \to \trim(\Traces_\sys)
+        \cConv: \Traces_\sys \to \Traces
     \end{equation*}
-    via another helper function
+    \begin{align*}
+        % \label{eq:cconv}
+        \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    \label{def:dconv'}
+    The extended \emph{MFOTL Trace Converter Function} converts MFOTL
+    traces starting at some timestamp to system traces.
     \begin{align*}
         \dConv':
         \Nat \times \Traces \to \trim(\Traces_\sys)
     \end{align*}
 
-    \begin{align}
+    \begin{align*}
         \label{eq:dconv'}
         \dConv'(\tau, \sigma) :=
         \begin{cases}
@@ -127,26 +202,42 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
                 &\text{if } \sigma = (\tau', D) \cdot \sigma'
                 \text{ and } \tau < \tau
         \end{cases}
-    \end{align}
+    \end{align*}
+\end{definition}
 
-    Then, for all $\sigma \in \Traces$, $\dConv$ is defined as
-    \begin{equation}
+\begin{definition}
+    \label{def:dconv}
+    The \emph{MFOTL Trace Converter Function} converts system
+    traces starting at timestamp $0$ to system traces.
+    \begin{equation*}
+        \dConv: \Traces \to \trim(\Traces_\sys)
+    \end{equation*}
+    \begin{equation*}
         \label{eq:dconv}
         \dConv(\sigma) := \dConv'(0, \sigma).
-    \end{equation}
-    It is important to note that $\dConv'(\tau, \sigma)$
-    is only defined, if
-    $\tau \leq \fts(\sigma)$ or $\sigma = \emptytrace$.
-    $\dConv$ however, is defined for all $\sigma \in \Traces$,
-    since timestamps in any trace must increase monotonically,
-    and the timestamp argument passed to $\dConv'$ is $0$.
-    To see that the ranges of both $\dConv$ and $\dConv$
-    for all allowed inputs is $\trim(\Traces_\sys)$ and
-    not $\Traces_\sys$, note that a $\tick$ is only added when
-    the trace is not yet empty, thus any inserted $\tick$ will
-    eventually be followed by some database $D$.
+    \end{equation*}
+\end{definition}
 
-    We can now show that $\dConv : \Traces \to \trim(\Traces_\sys)$
+It is important to note that $\dConv'(\tau, \sigma)$
+is only defined, if
+$\tau \leq \fts(\sigma)$ or $\sigma = \emptytrace$.
+$\dConv$ however, is defined for all $\sigma \in \Traces$,
+since timestamps in any trace must increase monotonically,
+and the timestamp argument passed to $\dConv'$ is $0$.
+To see that the ranges of both $\dConv$ and $\dConv$
+for all allowed inputs is $\trim(\Traces_\sys)$ and
+not $\Traces_\sys$, note that a $\tick$ is only added when
+the trace is not yet empty, thus any inserted $\tick$ will
+eventually be followed by some database $D$.
+
+We can now proof Lemma \ref{lem:trace-equivalence} by showing that
+the functions $\cConv$ and $\dConv$ together define a bijection as
+described in Lemma \ref{lem:trace-equivalence}.
+
+\begin{proof}
+    \label{proof:trace-equivalence}
+
+    We can show that $\dConv : \Traces \to \trim(\Traces_\sys)$
     is the inverse function of $\cConv$ with the domain restricted to
     trimmed system traces (i.e. $\cConv : \trim(\Traces_\sys) \to \Traces$)
     by showing that
@@ -156,92 +247,114 @@ Next we proof Lemma \ref{lem:trace-equivalence}.
         \cConv(\dConv(\sigma)) = \sigma.
     \end{equation}
     In fact we can proof a more general property over the two helper functions
-    $\cConv'$ and $\dConv'$ for all traces 
-    $\sigma \in \Traces$ and timestamps $\tau \in \Nat$
-    (all inputs for which $\dConv'$ is defined), where
-    either $\sigma = \emptytrace$ or $\tau \leq \fts(\sigma)$
+    $\cConv'$ and $\dConv'$
     \begin{equation}
         \label{eq:inverse-helper-conversion-functions}
-        \sigma = \cConv'(\tau, \dConv'(\tau, \sigma)).
+        \forall \sigma \in \Traces ,~
+        \tau \in \Nat .~
+        \left(
+            \sigma = \emptytrace
+            \vee 
+            \tau \leq \fts(\sigma)
+        \right)
+        \implies
+        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma.
     \end{equation}
-    This property does imply the first one. The parameter $\tau$ can
-    simply be fixed as 0.
+    Equation \ref{eq:inverse-helper-conversion-functions} implies
+    equation \ref{eq:inverse-main-conversion-functions} as they become
+    equivalent when $\tau = 0$.
 
-    We proof this by structural induction over traces $\sigma \in \Traces$
-    for all $\tau \in \Nat$ where either $\tau \leq \fts(\sigma)$ or
-    $\sigma = \emptytrace$.
-
-    \textbf{Base Case:}
-    $\sigma = \emptytrace$ (and some $\tau \in \Nat$)
-
-    \begin{align*}
-        \cConv'(\tau, \dConv'(\tau, \sigma))
-        &= \cConv'(\tau, \dConv(\tau, \emptytrace)) \\
-        &= \cConv'(\tau, \emptytrace_\sys) \\
-        &= \emptytrace \\
-        &= \sigma \\
-    \end{align*}
-
-    \textbf{Induction Hypothesis:} 
-    For every true suffix $\sigma'$ of a trace $\sigma \in \Traces$
-    that is not the entire trace $\sigma$, i.e.
-    $\sigma = \sigma'' \cdot \sigma'$ and $\sigma'' \neq \emptytrace$,
-    and for every timestamp $\tau \in \Nat$
-    which is less than the first timestamp
-    ($\tau \leq \fts(\sigma')$)
-    in $\sigma'$, unless $\sigma' = \emptytrace$ it holds that
-    \begin{equation*}
-        \sigma' = \cConv'(\tau, \dConv'(\tau, \sigma')).
-    \end{equation*}
-
-    \textbf{Induction Step:}
-    Let $\sigma \neq \emptytrace$
-    and $\tau \leq \fts(\sigma)$.
-    Because $\sigma$ is not empty,
-    $\sigma = \left(\tau', D \right) \cdot \sigma'$
-    for some $\tau' \geq \tau$, some $D \in \Databases$ and
-    a suffix $\sigma' \in \Traces$.
-
-    We make a case distinction on $\tau$ and $\tau'$
+    We proof equation \ref{eq:inverse-helper-conversion-functions}
+    separately for finite and infinite traces.
     \begin{enumerate}
-        \item 
-            $\tau = \tau'$
-            \begin{align*}
-                \label{c1}
-                \cConv'(\tau, \dConv'(\tau, \sigma))
-                &= \cConv'(\tau, D \cdot \dConv'(\tau, \sigma')) \\
-                &\stackrel{\ref{eq:dconv'}}{=}
-                    \left(\tau, D \right) \cdot
-                    \cConv'(\tau, \dConv'(\tau, \sigma')) \\
-                &\stackrel{\text{IH}}{=} \left(\tau, D \right) \cdot \sigma' \\
-                &= \sigma
-            \end{align*}
-        \item
-            $\tau < \tau'$, i.e. $\tau' = \tau + k$ for some $k > 0$
-            \begin{align*}
-                \cConv'(\tau, \dConv'(\tau, \sigma))
-                &\stackrel{\ref{eq:dconv'}}{=}
-                    \cConv'(\tau, \tick \cdot \dConv'(\tau + 1, \sigma)) \\
-                & \qquad \vdots \\
-                &\stackrel{\ref{eq:dconv'}}{=}
-                    \cConv'(\tau, \underbrace{\tick \cdots \tick}_{k \text{ times}}
-                    \cdot \dConv'(\tau + k, \sigma)) \\
-                &\stackrel{\ref{eq:cconv'}}{=}
-                    \cConv'(\tau + 1, \underbrace{\tick \cdots \tick}_{k-1 \text{ times}}
-                    \cdot \dConv'(\tau + k, \sigma)) \\
-                & \qquad \vdots \\
-                &\stackrel{\ref{eq:cconv'}}{=}
-                    \cConv'(\tau + (k-1), \tick \cdot \dConv'(\tau + k, \sigma)) \\
-                &\stackrel{\ref{eq:cconv'}}{=}
-                    \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
-                &= \cConv'(\tau', \dConv'(\tau', \sigma)) \\
-                & \stackrel{\text{Case } \ref{c1}}{=} \sigma
-            \end{align*}
-    \end{enumerate}
+        \item \textbf{Finite Traces}
+        
+        We proof this by structural induction over traces $\sigma \in \Traces_f$
+        for all $\tau \in \Nat$ where either $\tau \leq \fts(\sigma)$ or
+        $\sigma = \emptytrace$.
+    
+        \textbf{Base Case:}
+        $\sigma = \emptytrace$ (and some $\tau \in \Nat$)
+    
+        \begin{align*}
+            \cConv'(\tau, \dConv'(\tau, \sigma))
+            &= \cConv'(\tau, \dConv(\tau, \emptytrace)) \\
+            &= \cConv'(\tau, \emptytrace_\sys) \\
+            &= \emptytrace \\
+            &= \sigma \\
+        \end{align*}
+    
+        \textbf{Induction Hypothesis:} 
+        For every true suffix $\sigma'$ of a trace $\sigma \in \Traces_f$
+        that is not the entire trace $\sigma$, i.e.
+        $\sigma = \sigma'' \cdot \sigma'$ and $\sigma'' \neq \emptytrace$,
+        and for every timestamp $\tau \in \Nat$
+        which is less than the first timestamp
+        ($\tau \leq \fts(\sigma')$)
+        in $\sigma'$, unless $\sigma' = \emptytrace$ it holds that
+        \begin{equation*}
+            \sigma' = \cConv'(\tau, \dConv'(\tau, \sigma')).
+        \end{equation*}
+    
+        \textbf{Induction Step:}
+        Let $\sigma \neq \emptytrace$
+        and $\tau \leq \fts(\sigma)$.
+        Because $\sigma$ is not empty,
+        $\sigma = \left(\tau', D \right) \cdot \sigma'$
+        for some $\tau' \geq \tau$, some $D \in \Databases$ and
+        a suffix $\sigma' \in \Traces_f$.
+    
+        We make a case distinction on $\tau$ and $\tau'$
+        \begin{enumerate}
+            \item 
+                $\tau = \tau'$
+                \begin{align*}
+                    \label{c1}
+                    \cConv'(\tau, \dConv'(\tau, \sigma))
+                    &= \cConv'(\tau, D \cdot \dConv'(\tau, \sigma')) \\
+                    &\stackrel{\ref{def:dconv'}}{=}
+                        \left(\tau, D \right) \cdot
+                        \cConv'(\tau, \dConv'(\tau, \sigma')) \\
+                    &\stackrel{\text{IH}}{=} \left(\tau, D \right) \cdot \sigma' \\
+                    &= \sigma
+                \end{align*}
+            \item
+                $\tau < \tau'$, i.e. $\tau' = \tau + k$ for some $k > 0$
+                \begin{align*}
+                    \cConv'(\tau, \dConv'(\tau, \sigma))
+                    &\stackrel{\ref{def:dconv'}}{=}
+                        \cConv'(\tau, \tick \cdot \dConv'(\tau + 1, \sigma)) \\
+                    & \qquad \vdots \\
+                    &\stackrel{\ref{def:dconv'}}{=}
+                        \cConv'(\tau, \underbrace{\tick \cdots \tick}_{k \text{ times}}
+                        \cdot \dConv'(\tau + k, \sigma)) \\
+                    &\stackrel{\ref{def:cconv'}}{=}
+                        \cConv'(\tau + 1, \underbrace{\tick \cdots \tick}_{k-1 \text{ times}}
+                        \cdot \dConv'(\tau + k, \sigma)) \\
+                    & \qquad \vdots \\
+                    &\stackrel{\ref{def:cconv'}}{=}
+                        \cConv'(\tau + (k-1), \tick \cdot \dConv'(\tau + k, \sigma)) \\
+                    &\stackrel{\ref{def:cconv'}}{=}
+                        \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
+                    &= \cConv'(\tau', \dConv'(\tau', \sigma)) \\
+                    & \stackrel{\text{Case } \ref{c1}}{=} \sigma
+                \end{align*}
 
-    The two cases could also be combined into one, if we allowed $k=0$.
-    We have now shown \ref{eq:inverse-helper-conversion-functions} 
-    which does imply \ref{eq:inverse-main-conversion-functions}.
+            
+        \end{enumerate}
+    
+        The two cases could also be combined into one, if we allowed $k=0$.
+        We have now shown \ref{eq:inverse-helper-conversion-functions} 
+        which does imply \ref{eq:inverse-main-conversion-functions}.
+        
+        \item \textbf{Infinite Traces}
+
+        For the infinite case we use co-inductive reasoning.
+        We have already shown that the property holds for arbitrarily
+        long finite prefixes of any infinite trace.
+
+        
+    \end{enumerate}
 
 \end{proof}
 Intuitively $\cConv$ and $\cConv'$ count the clock ticks and store them
@@ -286,15 +399,15 @@ update functions, one for the proactive and one for the reactive case
     A \emph{Reactive Update Function}
     modifies a reported 
     $$
-       \delta : \Traces_f \times \Databases \to \Databases
+       \RFun : \Traces_f \times \Databases \to \Databases
     $$
     set of events by suppressing (deleting) and causing
     (inserting) certain events if needed.
     Where for all $\sigma \in \Traces_f$
     and $D \in \Databases$
     \begin{itemize}
-        \item $D \setminus \delta(\sigma, D) \in \Databases_\Sup$
-        \item $\delta(\sigma, D) \setminus D \in \Databases_\Cau$
+        \item $D \setminus \RFun(\sigma, D) \in \Databases_\Sup$
+        \item $\RFun(\sigma, D) \setminus D \in \Databases_\Cau$
     \end{itemize}
 \end{definition}
 
@@ -302,7 +415,7 @@ update functions, one for the proactive and one for the reactive case
     \label{def:reactive-update-function}
     A \emph{Proactive Update Function}
     $$
-       \omega :
+       \PFun :
        \Traces_f
        % \Traces_f \times \left\{ \tick \right\}
        \to
@@ -365,17 +478,17 @@ update functions, one for the proactive and one for the reactive case
     \begin{align*}
         % \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
         %     & \text{(Skip)} \\
-        % \sigma &\Transitionrelation{}{D} \sigma \cdot \delta(\sigma, D)
+        % \sigma &\Transitionrelation{}{D} \sigma \cdot \RFun(\sigma, D)
         %     & \text{(Step-R)} \\
         % \sigma &\Transitionrelation{}{\tick}
-        %     \sigma \cdot \omega(\sigma) \cdot \tick
+        %     \sigma \cdot \PFun(\sigma) \cdot \tick
         %     & \text{(Step-P)} \\
         \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
             & \text{(Skip)} \\
-        \sigma &\Transitionrelation{}{\delta(\sigma, D)} \sigma \cdot \delta(\sigma, D)
+        \sigma &\Transitionrelation{}{\RFun(\sigma, D)} \sigma \cdot \RFun(\sigma, D)
             & \text{(Step-R)} \\
-        \sigma &\Transitionrelation{}{\omega(\sigma) \cdot \tick}
-            \sigma \cdot \omega(\sigma) \cdot \tick
+        \sigma &\Transitionrelation{}{\PFun(\sigma) \cdot \tick}
+            \sigma \cdot \PFun(\sigma) \cdot \tick
             & \text{(Step-P)} \\
     \end{align*}
 \end{definition}
@@ -383,13 +496,13 @@ update functions, one for the proactive and one for the reactive case
 \begin{definition}
     \label{def:enforcement-event-system}
     An \emph{Enforcement Event System} 
-    $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
+    $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
     is a tuple consisting of a state space $\Statespace = \Traces$,
     event space $\Eventspace = \Databases \cup \left\{ \tick, \sskip \right\}$,
     a reactive update function
-    $\delta : \Traces_f \times \Databases \to \Databases$
+    $\RFun : \Traces_f \times \Databases \to \Databases$
     and a proactive update function
-    $\omega : \Traces_f \to \Databases_\Cau \cup \left\{ \sskip \right\}$.
+    $\PFun : \Traces_f \to \Databases_\Cau \cup \left\{ \sskip \right\}$.
     Where the two update functions define a transition relation as 
     defined in Definition \ref{def:enf-transition-relation}.
 \end{definition}
@@ -405,47 +518,111 @@ and the event trace of the system are identical.
 We define soundness notions for enforcement event systems that are analogous to
 soundness of an enforcer in Subsection
 \ref{subsection:proactive-runtime-enforcement}.
+Sprenger et al. \cite{igloo} defines traces as always being finite sequences of
+events. We extend that definition to include both finite and infinite
+event sequences.
+The function $\EStraces(\EventSystem, \Initialstates)$ then denotes both all
+finite and infinite event sequences of the event system $\EventSystem$
+starting in any initial state in $\Initialstates$.
+$\EStraces_f(\EventSystem, \Initialstates)$ denotes only the finite traces
+and $\EStraces_\omega(\EventSystem, \Initialstates)$ only the
+infinite traces.
+We also extend the definition of trace properties to include both
+finite and infinite sequences.
+We use the following notations if we specifically talk
+about trace properties that are strictly finite or infinite respectively:
+$\EventSystem, \Initialstates \vDash_f P$ iff
+$\EStraces_f(\EventSystem, \Initialstates) \subseteq P$
+and
+$\EventSystem, \Initialstates \vDash_\omega P$ iff
+$\EStraces_\omega(\EventSystem, \Initialstates) \subseteq P$.
+Like in Sprenger et. al \cite{igloo} we will omit the set braces
+for initial states, if the set is a singleton.
+Note that system traces are only considered infinite if they
+are infinite with all skips removed and trimmed (ticks not followed
+by a database removed).
 
 \begin{definition}
     \label{def:enf-event-system-soundness-property}
     An enforcement event system
-    $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
+    $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
     with $\Statespace = \Traces_\sys$,
     $\Eventspace = \Databases \cup \{ \tick, \sskip \}$
     is \emph{sound} with respect to some
     property $P \subseteq \Traces_\sys$ iff
     \begin{equation*}
-        \EventSystem, \{ \emptytrace_\sys \} \vDash P
+        \EventSystem, \emptytrace_\sys \vDash_\omega P
     \end{equation*}    
 \end{definition}
-Or equivalently iff $\EStraces(\EventSystem, \{ \emptytrace_\sys \}) \subseteq P$.
+Or equivalently iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
 
 \begin{lemma}
     \label{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}
-    For any sound enforcement event system
-    $\EventSystem = \left(\Statespace, \Eventspace, \delta, \omega \right)$
-    with $\Statespace = \Traces_\sys$,
-    $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
-    $\Initialstates = \{ \emptytrace \}$
-    with respect to a property $P \subseteq \Traces_\sys$
-    (i.e. $\EventSystem, \Initialstates \vDash P$),
-    there  exists a sound  enforcer
+    % An enforcement event system
+    % $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
+    % with $\Statespace = \Traces_\sys$,
+    % $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
+    % $\Initialstates = \{ \emptytrace_\sys \}$
+    % is sound with respect to a property $P \subseteq \Traces_\sys$
+    % (i.e. $\EventSystem, \Initialstates \vDash P$),
+    % iff there  exists a sound  enforcer
+    % $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
+    % $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
+    % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
+
+    % TODO: might be an equivalence / iff relation
+    If there  exists a sound  enforcer
     $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
     $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
-    (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
+    (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$),
+    then there exist $\PFun$ and $\RFun$, such that the
+    enforcement event system
+    $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
+    with $\Statespace = \Traces_\sys$,
+    $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
+    $\Initialstates = \{ \emptytrace_\sys \}$
+    is sound with respect to the property $P \subseteq \Traces_\sys$
+    (i.e. $\EventSystem, \Initialstates \vDash P$),
 \end{lemma}
 
 \begin{proof}
     \label{proof:soundness-definitions-are-equivalent-proof}
     On a high level we can always issue a $\RCom$ for a transition based
-    on the reactive update function $\delta$ and either a $\PCom$ or a $\NCom$
-    for a transition based on the proactive update function $\omega$.
-    TODO $\dots$
+    on the reactive update function $\RFun$ and either a $\PCom$ or a $\NCom$
+    for a transition based on the proactive update function $\PFun$.
+
+    % We first proof that
+    % \begin{equation}
+    %     \label{eq:soundness-iff-d1}
+    %     \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P
+    %     \implies
+    %     \exists \Enforcer .~ 
+    %     \forall \sigma \in \Traces_\omega .~ \Enforcer(\sigma) \in \dConv(P).
+    % \end{equation}
+
+    % After that we will proof the other direction
+    
+    \begin{equation}
+        \label{eq:soundness-iff-d2}
+        \forall \sigma \in \Traces_\omega .~
+        \Enforcer(\sigma) \in \dConv(P)
+        \implies
+        \exists \EventSystem .~
+        \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P.
+    \end{equation}
+
+    We proof Equation \ref{eq:soundness-iff-d2} via induction for all traces 
+    $\sigma_\sys \in \EStraces(\EventSystem, \emptytrace_\sys)$
+
+    \begin{equation*}
+        \dots \text{ TODO } \dots
+    \end{equation*}
+    
 \end{proof}
 
 \begin{definition}
-    \label{def:enforcer-function-transparency}
-    TODO: when is an enforcer function transparent?
+    \label{def:enforcement-event-system-transparency}
+    TODO: when is an enforcement event system transparent?
 
     (First finish soundness)
 \end{definition}
@@ -462,222 +639,349 @@ Or equivalently iff $\EStraces(\EventSystem, \{ \emptytrace_\sys \}) \subseteq P
 
 For Enforcement Event Systems we will now define refinement
 via a mediator function and a simulation relation as in Sprenger et. al \cite{igloo}.
-We aim to show that for a specific class of mediator functions, whenever
-some concrete enforcement event system refines an abstract enforcement 
-event system, the existence of an enforcer function $\mu_A$ for the abstract
-enforcement event system implies the existence of an enforcer function $\mu_C$ for
-the concrete enforcement event system.
-We will further show that the way we refine the enforcement event systems here
-corresponds to the refinement definition for Lex in Hublet et. al \cite{lex}.
-
-We start out with two enforcement event systems, an abstract and a concrete one.
-The parameters of the abstract system are the following
-\begin{align*}
-    \Sigma_A &= \left(\Domain, \Events_A, \Functions, \iota_A \right) \\
-    \Statespace_A &= \Nat \times \Traces_A & \text{State space of traces of signature $\Sigma_A$}\\
-    \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
-    \Phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
-    S_A &= \left(\Sigma_A, \Phi_A, \kappa_A \right)
-    % \\
-    % \mu_{\phi_A} && \text{An enforcer function for policy $\phi_A$} \\
-\end{align*}
-
-And the parameters for the concrete system are
-\begin{align*}
-    \Sigma_C &= \left(\Domain, \Events_C, \Functions, \iota_C \right) \\
-    \Statespace_C &= \Nat \times \Traces_C & \text{State space of traces of signature $\Sigma_C$}\\
-    \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
-    \Phi_C &= \left( C_C, R_C, E_C \right) \\
-    S_C &= \left(\Sigma_C, \Phi_C, \kappa_C \right)
-    % \\
-    % \mu_{\phi_C} && \text{An enforcer function for policy $\phi_C$} \\
-\end{align*}
-
-We assume that the concrete specification $S_C$ is a refinement of the
-abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
 
 \begin{definition}
-    \label{def:mediator-function}
-    A \emph{Mediator Function}
-    $\pi : \Traces_C \times \left( \Nat \times \Databases_C \right)  \to \Databases_A$
-    converts a set of concrete events $D_C$ at some timestamp $\tau$
-    to a set of abstract events
-    $D_A = \pi\left( \sigma_C, \left( \tau, D_C \right) \right)$.
-\end{definition}
-
-\begin{definition}
-    \label{def:mediator-function-vec}
-    We recursively define the function $\vec{\pi} : \Traces_C \to \Traces_A$ as follows
+    \label{def:enforcement-event-system-refinement}
+    An enforcement event system
+    \begin{equation*}
+        \EventSystem_C =
+        \left( \Statespace_C, \Eventspace_C, \RFun_C, \PFun_C \right)
+    \end{equation*}
+    with initial states $\Initialstates_C \subseteq \Statespace_C$
+    where
     \begin{align*}
-        \vec{\pi}(\emptytrace) &= \emptytrace \\
-        \vec{\pi}(\sigma_C) &=
-        \vec{\pi}\left(\sigma_{C,\dots<|\sigma_C|}\right) \cdot
-        \pi\left(\sigma_{C,\dots<|\sigma_C|}, \sigma_{C,|\sigma_C|} \right) 
-        &\text{ if } |\sigma_C| > 0
+        \Statespace_C &= \Traces_{C, \sys}, \\
+        \Eventspace_C &=
+            \Databases_C \cup \left\{ \tick, \sskip \right\}, \\
+        \RFun_C &:
+            \Traces_{C, \sys} \times \Databases_C \to \Databases_C
+            &&\text{ is a reactive update function, and}
+            \\
+        \PFun_C &: \Traces_{C, \sys} \to \Databases_{C, \Cau} \cup \{ \sskip \}
+            &&\text{ is a proactive update function}
     \end{align*}
+    for some signature 
+    $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    refines an enforcement event system
+    \begin{equation*}
+        \EventSystem_A =
+        \left( \Statespace_A, \Eventspace_A, \RFun_A, \PFun_A \right)
+    \end{equation*}
+    with initial states $\Initialstates_A \subseteq \Statespace_A$
+    where
+    \begin{align*}
+        \Statespace_A &= \Traces_{A, \sys}, \\
+        \Eventspace_A &=
+            \Databases_A \cup \left\{ \tick, \sskip \right\}, \\
+        \RFun_A &:
+            \Traces_{A, \sys} \times \Databases_A \to \Databases_A
+            &&\text{ is a reactive update function, and}
+            \\
+        \PFun_A &: \Traces_{A, \sys} \to \Databases_{A, \Cau} \cup \{ \sskip \}
+            &&\text{ is a proactive update function}
+    \end{align*}
+    for some signature 
+    $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    via a mediator function
+    \begin{equation*}
+        \MFun : \Eventspace_C \to \Eventspace_A
+    \end{equation*}
+    iff
+    there is a simulation relation
+    \begin{equation*}
+        \SimRel \subseteq \Statespace_C \times \Statespace_A
+    \end{equation*}
+    such that
+    \begin{enumerate}
+        \item
+            for all $\sigma_C \in \Initialstates_C$ there exists some
+            $\sigma_A \in \Initialstates_A$ such that
+            $(\sigma_C, \sigma_A) \in \SimRel$, and
+        \item
+            for all $\sigma_A \in \Statespace_A$,
+            $\sigma_C, \sigma_C' \in \Statespace_C$, and
+            $e_C \in \Eventspace_C$
+            such that $(\sigma_C, \sigma_A) \in \SimRel$ and
+            $\sigma_C \Transitionrelation{}{e_C} \sigma_C'$
+            there exists $\sigma_A'$
+            such that $(\sigma_C', \sigma_A') \in \SimRel$ and
+            $\sigma_A \Transitionrelation{}{\MFun(e_C)} \sigma_A'$.
+    \end{enumerate}
+    
 \end{definition}
 
-This definition of a mediator function differs from the definition in
-Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its arguments.
+% We aim to show that for a specific class of mediator functions, whenever
+% some concrete enforcement event system refines an abstract enforcement 
+% event system, the existence of an enforcer function $\mu_A$ for the abstract
+% enforcement event system implies the existence of an enforcer function $\mu_C$ for
+% the concrete enforcement event system.
+% We will further show that the way we refine the enforcement event systems here
+% corresponds to the refinement definition for Lex in Hublet et. al \cite{lex}.
 
-\begin{definition}
-    \label{def:simulation-relation}
-    A \emph{Simulation Relation}
-    $R \subseteq \Statespace_C \times \Statespace_A$ defines a correspondence of
-    concrete and abstract states.
-    We define $R$ with respect to some mediator function $\pi$ as
-    % $$
-    % R =
-    % \left\lbrace
-    % \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
-    % \mid
-    % \left|\sigma_C\right| =
-    % \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\,
-    % \pi\left( \sigma_{C,\dots<i}, \tau_{C,i}, \sigma_{C,i} \right) = \sigma_{A,i} 
-    % \right\rbrace
-    % $$
-    $$
-    R =
-    \left\lbrace
-    \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
-    \mid
-    \vec{\pi}\left(\sigma_C \right) = \sigma_A
-    \right\rbrace
-    $$
-\end{definition}
-Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than $i$.
+% We start out with two enforcement event systems, an abstract and a concrete one.
+% The parameters of the abstract system are the following
+% \begin{align*}
+%     \Sigma_A &= \left(\Domain, \Events_A, \Functions, \iota_A \right) \\
+%     \Statespace_A &= \Nat \times \Traces_A & \text{State space of traces of signature $\Sigma_A$}\\
+%     \Initialstates_A &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
+%     \Phi_A &= \left( C_A, R_A, E_A \right) &\text{An enforceable CRE policy} \\
+%     S_A &= \left(\Sigma_A, \Phi_A, \kappa_A \right)
+%     % \\
+%     % \mu_{\phi_A} && \text{An enforcer function for policy $\phi_A$} \\
+% \end{align*}
 
-\begin{theorem}
-    \label{theo:existence-of-concrete-enforcer}
-    If a CRE specification
-    $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
-    with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-    and $\Phi_C = \left( \C_C, R_C, E_C \right)$
-    refines a CRE specification
-    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right) $
-    and $S_A$ is enforceable (i.e. there exists a sound enforcer
-    $\Enforcer_A = \left( \EnfStates_A, s_{A,0}, \mu_A \right)$ for $S_A$),
-    then $S_C$ is enforceable (i.e. there exists a sound enforcer
-    $\Enforcer_C = \left( \EnfStates_C, s_{C,0}, \mu_C \right)$ for $S_C$).
+% And the parameters for the concrete system are
+% \begin{align*}
+%     \Sigma_C &= \left(\Domain, \Events_C, \Functions, \iota_C \right) \\
+%     \Statespace_C &= \Nat \times \Traces_C & \text{State space of traces of signature $\Sigma_C$}\\
+%     \Initialstates_C &= \left\lbrace \left(\tau, \emptytrace \right) \mid \tau \in \Nat \right\rbrace \\
+%     \Phi_C &= \left( C_C, R_C, E_C \right) \\
+%     S_C &= \left(\Sigma_C, \Phi_C, \kappa_C \right)
+%     % \\
+%     % \mu_{\phi_C} && \text{An enforcer function for policy $\phi_C$} \\
+% \end{align*}
+
+% We assume that the concrete specification $S_C$ is a refinement of the
+% abstract specification $S_A$ as defined in Hublet et. al \cite{lex}.
+
+% \begin{definition}
+%     \label{def:mediator-function}
+%     A \emph{Mediator Function}
+%     $\pi : \Traces_C \times \left( \Nat \times \Databases_C \right)  \to \Databases_A$
+%     converts a set of concrete events $D_C$ at some timestamp $\tau$
+%     to a set of abstract events
+%     $D_A = \pi\left( \sigma_C, \left( \tau, D_C \right) \right)$.
+% \end{definition}
+
+% \begin{definition}
+%     \label{def:mediator-function-vec}
+%     We recursively define the function $\vec{\pi} : \Traces_C \to \Traces_A$ as follows
+%     \begin{align*}
+%         \vec{\pi}(\emptytrace) &= \emptytrace \\
+%         \vec{\pi}(\sigma_C) &=
+%         \vec{\pi}\left(\sigma_{C,\dots<|\sigma_C|}\right) \cdot
+%         \pi\left(\sigma_{C,\dots<|\sigma_C|}, \sigma_{C,|\sigma_C|} \right) 
+%         &\text{ if } |\sigma_C| > 0
+%     \end{align*}
+% \end{definition}
+
+% This definition of a mediator function differs from the definition in
+% Sprenger et. al \cite{igloo} by the inclusion of a trace and timestamp in its arguments.
+
+% \begin{definition}
+%     \label{def:simulation-relation}
+%     A \emph{Simulation Relation}
+%     $R \subseteq \Statespace_C \times \Statespace_A$ defines a correspondence of
+%     concrete and abstract states.
+%     We define $R$ with respect to some mediator function $\pi$ as
+%     % $$
+%     % R =
+%     % \left\lbrace
+%     % \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
+%     % \mid
+%     % \left|\sigma_C\right| =
+%     % \left|\sigma_A\right| \wedge \forall i \leq \left| \sigma_C \right| .\,
+%     % \pi\left( \sigma_{C,\dots<i}, \tau_{C,i}, \sigma_{C,i} \right) = \sigma_{A,i} 
+%     % \right\rbrace
+%     % $$
+%     $$
+%     R =
+%     \left\lbrace
+%     \left( \left(\tau, \sigma_C \right), \left(\tau, \sigma_A \right) \right)
+%     \mid
+%     \vec{\pi}\left(\sigma_C \right) = \sigma_A
+%     \right\rbrace
+%     $$
+% \end{definition}
+% Where $\sigma_{C,\dots<i}$ is the trace $\sigma$ with all time-points less than $i$.
+
+% \begin{theorem}
+%     \label{theo:existence-of-concrete-enforcer}
+%     If a CRE specification
+%     $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
+%     with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+%     and $\Phi_C = \left( \C_C, R_C, E_C \right)$
+%     refines a CRE specification
+%     $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right) $
+%     and $S_A$ is enforceable (i.e. there exists a sound enforcer
+%     $\Enforcer_A = \left( \EnfStates_A, s_{A,0}, \mu_A \right)$ for $S_A$),
+%     then $S_C$ is enforceable (i.e. there exists a sound enforcer
+%     $\Enforcer_C = \left( \EnfStates_C, s_{C,0}, \mu_C \right)$ for $S_C$).
     
-    % If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
-    % the event system defined by $\mu_A$, then there exists a concrete enforcer
-    % $\mu_C$.
-\end{theorem}
+%     % If there exists an abstract enforcer $\mu_A$ and a concrete event system refines
+%     % the event system defined by $\mu_A$, then there exists a concrete enforcer
+%     % $\mu_C$.
+% \end{theorem}
 
-\begin{proof}
-    \label{proof:refinement-correspondence}
-    TODO
-\end{proof}
+% \begin{proof}
+%     \label{proof:refinement-correspondence}
+%     TODO
+% \end{proof}
 
-\begin{theorem}
-    \label{theo:lex-refinement-and-event-system-refinement}
-    If a CRE Specification $S_C = \left( \Sigma_C , \Phi_C, \kappa_c \right)$
-    with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-    and $\Phi_C = \left( \C_C, R_C, E_C \right)$
-    is a refinement of a CRE Specification
-    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
-    with $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-    and $\Phi_A = \left( \C_A, R_A, E_A \right)$
-    according to
-    Definition \ref{def:lex-refinement},
-    then the event system $\EventSystem_C = \left( \right)$
-    is a refinement of the event system $\EventSystem_A = \left( \right)$
+% \begin{theorem}
+%     \label{theo:lex-refinement-and-event-system-refinement}
+%     If a CRE Specification $S_C = \left( \Sigma_C , \Phi_C, \kappa_c \right)$
+%     with $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+%     and $\Phi_C = \left( \C_C, R_C, E_C \right)$
+%     is a refinement of a CRE Specification
+%     $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
+%     with $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+%     and $\Phi_A = \left( \C_A, R_A, E_A \right)$
+%     according to
+%     Definition \ref{def:lex-refinement},
+%     then the event system $\EventSystem_C = \left( \right)$
+%     is a refinement of the event system $\EventSystem_A = \left( \right)$
     
-    If a concrete event system is a refinement of the abstract event system
-    through the mediator function $\pi$ and the simulation relation $R$,
-    then the concrete specification $S_C$ is a refinement of the abstract
-    specification $S_A$.
-\end{theorem}
+%     If a concrete event system is a refinement of the abstract event system
+%     through the mediator function $\pi$ and the simulation relation $R$,
+%     then the concrete specification $S_C$ is a refinement of the abstract
+%     specification $S_A$.
+% \end{theorem}
 
-\begin{proof}
-    \label{proof:existence-proof}
-    Let $\phi_A$ be some enforceable policy for which there exists an enforcer
-    function $\mu_A$ and
-    \begin{align}
-        \label{ex-proof:c-states}
-        \left( \tau, \sigma_C \right), \left( \tau', \sigma_C'  \right) &\in \Statespace_C \\
-        \label{ex-proof:a-states}
-        \left( \tau, \sigma_A \right) &\in \Statespace_A \\
-        \label{ex-proof:c-a-state-in-r}
-        \left(\left( \tau, \sigma_C \right), \left( \tau, \sigma_A \right) \right) &\in R \\
-        \label{ex-proof:e}
-        e &\in \Eventspace \\
-        \label{ex-proof:concrete-transition} 
-        \left( \tau, \sigma_C \right) \Transitionrelation{\phi_C}{e} \left( \tau', \sigma_C'  \right) \\
-    \end{align}
-    Now we will do a case distinction to show that for all three cases
-    of transitions in Definition \ref{def:enf-transition-relation}
-    there must exist an abstract state $\left( \tau', \sigma_A' \right) \in \Statespace_A$
-    such that 
-    \begin{align}
-        \left( \tau, \sigma_A \right)
-        \Transitionrelation{\phi_C}{\pi\left(\sigma_C, \tau, e\right)}
-        \left( \tau', \sigma_C'  \right).
-    \end{align}
-    \emph{Case 1:}
-    \begin{align}
-        e = \mu_\phi(\sigma, \tau, D_C)
-        \text{ for some }
-        D_C \in \Databases_C
-    \end{align}
+% \begin{proof}
+%     \label{proof:existence-proof}
+%     Let $\phi_A$ be some enforceable policy for which there exists an enforcer
+%     function $\mu_A$ and
+%     \begin{align}
+%         \label{ex-proof:c-states}
+%         \left( \tau, \sigma_C \right), \left( \tau', \sigma_C'  \right) &\in \Statespace_C \\
+%         \label{ex-proof:a-states}
+%         \left( \tau, \sigma_A \right) &\in \Statespace_A \\
+%         \label{ex-proof:c-a-state-in-r}
+%         \left(\left( \tau, \sigma_C \right), \left( \tau, \sigma_A \right) \right) &\in R \\
+%         \label{ex-proof:e}
+%         e &\in \Eventspace \\
+%         \label{ex-proof:concrete-transition} 
+%         \left( \tau, \sigma_C \right) \Transitionrelation{\phi_C}{e} \left( \tau', \sigma_C'  \right) \\
+%     \end{align}
+%     Now we will do a case distinction to show that for all three cases
+%     of transitions in Definition \ref{def:enf-transition-relation}
+%     there must exist an abstract state $\left( \tau', \sigma_A' \right) \in \Statespace_A$
+%     such that 
+%     \begin{align}
+%         \left( \tau, \sigma_A \right)
+%         \Transitionrelation{\phi_C}{\pi\left(\sigma_C, \tau, e\right)}
+%         \left( \tau', \sigma_C'  \right).
+%     \end{align}
+%     \emph{Case 1:}
+%     \begin{align}
+%         e = \mu_\phi(\sigma, \tau, D_C)
+%         \text{ for some }
+%         D_C \in \Databases_C
+%     \end{align}
     
-    \emph{Case 2:}
-    \begin{align}
-        e = \mu_\phi(\sigma, \tau, \tick)
-        \text{ and }
-        \mu_\phi(\sigma, \tau, \tick) \neq \bot
-    \end{align}
+%     \emph{Case 2:}
+%     \begin{align}
+%         e = \mu_\phi(\sigma, \tau, \tick)
+%         \text{ and }
+%         \mu_\phi(\sigma, \tau, \tick) \neq \bot
+%     \end{align}
     
-    \emph{Case 3:}
-    \begin{align}
-        e = \mu_\phi(\sigma, \tau, \tick)
-        \text{ and }
-        \mu_\phi(\sigma, \tau, \tick) = \bot
-    \end{align}
-\end{proof}
+%     \emph{Case 3:}
+%     \begin{align}
+%         e = \mu_\phi(\sigma, \tau, \tick)
+%         \text{ and }
+%         \mu_\phi(\sigma, \tau, \tick) = \bot
+%     \end{align}
+% \end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of MFOTL Specifications}
 \label{subsection:refinement-of-mfotl-specifications}
 
-Without loss of generality we can consider any MFOTL formula with let bindings 
-as an ordered list of let bindings
-$l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
-where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
-bindings for all $1 \leq i \leq k$
-and some MFOTL formula $\psi$ with no let bindings.
+In this section we give a definition for refinement of MFOTL formulas with 
+let-bindings and proof that any enforcement event system that is sound
+for some MFOTL formula $\phi_C$
+is a refinement for any enforcement event system
+that is sound for an MFOTL formula $\phi_A$, if $\phi_C$ refines $\phi_A$.
 
 \begin{definition}
     \label{def:mfotl-refinement}
-    An MFOTL formula
-    $$
-    \Phi =
-    \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
-    \phi_{k+1} \right)
-    $$
-    refines an MFOTL formula
-    $$
-    \Psi =
-    \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
-    \psi_{k+1} \right)
-    $$
-    iff
-    \begin{enumerate}
-        \item For all events in $\Psi$, there exists a let binding in
-        $\Phi$ defining that event
+    We say an MFOTL formula $\phi_C$ with signature
+    $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_c \right)$
+    and a capability map $\kappa_C : \Events_C \to \Capabilities$
+    refines an MFOTL formula $\phi_A$ with signature
+    $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    and a capability map $\kappa_A : \Events_A \to \Capabilities$
+    under condition $\psi$ (an MFOTL formula over $\Sigma_C$) iff
+    \begin{itemize}
         \item
-    \end{enumerate}
-    $$
-    \Phi \implies \Psi
-    $$
+            $\left( \psi \wedge \phi_C \right) \rightarrow \phi_A$
+        \item
+            $\forall e \in \Events_C \cap \Events_A .~
+            \kappa_A(e) \sqsubseteq \kappa_C(e)$
+        \item
+            $\forall e \in \Events_C \cap \Events_A .~
+            \iota_C(e) = \iota_A(e)$
+        \item
+            $\forall f \in \Functions .~
+            \iota_C(f) = \iota_A(f)$
+        \item
+            $\forall e \in \Events_A \setminus \Events_C .~
+            % \left(
+                \kappa_A(e) \in
+                    \{ \texttt{suppressable}, \texttt{observable}, \bot \}
+            % \right)
+            $
+        \item
+            TODO: let bindings
+            
+    \end{itemize}
 \end{definition}
+
+\begin{lemma}
+    \label{lem:mfotl-refinement-implies-enforcement-event-system-refinement}
+    Whenever an MFOTL formula $\phi_C$ refines an MFOTL formula $\phi_A$,
+    then any sound enforcement event system for $\phi_C$
+    refines any sound enforcement event system for $\phi_A$.
+\end{lemma}
+
+\begin{proof}
+    \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
+    \begin{equation*}
+       \dots \text{ TODO } \dots
+    \end{equation*}
+\end{proof}
+
+% Without loss of generality we can consider any MFOTL formula with let bindings 
+% as an ordered list of let bindings
+% $l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
+% where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
+% bindings for all $1 \leq i \leq k$
+% and some MFOTL formula $\psi$ with no let bindings.
+
+% \begin{definition}
+%     \label{def:mfotl-refinement}
+%     An MFOTL formula
+%     $$
+%     \Phi =
+%     \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
+%     \phi_{k+1} \right)
+%     $$
+%     refines an MFOTL formula
+%     $$
+%     \Psi =
+%     \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
+%     \psi_{k+1} \right)
+%     $$
+%     iff
+%     \begin{enumerate}
+%         \item For all events in $\Psi$, there exists a let binding in
+%         $\Phi$ defining that event
+%         \item
+%     \end{enumerate}
+%     $$
+%     \Phi \implies \Psi
+%     $$
+% \end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of CRE Specifications}
 \label{subsection:refinement-of-cre-specifications}
-In this subsection we refresh refinement of Lex specifications as it is described in
-Hublet et. al \cite{lex}.
+In this subsection we recall refinement of Lex specifications as it is described in
+Hublet et. al \cite{lex}. We then go ahead and proof that whenever a CRE
+specification refines another CRE specification, their compiled MFOTL
+formulas are likewise refinements of each other.
 
 \begin{definition}
     \label{def:lex-refinement}
