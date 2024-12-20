@@ -959,36 +959,57 @@ that is sound for an MFOTL formula $\phi_A$, if $\phi_C$ refines $\phi_A$.
 
 \begin{definition}
     \label{def:mfotl-refinement}
-    We say an MFOTL formula $\phi_C$ with signature
-    $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_c \right)$
-    and a capability map $\kappa_C : \Events_C \to \Capabilities$
-    refines an MFOTL formula $\phi_A$ with signature
-    $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-    and a capability map $\kappa_A : \Events_A \to \Capabilities$
-    under condition $\psi$ (an MFOTL formula over $\Sigma_C$) iff
-    \begin{itemize}
-        \item
-            $\left( \psi \wedge \phi_C \right) \rightarrow \phi_A$
-        \item
-            $\forall e \in \Events_C \cap \Events_A .~
-            \kappa_A(e) \sqsubseteq \kappa_C(e)$
-        \item
-            $\forall e \in \Events_C \cap \Events_A .~
-            \iota_C(e) = \iota_A(e)$
-        \item
-            $\forall f \in \Functions .~
-            \iota_C(f) = \iota_A(f)$
-        \item
-            $\forall e \in \Events_A \setminus \Events_C .~
-            % \left(
-                \kappa_A(e) \in
-                    \{ \texttt{suppressable}, \texttt{observable}, \bot \}
-            % \right)
-            $
-        \item
-            TODO: let bindings
+    % We say an MFOTL formula $\phi_C$ with signature
+    % $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_c \right)$
+    % and a capability map $\kappa_C : \Events_C \to \Capabilities$
+    % refines an MFOTL formula $\phi_A$ with signature
+    % $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    % and a capability map $\kappa_A : \Events_A \to \Capabilities$
+    % under condition $\psi$ (an MFOTL formula over $\Sigma_C$) iff
+    % \begin{itemize}
+    %     \item
+    %         $\left( \psi \wedge \phi_C \right) \rightarrow \phi_A$
+    %     \item
+    %         $\forall e \in \Events_C \cap \Events_A .~
+    %         \kappa_A(e) \sqsubseteq \kappa_C(e)$
+    %     \item
+    %         $\forall e \in \Events_C \cap \Events_A .~
+    %         \iota_C(e) = \iota_A(e)$
+    %     \item
+    %         $\forall f \in \Functions .~
+    %         \iota_C(f) = \iota_A(f)$
+    %     \item
+    %         $\forall e \in \Events_A \setminus \Events_C .~
+    %         % \left(
+    %             \kappa_A(e) \in
+    %                 \{ \texttt{suppressable}, \texttt{observable}, \bot \}
+    %         % \right)
+    %         $
+    %     \item
+    %         TODO: let bindings
             
-    \end{itemize}
+    % \end{itemize}
+    
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-refinement-rules}
+    \begin{gather*}
+        \prftree[r]{R-C}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash (\phi \wedge \psi) \sqsubseteq \phi} \qquad
+        \prftree[r]{R-T}
+            {\Gamma \vdash \phi \sqsubseteq \psi}
+            {\Gamma \vdash \psi \sqsubseteq \phi'}
+            {\Gamma \vdash \phi \sqsubseteq \phi'} \\
+        \prftree[r]{R-L}
+            { \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right) \to \phi}
+            {\Gamma \vdash \psi : \tau}
+            {\Gamma,~ e:\tau \vdash \phi : \Cau}
+            {\Gamma \vdash
+            \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right)
+            \sqsubseteq \phi}
+    \end{gather*}
 \end{definition}
 
 \begin{lemma}
