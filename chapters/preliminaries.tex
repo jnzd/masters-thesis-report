@@ -181,7 +181,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
             {c \in \Domain}
             {\Gamma \vdash c} \qquad
         \prftree[r]{\text{Variable}}
-            {v \in Variables}
+            {v \in \Variables}
             {\Gamma \vdash v} \\
         \prftree[r]{\text{Function}}
             {f \in \Functions}
@@ -443,8 +443,195 @@ The addition of capabilities leads to a different set of typing rules that
 describe an enforceable subset of MFOTL formulae.
 
 \begin{definition}
+    \label{def:past-guardedness}
+    \emph{Past-Guardedness} rules
+    \begin{gather*}
+        \prftree[r]
+            {\Events^+_\PG}
+            {\vdash e(\dots, x, \dots) : \PG(x)^+}
+        \quad
+        \prftree[r]
+            {\neg_\PG}
+            {\vdash \phi : \PG(x)^{\neg p}}
+            {\vdash \neg \phi : \PG(x)^p}
+        \\
+        \prftree[r]
+            {\exists_\PG}
+            {x \neq z}
+            {\vdash \phi : \PG(z)^p}
+            {\vdash \exists x .~ \phi : \PG(z)^p}
+        \quad
+        \prftree[r]
+            {\wedge_\PG^{\Left+}}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \wedge \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\wedge_\PG^{\Right+}}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \wedge \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\wedge_\PG^-}
+            {\vdash \phi : \PG(x)^-}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \wedge \psi : \PG(x)^-}
+            \\
+        \prftree[r]
+            {\Since_\PG^{\Left+}}
+            {0 \notin I}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\Since_\PG^{\Right+}}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\Since_\PG^-}
+            {0 \in I}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \Since_I \psi : \PG(x)^-}
+            \quad
+        \prftree[r]
+            {\UUntil_\PG^{\Left+}}
+            {0 \notin I}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\UUntil_\PG^{\LeftRight+}}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\UUntil_\PG^-}
+            {0 \in I}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^-}
+            \\
+        \prftree[r]
+            {\Prev_\PG^+}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \Prev_I \phi : \PG(x)^+}
+    \end{gather*}
+
+
+
+\end{definition}
+
+\begin{definition}
     \label{def:emfotl-typing-rules}
-    \emph{(E)MFOTL Typing Rules} % TODO: maybe only introduce after introducing enforcement
+    \emph{EMFOTL Typing Rules}
+    % TODO: maybe only introduce after introducing enforcement
+    \begin{gather*}
+        \prftree[r]
+            {\top^\Cau}
+            {\Gamma \vdash \top : \Cau}
+            \quad
+        \prftree[r]
+            {\bot^\Sup}
+            {\Gamma \vdash \bot : \Sup}
+            \quad
+        \prftree[r]
+            {\Events^\Cau}
+            {e \in \Cau}
+            {\Gamma(e) = \Cau}
+            {\Gamma \vdash  e(t_1,\dots,t_k) : \Cau}
+            \\
+        \prftree[r]
+            {\Events^\Sup}
+            {e \in \Sup}
+            {\Gamma(e) = \Sup}
+            {\Gamma \vdash  e(t_1,\dots,t_k) : \Sup}
+            \quad
+        \prftree[r]
+            {\neg^\Cau}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \neg \phi : \Cau}
+            \quad
+        \prftree[r]
+            {\neg^\Sup}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \neg \phi : \Sup}
+            \\
+        \prftree[r]
+            {\exists^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \exists x.~\phi : \Cau}
+            \quad
+        \prftree[r]
+            {\exists^\Sup}
+            {\Gamma \vdash \exists x.~\phi : \Sup}
+            {\Gamma \vdash \phi : \Sup}
+            {\vdash \phi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\wedge^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \wedge \psi : \Cau}
+            \\
+        \prftree[r]
+            {\wedge^{\Sup\Left}}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \phi \wedge \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\wedge^{\Sup\Right}}
+            {\Gamma\vdash \psi : \Sup}
+            {\Gamma \vdash \phi \wedge \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\Since^\Cau}
+            {0 \in I}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \Since_I \psi : \Cau}
+            \\
+        \prftree[r]
+            {\Since^{\Sup\Left}}
+            {0 \notin I}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \phi \Since_{I} \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\Since^{\Sup\LeftRight}}
+            {0 \in I}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \psi : \Sup}
+            {\Gamma \vdash \phi \Since_I \psi : \Sup}
+            \\
+        \prftree[r]
+            {\UUntil^\Sup}
+            {\Gamma \vdash \psi : \Sup}
+            {\Gamma \vdash \phi \UUntil_I \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\UUntil^{\Cau\Right}}
+            {b \neq \infty}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \UUntil_{[0,b]} \psi : \Cau}
+            \\
+        \prftree[r]
+            {\UUntil^{\Cau\LeftRight}}
+            {b \neq \infty}
+            {\Gamma\vdash \phi : \Cau}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \UUntil_{[a,b]} \psi : \Cau}
+            \quad
+        \prftree[r]
+            {\Next^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {b > 0}
+            {\Gamma \vdash \Next_{[0,b)} \phi : \Cau}
+            \\
+        \prftree[r]
+            {\Next^\Sup}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \Next_I \phi : \Sup}
+    \end{gather*}
 \end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
