@@ -340,299 +340,6 @@ We define the following operators based on the basic operators above as
     $$
 \end{definition}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Enforceable MFOTL}
-\label{subsection:emfotl}
-% Hublet et al. \cite{whyenf} introduces a subset of MFOTL called Enforceable MFOTL,
-% where every event gets marked with some capability which indicates the levels of power
-% an enforcer has over an event.
-Capabilities are an integral part of the proactive enforcement
-approach introduced by Hublet et. al \cite{whyenf}.
-Under this approach an enforcer can have different capabilities, or ways of interacting
-with events emitted by a given system under scrutiny (SuS).
-In Hublet et. al the set of capabilities consists of observable, suppressable, causable,
-and suppressable-causable.
-Hublet et. al \cite{lex} expands this expands this system of capabilities, specifically it
-makes the existence of events that may not (always) be externally visible explicit.
-Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
-to assign a capability to all events with some event name $e \in \Events$.
-Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
-% We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
-
-% TODO: insert WhyEnf and Lex/CRE capability lattices
-
-\begin{definition}
-    \label{def:capability-lattice}
-    The \emph{Capability Lattice} $\left( \Capabilities, \sqsubseteq \right)$
-    
-    % \begin{figure}
-    \centering
-    \begin{tikzpicture}
-        % \node[text depth=0.1cm] (itl) at (1,1) {\texttt{internal}};
-        \node[text depth=0.1cm] (cau_sup) at (1,0) {\texttt{causable suppressable}};
-        
-        \node[text depth=0.1cm] (cau_obs) at (-1,-1) {\texttt{causable observable}};
-        \node[text depth=0.1cm] (sup) at (3,-1) {\texttt{suppressable}};
-        
-        \node[text depth=0.1cm] (obs) at (1,-2) {\texttt{observable}};
-        \node[text depth=0.1cm] (cau) at (-3,-2) {\texttt{causable}};
-        
-        \node[text depth=0.1cm] (bot) at (-1,-3) {$\bot$};
-        % \draw[->, dashed] (cau_sup) -- (itl);
-        \draw[->] (sup) -- (cau_sup);
-        \draw[->] (cau_obs) -- (cau_sup);
-        \draw[->] (cau) -- (cau_obs);
-        \draw[->] (obs) -- (cau_obs);
-        \draw[->] (obs) -- (sup);
-        \draw[->] (bot) -- (obs);
-        \draw[->] (bot) -- (cau);
-    \end{tikzpicture}
-    % \caption{Capability lattice}
-    % \end{figure}
-\end{definition}
-
-\begin{definition}
-    \label{def:cau-events}
-    The subset of \emph{Causable Events}
-    $$
-    \Events_{\Cau} =
-    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace
-    $$
-    consists of all event names which are can be caused by the enforcer,
-    i.e. which have a capability of at least $\texttt{causable}$.
-\end{definition}
-
-\begin{definition}
-    \label{def:sup-events}
-    The subset of \emph{Suppressable Events}
-    $$
-    \Events_{\Sup} =
-    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace
-    $$
-    consists of all event names which can be suppressed by the enforcer, 
-    i.e. which have a capability of at least $\texttt{suppressable}$.
-\end{definition}
-
-\begin{definition}
-    \label{def:cau-databases}
-    The set of \emph{Causable Databases} $\Databases_\Cau$ contains all
-    sets of events that are at least causable.
-    $$
-        \Databases_\Cau =
-        \left\{
-        D \in \Databases \mid
-        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Cau
-        \right\}
-    $$
-\end{definition}
-
-\begin{definition}
-    \label{def:sup-databases}
-    The set of \emph{Suppressable Databases} $\Databases_\Sup$ contains all sets
-    of events that are at least suppressable.
-    $$
-        \Databases_\Sup =
-        \left\{
-        D \in \Databases \mid
-        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Sup
-        \right\}
-    $$
-\end{definition}
-
-The addition of capabilities leads to a different set of typing rules that
-describe an enforceable subset of MFOTL formulae.
-
-\begin{definition}
-    \label{def:past-guardedness}
-    \emph{Past-Guardedness} rules
-    \begin{gather*}
-        \prftree[r]
-            {\Events^+_\PG}
-            {\vdash e(\dots, x, \dots) : \PG(x)^+}
-        \quad
-        \prftree[r]
-            {\neg_\PG}
-            {\vdash \phi : \PG(x)^{\neg p}}
-            {\vdash \neg \phi : \PG(x)^p}
-        \\
-        \prftree[r]
-            {\exists_\PG}
-            {x \neq z}
-            {\vdash \phi : \PG(z)^p}
-            {\vdash \exists x .~ \phi : \PG(z)^p}
-        \quad
-        \prftree[r]
-            {\wedge_\PG^{\Left+}}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \wedge \psi : \PG(x)^+}
-            \\
-        \prftree[r]
-            {\wedge_\PG^{\Right+}}
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \wedge \psi : \PG(x)^+}
-            \quad
-        \prftree[r]
-            {\wedge_\PG^-}
-            {\vdash \phi : \PG(x)^-}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \wedge \psi : \PG(x)^-}
-            \\
-        \prftree[r]
-            {\Since_\PG^{\Left+}}
-            {0 \notin I}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \Since_I \psi : \PG(x)^+}
-            \quad
-        \prftree[r]
-            {\Since_\PG^{\Right+}}
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \Since_I \psi : \PG(x)^+}
-            \\
-        \prftree[r]
-            {\Since_\PG^-}
-            {0 \in I}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \Since_I \psi : \PG(x)^-}
-            \quad
-        \prftree[r]
-            {\UUntil_\PG^{\Left+}}
-            {0 \notin I}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
-            \\
-        \prftree[r]
-            {\UUntil_\PG^{\LeftRight+}}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
-            \quad
-        \prftree[r]
-            {\UUntil_\PG^-}
-            {0 \in I}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^-}
-            \\
-        \prftree[r]
-            {\Prev_\PG^+}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \Prev_I \phi : \PG(x)^+}
-    \end{gather*}
-
-
-
-\end{definition}
-
-\begin{definition}
-    \label{def:emfotl-typing-rules}
-    \emph{EMFOTL Typing Rules}
-    % TODO: maybe only introduce after introducing enforcement
-    \begin{gather*}
-        \prftree[r]
-            {\top^\Cau}
-            {\Gamma \vdash \top : \Cau}
-            \quad
-        \prftree[r]
-            {\bot^\Sup}
-            {\Gamma \vdash \bot : \Sup}
-            \quad
-        \prftree[r]
-            {\Events^\Cau}
-            {e \in \Cau}
-            {\Gamma(e) = \Cau}
-            {\Gamma \vdash  e(t_1,\dots,t_k) : \Cau}
-            \\
-        \prftree[r]
-            {\Events^\Sup}
-            {e \in \Sup}
-            {\Gamma(e) = \Sup}
-            {\Gamma \vdash  e(t_1,\dots,t_k) : \Sup}
-            \quad
-        \prftree[r]
-            {\neg^\Cau}
-            {\Gamma \vdash \phi : \Sup}
-            {\Gamma \vdash \neg \phi : \Cau}
-            \quad
-        \prftree[r]
-            {\neg^\Sup}
-            {\Gamma \vdash \phi : \Cau}
-            {\Gamma \vdash \neg \phi : \Sup}
-            \\
-        \prftree[r]
-            {\exists^\Cau}
-            {\Gamma \vdash \phi : \Cau}
-            {\Gamma \vdash \exists x.~\phi : \Cau}
-            \quad
-        \prftree[r]
-            {\exists^\Sup}
-            {\Gamma \vdash \exists x.~\phi : \Sup}
-            {\Gamma \vdash \phi : \Sup}
-            {\vdash \phi : \PG(x)^+}
-            \quad
-        \prftree[r]
-            {\wedge^\Cau}
-            {\Gamma \vdash \phi : \Cau}
-            {\Gamma \vdash \psi : \Cau}
-            {\Gamma \vdash \phi \wedge \psi : \Cau}
-            \\
-        \prftree[r]
-            {\wedge^{\Sup\Left}}
-            {\Gamma \vdash \phi : \Sup}
-            {\Gamma \vdash \phi \wedge \psi : \Sup}
-            \quad
-        \prftree[r]
-            {\wedge^{\Sup\Right}}
-            {\Gamma\vdash \psi : \Sup}
-            {\Gamma \vdash \phi \wedge \psi : \Sup}
-            \quad
-        \prftree[r]
-            {\Since^\Cau}
-            {0 \in I}
-            {\Gamma \vdash \psi : \Cau}
-            {\Gamma \vdash \phi \Since_I \psi : \Cau}
-            \\
-        \prftree[r]
-            {\Since^{\Sup\Left}}
-            {0 \notin I}
-            {\Gamma \vdash \phi : \Sup}
-            {\Gamma \vdash \phi \Since_{I} \psi : \Sup}
-            \quad
-        \prftree[r]
-            {\Since^{\Sup\LeftRight}}
-            {0 \in I}
-            {\Gamma \vdash \phi : \Sup}
-            {\Gamma \vdash \psi : \Sup}
-            {\Gamma \vdash \phi \Since_I \psi : \Sup}
-            \\
-        \prftree[r]
-            {\UUntil^\Sup}
-            {\Gamma \vdash \psi : \Sup}
-            {\Gamma \vdash \phi \UUntil_I \psi : \Sup}
-            \quad
-        \prftree[r]
-            {\UUntil^{\Cau\Right}}
-            {b \neq \infty}
-            {\Gamma \vdash \psi : \Cau}
-            {\Gamma \vdash \phi \UUntil_{[0,b]} \psi : \Cau}
-            \\
-        \prftree[r]
-            {\UUntil^{\Cau\LeftRight}}
-            {b \neq \infty}
-            {\Gamma\vdash \phi : \Cau}
-            {\Gamma \vdash \psi : \Cau}
-            {\Gamma \vdash \phi \UUntil_{[a,b]} \psi : \Cau}
-            \quad
-        \prftree[r]
-            {\Next^\Cau}
-            {\Gamma \vdash \phi : \Cau}
-            {b > 0}
-            {\Gamma \vdash \Next_{[0,b)} \phi : \Cau}
-            \\
-        \prftree[r]
-            {\Next^\Sup}
-            {\Gamma \vdash \phi : \Sup}
-            {\Gamma \vdash \Next_I \phi : \Sup}
-    \end{gather*}
-\end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -796,6 +503,13 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
 \end{definition}
 
 \begin{definition}
+    \label{def:enf-sound-property-under-condition}
+    An enforcer $\Enforcer$ is \emph{sound} with respect to some property $P$ 
+    \emph{under a condition} $Q \subseteq \Traces_\omega$, iff
+    for any trace $\sigma \in \Q$, $\Enforcer(\sigma) \in P$.
+\end{definition}
+
+\begin{definition}
     \label{def:enf-transparent-property}
     An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
     with respect to some property $P$ iff for all $\sigma \in P$,
@@ -809,6 +523,14 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
 \end{definition}
 
 \begin{definition}
+    \label{def:enf-sound-policy-under-condtion}
+    An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$
+    \emph{under a condition} $\psi$, iff
+    it is sound for the property $\Language(\phi)$ under condition 
+    $\Language(\psi)$.
+\end{definition}
+
+\begin{definition}
     \label{def:enf-transparent-policy}
     An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
     with respect to some policy $\phi$ iff it is transparent for
@@ -819,7 +541,326 @@ A property or policy is said to be \emph{(transparently) enforceable} if there
 exists a (transparent) sound enforcer for the policy or property.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Enforceable MFOTL}
+\label{subsection:emfotl}
+% Hublet et al. \cite{whyenf} introduces a subset of MFOTL called Enforceable MFOTL,
+% where every event gets marked with some capability which indicates the levels of power
+% an enforcer has over an event.
+Capabilities are an integral part of the proactive enforcement
+approach introduced by Hublet et. al \cite{whyenf}.
+Under this approach an enforcer can have different capabilities, or ways of interacting
+with events emitted by a given system under scrutiny (SuS).
+In Hublet et. al the set of capabilities consists of observable, suppressable, causable,
+and suppressable-causable.
+Hublet et. al \cite{lex} expands this expands this system of capabilities, specifically it
+makes the existence of events that may not (always) be externally visible explicit.
+Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
+to assign a capability to all events with some event name $e \in \Events$.
+Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
+% We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
 
+% TODO: insert WhyEnf and Lex/CRE capability lattices
+
+\begin{definition}
+    \label{def:capability-lattice}
+    The \emph{Capability Lattice} $\left( \Capabilities, \sqsubseteq \right)$
+    
+    % \begin{figure}
+    \centering
+    \begin{tikzpicture}
+        % \node[text depth=0.1cm] (itl) at (1,1) {\texttt{internal}};
+        \node[text depth=0.1cm] (cau_sup) at (1,0) {\texttt{causable suppressable}};
+        
+        \node[text depth=0.1cm] (cau_obs) at (-1,-1) {\texttt{causable observable}};
+        \node[text depth=0.1cm] (sup) at (3,-1) {\texttt{suppressable}};
+        
+        \node[text depth=0.1cm] (obs) at (1,-2) {\texttt{observable}};
+        \node[text depth=0.1cm] (cau) at (-3,-2) {\texttt{causable}};
+        
+        \node[text depth=0.1cm] (bot) at (-1,-3) {$\bot$};
+        % \draw[->, dashed] (cau_sup) -- (itl);
+        \draw[->] (sup) -- (cau_sup);
+        \draw[->] (cau_obs) -- (cau_sup);
+        \draw[->] (cau) -- (cau_obs);
+        \draw[->] (obs) -- (cau_obs);
+        \draw[->] (obs) -- (sup);
+        \draw[->] (bot) -- (obs);
+        \draw[->] (bot) -- (cau);
+    \end{tikzpicture}
+    % \caption{Capability lattice}
+    % \end{figure}
+\end{definition}
+
+\begin{definition}
+    \label{def:cau-events}
+    The subset of \emph{Causable Events}
+    $$
+    \Events_{\Cau} =
+    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace
+    $$
+    consists of all event names which are can be caused by the enforcer,
+    i.e. which have a capability of at least $\texttt{causable}$.
+\end{definition}
+
+\begin{definition}
+    \label{def:sup-events}
+    The subset of \emph{Suppressable Events}
+    $$
+    \Events_{\Sup} =
+    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace
+    $$
+    consists of all event names which can be suppressed by the enforcer, 
+    i.e. which have a capability of at least $\texttt{suppressable}$.
+\end{definition}
+
+\begin{definition}
+    \label{def:cau-databases}
+    The set of \emph{Causable Databases} $\Databases_\Cau$ contains all
+    sets of events that are at least causable.
+    $$
+        \Databases_\Cau =
+        \left\{
+        D \in \Databases \mid
+        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Cau
+        \right\}
+    $$
+\end{definition}
+
+\begin{definition}
+    \label{def:sup-databases}
+    The set of \emph{Suppressable Databases} $\Databases_\Sup$ contains all sets
+    of events that are at least suppressable.
+    $$
+        \Databases_\Sup =
+        \left\{
+        D \in \Databases \mid
+        \forall e\left( \bar{t} \right) \in D. \ e \in \Events_\Sup
+        \right\}
+    $$
+\end{definition}
+
+The addition of capabilities leads to a different set of typing rules that
+describe an enforceable subset of MFOTL formulae as introduced by
+Hublet, Lima et al. \cite{whyenf, whyenf-2}.
+
+\begin{definition}
+    \label{def:past-guardedness}
+    \emph{Past-Guardedness} rules
+    \begin{gather*}
+        \prftree[r]
+            {\Events^+_\PG}
+            {\vdash e(\dots, x, \dots) : \PG(x)^+}
+        \quad
+        \prftree[r]
+            {\neg_\PG}
+            {\vdash \phi : \PG(x)^{\neg p}}
+            {\vdash \neg \phi : \PG(x)^p}
+        \\
+        \prftree[r]
+            {\exists_\PG}
+            {x \neq z}
+            {\vdash \phi : \PG(z)^p}
+            {\vdash \exists x .~ \phi : \PG(z)^p}
+        \quad
+        \prftree[r]
+            {\wedge_\PG^{\Left+}}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \wedge \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\wedge_\PG^{\Right+}}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \wedge \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\wedge_\PG^-}
+            {\vdash \phi : \PG(x)^-}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \wedge \psi : \PG(x)^-}
+            \\
+        \prftree[r]
+            {\Since_\PG^{\Left+}}
+            {0 \notin I}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\Since_\PG^{\Right+}}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\Since_\PG^-}
+            {0 \in I}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \Since_I \psi : \PG(x)^-}
+            \quad
+        \prftree[r]
+            {\UUntil_\PG^{\Left+}}
+            {0 \notin I}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            \\
+        \prftree[r]
+            {\UUntil_\PG^{\LeftRight+}}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \psi : \PG(x)^+}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\UUntil_\PG^-}
+            {0 \in I}
+            {\vdash \psi : \PG(x)^-}
+            {\vdash \phi \UUntil_I \psi : \PG(x)^-}
+            \\
+        \prftree[r]
+            {\Prev_\PG^+}
+            {\vdash \phi : \PG(x)^+}
+            {\vdash \Prev_I \phi : \PG(x)^+}
+    \end{gather*}
+\end{definition}
+
+\begin{definition}
+    \label{def:emfotl-typing-rules}
+    \emph{EMFOTL Typing Rules}
+    % TODO: maybe only introduce after introducing enforcement
+    \begin{gather*}
+        \prftree[r]
+            {\top^\Cau}
+            {\Gamma \vdash \top : \Cau}
+            \quad
+        \prftree[r]
+            {\bot^\Sup}
+            {\Gamma \vdash \bot : \Sup}
+            \quad
+        \prftree[r]
+            {\Events^\Cau}
+            {e \in \Cau}
+            {\Gamma(e) = \Cau}
+            {\Gamma \vdash  e(t_1,\dots,t_k) : \Cau}
+            \\
+        \prftree[r]
+            {\Events^\Sup}
+            {e \in \Sup}
+            {\Gamma(e) = \Sup}
+            {\Gamma \vdash  e(t_1,\dots,t_k) : \Sup}
+            \quad
+        \prftree[r]
+            {\neg^\Cau}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \neg \phi : \Cau}
+            \quad
+        \prftree[r]
+            {\neg^\Sup}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \neg \phi : \Sup}
+            \\
+        \prftree[r]
+            {\exists^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \exists x.~\phi : \Cau}
+            \quad
+        \prftree[r]
+            {\exists^\Sup}
+            {\Gamma \vdash \exists x.~\phi : \Sup}
+            {\Gamma \vdash \phi : \Sup}
+            {\vdash \phi : \PG(x)^+}
+            \quad
+        \prftree[r]
+            {\wedge^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \wedge \psi : \Cau}
+            \\
+        \prftree[r]
+            {\wedge^{\Sup\Left}}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \phi \wedge \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\wedge^{\Sup\Right}}
+            {\Gamma\vdash \psi : \Sup}
+            {\Gamma \vdash \phi \wedge \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\Since^\Cau}
+            {0 \in I}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \Since_I \psi : \Cau}
+            \\
+        \prftree[r]
+            {\Since^{\Sup\Left}}
+            {0 \notin I}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \phi \Since_{I} \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\Since^{\Sup\LeftRight}}
+            {0 \in I}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \psi : \Sup}
+            {\Gamma \vdash \phi \Since_I \psi : \Sup}
+            \\
+        \prftree[r]
+            {\UUntil^\Sup}
+            {\Gamma \vdash \psi : \Sup}
+            {\Gamma \vdash \phi \UUntil_I \psi : \Sup}
+            \quad
+        \prftree[r]
+            {\UUntil^{\Cau\Right}}
+            {b \neq \infty}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \UUntil_{[0,b]} \psi : \Cau}
+            \\
+        \prftree[r]
+            {\UUntil^{\Cau\LeftRight}}
+            {b \neq \infty}
+            {\Gamma\vdash \phi : \Cau}
+            {\Gamma \vdash \psi : \Cau}
+            {\Gamma \vdash \phi \UUntil_{[a,b]} \psi : \Cau}
+            \quad
+        \prftree[r]
+            {\Next^\Cau}
+            {\Gamma \vdash \phi : \Cau}
+            {b > 0}
+            {\Gamma \vdash \Next_{[0,b)} \phi : \Cau}
+            \\
+        \prftree[r]
+            {\Next^\Sup}
+            {\Gamma \vdash \phi : \Sup}
+            {\Gamma \vdash \Next_I \phi : \Sup}
+    \end{gather*}
+\end{definition}
+
+For enforcement under a condition as in Definition
+\ref{def:enf-sound-policy-under-condtion} we can add one additional
+typing rule to expand the fragment of enforceable MFOTL formulae.
+
+\begin{definition}
+    \label{def:emfotl-under-condition-additional-typing-rule}
+    Additional typing rule when enforcement is done under some condtion
+    \begin{equation*}
+        \prftree[r]
+            {\mathsf{C}^\Cau}
+            {\psi \to \phi}
+            {\Gamma \vdash_\psi \phi : \Cau}
+    \end{equation*}
+\end{definition}
+
+To give some intuition for this rule, we can imagine an MFOTL formula $\phi$
+that is not causable (i.e. enforceable) under the general EMFOTL typing
+rules.
+If we make this formula $\phi$ now a condition (i.e. we assume it to be true),
+it does become "causable" by assumption.
+Now it is important that this is a very different notion of causability since
+it is not the enforcer that can cause a certain event, but rather it is
+a circumstance that is assumed to hold externally.
+% TODO: give a more concrete example
+% TODO: formulate enforcement under a condition/assumption more clearly
+The "condition"-subscript ($\psi$ in Definition
+\ref{def:emfotl-under-condition-additional-typing-rule}) can propagate through
+the rule in Definition \ref{def:emfotl-typing-rules}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
