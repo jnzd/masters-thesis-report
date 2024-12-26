@@ -177,13 +177,13 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     \label{def:mfotl-term-typing-rules}
     \emph{MFOTL Terms must follow the these typing rules}
     \begin{gather*}
-        \prftree[r]{\text{Constant}}
+        \prftree[r]{Constant}
             {c \in \Domain}
             {\Gamma \vdash c} \qquad
-        \prftree[r]{\text{Variable}}
+        \prftree[r]{Variable}
             {v \in \Variables}
             {\Gamma \vdash v} \\
-        \prftree[r]{\text{Function}}
+        \prftree[r]{Function}
             {f \in \Functions}
             {\forall 1 \leq i \leq k. \Gamma \vdash t_i}
             {\Gamma \vdash f\left(t_1,\dots,t_k\right)}            
@@ -194,38 +194,38 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     \label{def:mfotl-typing-rules}
     A MFOTL formula $\phi$ is \emph{Well Typed} if it follows the following typing rules
     \begin{gather*}
-        \prftree[r]{\text{True}}
+        \prftree[r]{True}
             {}
             {\Gamma \vdash \top} \qquad
-        \prftree[r]{\text{Not}}
+        \prftree[r]{Not}
             {\Gamma \not\vdash \phi}
             {\Gamma \vdash \neg \phi} \qquad
-        \prftree[r]{\text{And}}
+        \prftree[r]{And}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}
             {\Gamma \vdash \phi \wedge \psi} \\
-        \prftree[r]{\text{Event}}
+        \prftree[r]{Event}
             {e \in \Events}{\forall 1 \leq i \leq k . x_i \in (Terms) TODO} % TODO: typing rules for terms
             {\Gamma \vdash e\left(x_1, \dots, x_k\right)} \qquad
-        \prftree[r]{\text{Exists}}
+        \prftree[r]{Exists}
             {\Gamma \vdash \phi}{x \in \Variables}
             {\Gamma \vdash \exists x. \phi} \\
-        \prftree[r]{\text{Next}}
+        \prftree[r]{Next}
             {\Gamma \vdash \phi}{I \in \Intervals}
             {\Gamma \vdash \Next_I \phi} \qquad
-        \prftree[r]{\text{Previous}}
+        \prftree[r]{Previous}
             {\Gamma \vdash \phi}{I \in \Intervals}
             {\Gamma \vdash \Prev_I \phi} \\
-        \prftree[r]{\text{Until}}
+        \prftree[r]{Until}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
             {\Gamma \vdash \phi \UUntil_I \psi} \qquad
-        \prftree[r]{\text{Since}}
+        \prftree[r]{Since}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
             {\Gamma \vdash \phi \Since_I \psi} \\
-        \prftree[r]{\text{Aggregation}} % TODO: what are the typing rules for aggregation?
+        \prftree[r]{Aggregation} % TODO: what are the typing rules for aggregation?
             {\Gamma \vdash \phi}{x \in \Variables }{\bar{y} \text{ TODO}}
                 {t \text{ TODO}}{\omega \text{ TODO}}
             {\Gamma \vdash \Aggreg{x}{\omega}{t}{y_1,\dots,y_k}{\phi}} \\
-        \prftree[r]{\text{Let}}
+        \prftree[r]{Let}
             {\Gamma \vdash \phi}
             { \Gamma[\Events \mapsto \Events \cup \left\lbrace e \right\rbrace]
                 \vdash \psi}
@@ -649,73 +649,73 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
     \emph{Past-Guardedness} rules
     \begin{gather*}
         \prftree[r]
-            {\Events^+_\PG}
+            {$\Events^+_\PG$}
             {\vdash e(\dots, x, \dots) : \PG(x)^+}
         \quad
         \prftree[r]
-            {\neg_\PG}
+            {$\neg_\PG$}
             {\vdash \phi : \PG(x)^{\neg p}}
             {\vdash \neg \phi : \PG(x)^p}
         \\
         \prftree[r]
-            {\exists_\PG}
+            {$\exists_\PG$}
             {x \neq z}
             {\vdash \phi : \PG(z)^p}
             {\vdash \exists x .~ \phi : \PG(z)^p}
         \quad
         \prftree[r]
-            {\wedge_\PG^{\Left+}}
+            {$\wedge_\PG^{\Left+}$}
             {\vdash \phi : \PG(x)^+}
             {\vdash \phi \wedge \psi : \PG(x)^+}
             \\
         \prftree[r]
-            {\wedge_\PG^{\Right+}}
+            {$\wedge_\PG^{\Right+}$}
             {\vdash \psi : \PG(x)^+}
             {\vdash \phi \wedge \psi : \PG(x)^+}
             \quad
         \prftree[r]
-            {\wedge_\PG^-}
+            {$\wedge_\PG^-$}
             {\vdash \phi : \PG(x)^-}
             {\vdash \psi : \PG(x)^-}
             {\vdash \phi \wedge \psi : \PG(x)^-}
             \\
         \prftree[r]
-            {\Since_\PG^{\Left+}}
+            {$\Since_\PG^{\Left+}$}
             {0 \notin I}
             {\vdash \phi : \PG(x)^+}
             {\vdash \phi \Since_I \psi : \PG(x)^+}
             \quad
         \prftree[r]
-            {\Since_\PG^{\Right+}}
+            {$\Since_\PG^{\Right+}$}
             {\vdash \psi : \PG(x)^+}
             {\vdash \phi \Since_I \psi : \PG(x)^+}
             \\
         \prftree[r]
-            {\Since_\PG^-}
+            {$\Since_\PG^-$}
             {0 \in I}
             {\vdash \psi : \PG(x)^-}
             {\vdash \phi \Since_I \psi : \PG(x)^-}
             \quad
         \prftree[r]
-            {\UUntil_\PG^{\Left+}}
+            {$\UUntil_\PG^{\Left+}$}
             {0 \notin I}
             {\vdash \phi : \PG(x)^+}
             {\vdash \phi \UUntil_I \psi : \PG(x)^+}
             \\
         \prftree[r]
-            {\UUntil_\PG^{\LeftRight+}}
+            {$\UUntil_\PG^{\LeftRight+}$}
             {\vdash \phi : \PG(x)^+}
             {\vdash \psi : \PG(x)^+}
             {\vdash \phi \UUntil_I \psi : \PG(x)^+}
             \quad
         \prftree[r]
-            {\UUntil_\PG^-}
+            {$\UUntil_\PG^-$}
             {0 \in I}
             {\vdash \psi : \PG(x)^-}
             {\vdash \phi \UUntil_I \psi : \PG(x)^-}
             \\
         \prftree[r]
-            {\Prev_\PG^+}
+            {$\Prev_\PG^+$}
             {\vdash \phi : \PG(x)^+}
             {\vdash \Prev_I \phi : \PG(x)^+}
     \end{gather*}
@@ -727,107 +727,107 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
     % TODO: maybe only introduce after introducing enforcement
     \begin{gather*}
         \prftree[r]
-            {\top^\Cau}
+            {$\top^\Cau$}
             {\Gamma \vdash \top : \Cau}
             \quad
         \prftree[r]
-            {\bot^\Sup}
+            {$\bot^\Sup$}
             {\Gamma \vdash \bot : \Sup}
             \quad
         \prftree[r]
-            {\Events^\Cau}
+            {$\Events^\Cau$}
             {e \in \Cau}
             {\Gamma(e) = \Cau}
             {\Gamma \vdash  e(t_1,\dots,t_k) : \Cau}
             \\
         \prftree[r]
-            {\Events^\Sup}
+            {$\Events^\Sup$}
             {e \in \Sup}
             {\Gamma(e) = \Sup}
             {\Gamma \vdash  e(t_1,\dots,t_k) : \Sup}
             \quad
         \prftree[r]
-            {\neg^\Cau}
+            {$\neg^\Cau$}
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \neg \phi : \Cau}
             \quad
         \prftree[r]
-            {\neg^\Sup}
+            {$\neg^\Sup$}
             {\Gamma \vdash \phi : \Cau}
             {\Gamma \vdash \neg \phi : \Sup}
             \\
         \prftree[r]
-            {\exists^\Cau}
+            {$\exists^\Cau$}
             {\Gamma \vdash \phi : \Cau}
             {\Gamma \vdash \exists x.~\phi : \Cau}
             \quad
         \prftree[r]
-            {\exists^\Sup}
+            {$\exists^\Sup$}
             {\Gamma \vdash \exists x.~\phi : \Sup}
             {\Gamma \vdash \phi : \Sup}
             {\vdash \phi : \PG(x)^+}
             \quad
         \prftree[r]
-            {\wedge^\Cau}
+            {$\wedge^\Cau$}
             {\Gamma \vdash \phi : \Cau}
             {\Gamma \vdash \psi : \Cau}
             {\Gamma \vdash \phi \wedge \psi : \Cau}
             \\
         \prftree[r]
-            {\wedge^{\Sup\Left}}
+            {$\wedge^{\Sup\Left}$}
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \phi \wedge \psi : \Sup}
             \quad
         \prftree[r]
-            {\wedge^{\Sup\Right}}
+            {$\wedge^{\Sup\Right}$}
             {\Gamma\vdash \psi : \Sup}
             {\Gamma \vdash \phi \wedge \psi : \Sup}
             \quad
         \prftree[r]
-            {\Since^\Cau}
+            {$\Since^\Cau$}
             {0 \in I}
             {\Gamma \vdash \psi : \Cau}
             {\Gamma \vdash \phi \Since_I \psi : \Cau}
             \\
         \prftree[r]
-            {\Since^{\Sup\Left}}
+            {$\Since^{\Sup\Left}$}
             {0 \notin I}
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \phi \Since_{I} \psi : \Sup}
             \quad
         \prftree[r]
-            {\Since^{\Sup\LeftRight}}
+            {$\Since^{\Sup\LeftRight}$}
             {0 \in I}
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \psi : \Sup}
             {\Gamma \vdash \phi \Since_I \psi : \Sup}
             \\
         \prftree[r]
-            {\UUntil^\Sup}
+            {$\UUntil^\Sup$}
             {\Gamma \vdash \psi : \Sup}
             {\Gamma \vdash \phi \UUntil_I \psi : \Sup}
             \quad
         \prftree[r]
-            {\UUntil^{\Cau\Right}}
+            {$\UUntil^{\Cau\Right}$}
             {b \neq \infty}
             {\Gamma \vdash \psi : \Cau}
             {\Gamma \vdash \phi \UUntil_{[0,b]} \psi : \Cau}
             \\
         \prftree[r]
-            {\UUntil^{\Cau\LeftRight}}
+            {$\UUntil^{\Cau\LeftRight}$}
             {b \neq \infty}
             {\Gamma\vdash \phi : \Cau}
             {\Gamma \vdash \psi : \Cau}
             {\Gamma \vdash \phi \UUntil_{[a,b]} \psi : \Cau}
             \quad
         \prftree[r]
-            {\Next^\Cau}
+            {$\Next^\Cau$}
             {\Gamma \vdash \phi : \Cau}
             {b > 0}
             {\Gamma \vdash \Next_{[0,b)} \phi : \Cau}
             \\
         \prftree[r]
-            {\Next^\Sup}
+            {$\Next^\Sup$}
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \Next_I \phi : \Sup}
     \end{gather*}
@@ -842,7 +842,7 @@ typing rule to expand the fragment of enforceable MFOTL formulae.
     Additional typing rule when enforcement is done under some condtion
     \begin{equation*}
         \prftree[r]
-            {\mathsf{C}^\Cau}
+            {$\mathsf{C}^\Cau$}
             {\psi \to \phi}
             {\Gamma \vdash_\psi \phi : \Cau}
     \end{equation*}
@@ -981,13 +981,13 @@ logic is captured by $\gamma \vDash \phi$.
     \label{def:cre-semantics}
     The \emph{Semantics of the CRE Meta-Logic} are given by the following 3 rules
     \begin{gather*}
-        \prftree[r]{\text{CON}}
+        \prftree[r]{CON}
             {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
             {\gamma \vDash p} \\
-        \prftree[r]{\text{REG}}
+        \prftree[r]{REG}
             {r: \phi \Rightarrow \psi \in R}{\gamma \vDash (\phi \to \psi) \vee \exc(r)}
             {\gamma \vDash \comply(r)} \\
-        \prftree[r]{\text{EXC}}
+        \prftree[r]{EXC}
             {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
             {\gamma \vDash \exc(s)}
     \end{gather*}
@@ -1000,7 +1000,7 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
     A CRE-policy $\Phi = \left(C,R,R \right)$ is complied with ($\gamma \vDash \Phi$), if
     all its regulative rules are complied with, which is captured in the rule:
     \begin{equation*}
-        \prftree[r]{\text{CRE-Compliance}}
+        \prftree[r]{CRE-Compliance}
             {\forall r: \phi \Rightarrow \psi \in R.\ \comply(r)}
             {\gamma \vDash \Phi}
     \end{equation*}

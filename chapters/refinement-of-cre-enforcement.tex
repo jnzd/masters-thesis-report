@@ -997,18 +997,18 @@ that is sound for an MFOTL formula $\phi_A$, if $\phi_C$ refines $\phi_A$.
     Refinement for well formed MFOTL formulas is defined by the following rules.
     $\phi \sqsubseteq \psi$ means "$\phi$ refines $\psi$".
     \begin{gather*}
-        \prftree[r]{R_I}
+        \prftree[r]{$R_I$}
             % {\Gamma \vdash \phi : \Cau}
             {\Gamma \vdash \phi \sqsubseteq \phi} \qquad
-        \prftree[r]{R_C}
+        \prftree[r]{$R_C$}
             {\Gamma \vdash \phi : \Cau}
             {\Gamma \vdash \psi : \Cau}
             {\Gamma \vdash (\phi \wedge \psi) \sqsubseteq \phi} \qquad
-        \prftree[r]{R_T}
+        \prftree[r]{$R_T$}
             {\Gamma \vdash \phi \sqsubseteq \psi}
             {\Gamma \vdash \psi \sqsubseteq \phi'}
             {\Gamma \vdash \phi \sqsubseteq \phi'} \\
-        \prftree[r]{R_L}
+        \prftree[r]{$R_L$}
             { \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right) \to \phi}
             {\Gamma \vdash \psi : \tau}
             {\Gamma,~ e:\tau \vdash \phi : \Cau}
