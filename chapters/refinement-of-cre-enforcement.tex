@@ -658,28 +658,28 @@ eventually be followed by some database $D$.
     over the functions $\cConv$ and $\dConv'$ for all $\tau \in \Nat$
     \begin{align}
         \label{eq:domain-finite-mfotl-traces'}
-        \forall \sigma \in \Traces_f .~
-        ( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
-        \to
-        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma,
+        &\forall \sigma \in \Traces_f .~
+        &( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
+        &\to
+        &\cConv'(\tau, \dConv'(\tau, \sigma)) &= \sigma,
         \\
         \label{eq:domain-infinite-mfotl-traces'}
-        \forall \sigma \in \Traces_\omega .~
-        ( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
-        \to
-        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma,
+        &\forall \sigma \in \Traces_\omega .~
+        &( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
+        &\to
+        &\cConv'(\tau, \dConv'(\tau, \sigma)) &= \sigma,
         \\
         \label{eq:domain-finite-system-traces'}
-        \forall \sigma_\sys \in \trim(\Traces_{\sys,f}) .~
-        ( \sigma_\sys = \emptytrace_\sys \vee  \tau \leq \fts(\sigma_\sys) )
-        \to
-        \dConv'(\tau, \cConv'(\tau, \sigma_\sys)) = \sigma_\sys,
+        &\forall \sigma_\sys \in \trim(\Traces_{\sys,f}) .~
+        &( \sigma_\sys = \emptytrace_\sys \vee  \tau \leq \fts(\sigma_\sys) )
+        &\to
+        &\dConv'(\tau, \cConv'(\tau, \sigma_\sys)) &= \sigma_\sys,
         \\
         \label{eq:domain-infinite-system-traces'}
-        \forall \sigma_\sys \in \trim(\Traces_{\sys,\omega}) .~
-        ( \sigma_\sys = \emptytrace_\sys \vee  \tau \leq \fts(\sigma_\sys) )
-        \to
-        \dConv'(\tau, \cConv'(\tau, \sigma_\sys)) = \sigma_\sys.
+        &\forall \sigma_\sys \in \trim(\Traces_{\sys,\omega}) .~
+        &( \sigma_\sys = \emptytrace_\sys \vee  \tau \leq \fts(\sigma_\sys) )
+        &\to
+        &\dConv'(\tau, \cConv'(\tau, \sigma_\sys)) &= \sigma_\sys.
     \end{align}
     When fixing $\tau=0$ in the four equations above, the preconditions
     all evaluate to "true" and the occurrences of $\cConv'$ and $\dConv'$
@@ -695,7 +695,7 @@ eventually be followed by some database $D$.
 
     \begin{enumerate}
         \item \textbf{Finite MFOTL Traces}
-            (Equations \ref{eq:domain-finite-mfotl-traces},
+            (Equations \ref{eq:domain-finite-mfotl-traces} and
             \ref{eq:domain-finite-mfotl-traces'})
         
         We proof this by structural induction over traces $\sigma \in \Traces_f$
@@ -729,7 +729,8 @@ eventually be followed by some database $D$.
         $\sigma = \left(\tau', D \right) \cdot \sigma'$
         for some $\tau' \geq \tau$, some $D \in \Databases$ and
         a suffix $\sigma' \in \Traces_f$.
-        Since $\tau \leq \tau'$ there exists some $k \geq 0$
+        Since $\tau \leq \tau'$ ($\tau' = \fts(\sigma)$)
+        there exists some $k \geq 0$
         such that $\tau' = \tau + k$.
         \begin{align*}
             \cConv'(\tau, \dConv'(\tau, \sigma))
@@ -748,12 +749,13 @@ eventually be followed by some database $D$.
             &\stackrel{\ref{def:cconv'}}{=}
                 \cConv'(\tau + k, \dConv'(\tau + k, \sigma)) \\
             &= \cConv'(\tau', \dConv'(\tau', \sigma)) \\
-            % & \stackrel{\text{Case } \ref{c1}}{=} \sigma
-            &= \cConv'(\tau, D \cdot \dConv'(\tau, \sigma')) \\
+            &= \cConv'(\tau', \dConv'(\tau', (\tau', D) \cdot \sigma')) \\
             &\stackrel{\ref{def:dconv'}}{=}
-                \left(\tau, D \right) \cdot
-                \cConv'(\tau, \dConv'(\tau, \sigma')) \\
-            &\stackrel{\text{IH}}{=} \left(\tau, D \right) \cdot \sigma' \\
+                \cConv'(\tau', D \cdot \dConv'(\tau', \sigma')) \\
+            &\stackrel{\ref{def:cconv'}}{=}
+                \left(\tau', D \right) \cdot
+                \cConv'(\tau', \dConv'(\tau', \sigma')) \\
+            &\stackrel{\text{IH}}{=} \left(\tau', D \right) \cdot \sigma' \\
             &= \sigma
         \end{align*}
     
@@ -761,28 +763,39 @@ eventually be followed by some database $D$.
         which does imply \ref{eq:domain-finite-mfotl-traces'}.
         
         \item \textbf{Infinite MFOTL Traces}
-            (Equation \ref{eq:domain-infinite-mfotl-traces},
+            (Equations \ref{eq:domain-infinite-mfotl-traces} and 
             \ref{eq:domain-infinite-mfotl-traces'})
 
         For the infinite case we use co-inductive reasoning.
         We have already shown that the property holds for arbitrarily
         long finite prefixes of any infinite trace.
         
+
+        \begin{equation*}
+            TODO
+        \end{equation*}
+        
         \item \textbf{Finite System Traces}
-            (Equation \ref{eq:domain-finite-system-traces},
+            (Equations \ref{eq:domain-finite-system-traces} and 
             \ref{eq:domain-finite-system-traces'})
 
+        \begin{equation*}
+            TODO
+        \end{equation*}
+        
         \item \textbf{Infinite System Traces}
-            (Equation \ref{eq:domain-infinite-system-traces},
+            (Equations \ref{eq:domain-infinite-system-traces} and 
             \ref{eq:domain-infinite-system-traces'})
+            
+        \begin{equation*}
+            TODO
+        \end{equation*}
         
     \end{enumerate}
 
 \end{proof}
 Intuitively $\cConv$ and $\cConv'$ count the clock ticks and store them
 explicitly as integer timestamps.
-% It is apparent, that this process is invertible
-% and the two definitions are thus equivalent.
 We believe that it is clear which definition is used based on the context.
 At times we may use the function $\cConv$ to make it more explicit.
 For both definitions, a property is a subset of all possible traces.
@@ -797,7 +810,8 @@ gets extended to be
 $$
     \Databases \cup \left\{ \tick, \sskip \right\}.
 $$
-The isomorphism from Lemma \ref{lem:trace-equivalence} still works, if
+Since $\sskip$ events do not meaningfully modify a system trace,
+the isomorphism from Theorem \ref{theo:trace-equivalence} works if
 we remove all $\sskip$ events before doing the trace conversion.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
