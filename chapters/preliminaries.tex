@@ -557,14 +557,14 @@ Hublet et. al \cite{lex} expands this expands this system of capabilities, speci
 makes the existence of events that may not (always) be externally visible explicit.
 Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
 to assign a capability to all events with some event name $e \in \Events$.
-Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsubseteq)$.
+Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capleq)$.
 % We write Sup as a shorthand for Suppressable and Cau as a shorthand for Causable.
 
 % TODO: insert WhyEnf and Lex/CRE capability lattices
 
 \begin{definition}
     \label{def:capability-lattice}
-    The \emph{Capability Lattice} $\left( \Capabilities, \sqsubseteq \right)$
+    The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
     
     % \begin{figure}
     \centering
@@ -597,7 +597,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
     The subset of \emph{Causable Events}
     $$
     \Events_{\Cau} =
-    \left\lbrace e \mid \texttt{causable} \sqsubseteq \kappa(e) \right\rbrace
+    \left\lbrace e \mid \texttt{causable} \capleq \kappa(e) \right\rbrace
     $$
     consists of all event names which are can be caused by the enforcer,
     i.e. which have a capability of at least $\texttt{causable}$.
@@ -608,7 +608,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \sqsu
     The subset of \emph{Suppressable Events}
     $$
     \Events_{\Sup} =
-    \left\lbrace e \mid \texttt{suppressable} \sqsubseteq \kappa(e) \right\rbrace
+    \left\lbrace e \mid \texttt{suppressable} \capleq \kappa(e) \right\rbrace
     $$
     consists of all event names which can be suppressed by the enforcer, 
     i.e. which have a capability of at least $\texttt{suppressable}$.
@@ -1178,7 +1178,7 @@ In this section we recall refinement of event systems as defined in Sprenger et.
     $\left(\EventSystem_1, \Initialstates_1 \right)$
     modulo a mediator function $\pi : \Eventspace \to \Eventspace$,
     written as 
-    $\left(\EventSystem_2, \Initialstates_2 \right) \sqsubseteq_\phi
+    $\left(\EventSystem_2, \Initialstates_2 \right) \refineL\phi
     \left(\EventSystem_1, \Initialstates_1 \right)$
     if there exists a simulation relation $R \subseteq \Eventspace \times \Eventspace$
     such that
@@ -1198,7 +1198,7 @@ of traces from event systems that refine each other.
 
 \begin{theorem}
     \label{theo:refinement-traces}
-    $\left(\EventSystem_2, \Initialstates_2 \right) \sqsubseteq_\phi
+    $\left(\EventSystem_2, \Initialstates_2 \right) \refineL\phi
     \left(\EventSystem_1, \Initialstates_1 \right)$
     implies
     $\pi(\EStraces(\EventSystem_2, \Initialstates_2))

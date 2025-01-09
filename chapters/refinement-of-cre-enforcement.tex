@@ -842,6 +842,14 @@ for all allowed inputs is $\trim(\Traces_\sys)$ and
 not $\Traces_\sys$, note that a $\tick$ is only added when
 the trace is not yet empty, thus any inserted $\tick$ will
 eventually be followed by some database $D$.
+For any set of system traces $A \in \Traces_\sys$ and timestamp
+$\tau \in \Nat$, we write
+\begin{align*}
+    &\cConv(A) &&:= \{ \cConv(\sigma) \mid \sigma \in A \}, \\
+    &\cConv'(\tau, A) &&:= \{ \cConv'(\tau, \sigma) \mid \sigma \in A \}, \\
+    &\dConv(A) &&:= \{ \dConv(\sigma) \mid \sigma \in A \}, and \\
+    &\dConv'(\tau, A) &&:= \{ \dConv'(\tau, \sigma) \mid \sigma \in A \}. \\
+\end{align*}
 
 \begin{theorem}
     \label{theo:trace-equivalence}
@@ -1262,18 +1270,30 @@ Or equivalently iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq 
     % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
 
     % TODO: might be an equivalence / iff relation
-    If there  exists a sound  enforcer
+    
+    % If there  exists a sound  enforcer
+    There exists a sound enforcer
     $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
-    $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
-    (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$),
-    then there exist $\PFun$ and $\RFun$, such that the
+    $\dConv(P)$
+    % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$),
+    iff  there exist $\PFun$ and $\RFun$, such that the
+    % then there exist $\PFun$ and $\RFun$, such that the
     enforcement event system
     $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
     with $\Statespace = \Traces_\sys$,
     $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
     $\Initialstates = \{ \emptytrace_\sys \}$
-    is sound with respect to the property $P \subseteq \Traces_\sys$
-    (i.e. $\EventSystem, \Initialstates \vDash P$),
+    is sound with respect to the property $P \subseteq \Traces_\sys$.
+    % (i.e. $\EventSystem, \Initialstates \vDash P$),
+    \begin{align*}
+        \forall P \subseteq \Traces_\omega .~
+        &(\exists \Enforcer = (\EnfStates, s_0, \mu) .~ \forall \sigma \in \Traces .~
+        \Enforcer(\sigma) \in P) 
+        \Leftrightarrow \\
+        &(\exists  \EventSystem
+        = (\Traces_\sys, \Databases \cup \{\tick, \sskip \}, \gamma, \delta) .~
+        \EventSystem, \emptytrace_\sys \vDash \cConv(P))
+    \end{align*}
 \end{lemma}
 
 \begin{proof}
@@ -1296,10 +1316,10 @@ Or equivalently iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq 
     \begin{equation}
         \label{eq:soundness-iff-d2}
         \forall \sigma \in \Traces_\omega .~
-        \Enforcer(\sigma) \in \dConv(P)
+        \Enforcer(\sigma) \in P
         \implies
         \exists \EventSystem .~
-        \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P.
+        \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq \cConv(P).
     \end{equation}
 
     We proof Equation \ref{eq:soundness-iff-d2} via induction for all traces 
@@ -1334,48 +1354,18 @@ via a mediator function and a simulation relation as in Sprenger et. al \cite{ig
 \begin{definition}
     \label{def:enforcement-event-system-refinement}
     An enforcement event system
-    \begin{equation*}
-        \EventSystem_C =
-        \left( \Statespace_C, \Eventspace_C, \RFun_C, \PFun_C \right)
-    \end{equation*}
-    with initial states $\Initialstates_C \subseteq \Statespace_C$
-    where
-    \begin{align*}
-        \Statespace_C &= \Traces_{C, \sys}, \\
-        \Eventspace_C &=
-            \Databases_C \cup \left\{ \tick, \sskip \right\}, \\
-        \RFun_C &:
-            \Traces_{C, \sys} \times \Databases_C \to \Databases_C
-            &&\text{ is a reactive update function, and}
-            \\
-        \PFun_C &: \Traces_{C, \sys} \to \Databases_{C, \Cau} \cup \{ \sskip \}
-            &&\text{ is a proactive update function}
-    \end{align*}
+    $\EventSystem_C = \left( \Traces_{\sys C}, \Databases_C \cup \{\tick, \sskip \}, \RFun_C, \PFun_C \right)$
     for some signature 
     $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+    with initial states $\Initialstates_C \subseteq \Statespace_C$
     refines an enforcement event system
-    \begin{equation*}
-        \EventSystem_A =
-        \left( \Statespace_A, \Eventspace_A, \RFun_A, \PFun_A \right)
-    \end{equation*}
-    with initial states $\Initialstates_A \subseteq \Statespace_A$
-    where
-    \begin{align*}
-        \Statespace_A &= \Traces_{A, \sys}, \\
-        \Eventspace_A &=
-            \Databases_A \cup \left\{ \tick, \sskip \right\}, \\
-        \RFun_A &:
-            \Traces_{A, \sys} \times \Databases_A \to \Databases_A
-            &&\text{ is a reactive update function, and}
-            \\
-        \PFun_A &: \Traces_{A, \sys} \to \Databases_{A, \Cau} \cup \{ \sskip \}
-            &&\text{ is a proactive update function}
-    \end{align*}
+    $\EventSystem_A = \left( \Traces_{\sys A}, \Databases_A \cup \{\tick, \sskip \}, \RFun_A, \PFun_A \right)$
     for some signature 
     $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+    with initial states $\Initialstates_A \subseteq \Statespace_A$
     via a mediator function
     \begin{equation*}
-        \MFun : \Eventspace_C \to \Eventspace_A
+        \MFun : \Traces_C \times \Eventspace_C \to \Eventspace_A
     \end{equation*}
     iff
     there is a simulation relation
@@ -1396,10 +1386,21 @@ via a mediator function and a simulation relation as in Sprenger et. al \cite{ig
             $\sigma_C \Transitionrelation{}{e_C} \sigma_C'$
             there exists $\sigma_A'$
             such that $(\sigma_C', \sigma_A') \in \SimRel$ and
-            $\sigma_A \Transitionrelation{}{\MFun(e_C)} \sigma_A'$.
+            $\sigma_A \Transitionrelation{}{\MFun(\sigma_C, e_C)} \sigma_A'$.
     \end{enumerate}
     
 \end{definition}
+It is important to highlight, that our definition of a mediator function
+differs from that in Sprenger et al. \cite{igloo} in that we include a second
+argument for the trace up to the current point in time.
+The reason for this is how we define MFOTL and Lex refinement in the following
+sections.
+Without going into the details, on a high level MFOTL refinements can define
+let bindings for abstract events, thus "concretizing" them.
+And let bindings allow for arbitrary MFOTL formulae on their right hand side which
+can of course depend on the past.
+That is why we need the history of events as an additional argument for our mediator
+function.
 
 % We aim to show that for a specific class of mediator functions, whenever
 % some concrete enforcement event system refines an abstract enforcement 
@@ -1580,177 +1581,197 @@ via a mediator function and a simulation relation as in Sprenger et. al \cite{ig
 \subsection{Refinement of MFOTL Specifications}
 \label{subsection:refinement-of-mfotl-specifications}
 
-In this section we give a definition for refinement of MFOTL formulas with 
-let-bindings and proof that any enforcement event system that is sound
-for some MFOTL formula $\phi_C$
-is a refinement for any enforcement event system
-that is sound for an MFOTL formula $\phi_A$, if $\phi_C$ refines $\phi_A$.
+In this section we define refinement for MFOTL formulas and we proof
+that if a formula $\phi_C$ refines a causable formula $\phi_A : \Cau$,
+then $\phi_C$ is enforceable.
+The proof will be done in a few steps.
+First, Hublet et al. \cite{whyenf} have shown that there exists a sound
+enforcer for any MFOTL $\phi_A$ formula that types to $\Cau$.
+Then we have shown in Lemma
+\ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}
+that for any such sound enforcer, there exists a sound
+enforcement event system for $\phi_A$.
+Next we will show in this section, that there exists a sound enforcement
+event system for $\phi_C$ that is a refinement of the sound
+enforcement event system for $\phi_A$.
+And then again in Lemma
+\ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property} %TODO: this direction is not currently part of the lemma, much less the proof
+we have shown that for such a sound event enforcement system, there
+exists a sound enforcer for $\phi_C$.
 
 \begin{definition}
     \label{def:mfotl-refinement}
-    % We say an MFOTL formula $\phi_C$ with signature
-    % $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_c \right)$
-    % and a capability map $\kappa_C : \Events_C \to \Capabilities$
-    % refines an MFOTL formula $\phi_A$ with signature
-    % $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-    % and a capability map $\kappa_A : \Events_A \to \Capabilities$
-    % under condition $\psi$ (an MFOTL formula over $\Sigma_C$) iff
-    % \begin{itemize}
-    %     \item
-    %         $\left( \psi \wedge \phi_C \right) \rightarrow \phi_A$
-    %     \item
-    %         $\forall e \in \Events_C \cap \Events_A .~
-    %         \kappa_A(e) \sqsubseteq \kappa_C(e)$
-    %     \item
-    %         $\forall e \in \Events_C \cap \Events_A .~
-    %         \iota_C(e) = \iota_A(e)$
-    %     \item
-    %         $\forall f \in \Functions .~
-    %         \iota_C(f) = \iota_A(f)$
-    %     \item
-    %         $\forall e \in \Events_A \setminus \Events_C .~
-    %         % \left(
-    %             \kappa_A(e) \in
-    %                 \{ \texttt{suppressable}, \texttt{observable}, \bot \}
-    %         % \right)
-    %         $
-    %     \item
-    %         TODO: let bindings
-            
-    % \end{itemize}
-    
-\end{definition}
+    Let  $S_C = (\phi_C, \Sigma_C, \kappa_C)$
+    and $S_A = (\phi_A, \Sigma_A, \kappa_A)$
+    be two MFOTL specifications where
+    $\Sigma_A = (\Domain, \Events_A, \Functions, \iota_A)$,
+    $\Sigma_C = (\Domain, \Events_C, \Functions, \iota_C)$,
+    $\phi_C$ and $\phi_A$ are MFOTL formulae, and $\kappa_C$
+    and $\kappa_A$ are capability mappings.
+    And let $\Gamma_C$ and $\Gamma_A$ be two enforceability contexts
+    that conform with $\kappa_C$ and $\kappa_A$ respectively.
 
-\begin{definition}
-    \label{def:mfotl-refinement-rules}
-    Refinement for well formed MFOTL formulas is defined by the following rules.
-    $\phi \sqsubseteq \psi$ means "$\phi$ refines $\psi$".
+    $S_C, \Gamma_C \refineL S_A, \Gamma_A$
+    (read as "$S_C, \Gamma_C$ \emph{refine} $S_A, \Gamma_A$")
+    iff they can be derived via a combination of the following refinement rules
+    % \begin{enumerate}
+    %     \item $\forall e \in \Events_A \cap \Events_C .~ \iota_C(e) = \iota_A(e)$ and
+    %     $\kappa_A(e) \capleq \kappa_C(e)$.
+    %     \item Either \label{mfotl-refinement-options}
+    %         \begin{itemize}
+    %             \item $\phi_A$ = $\phi_C$,
+    %             \item $\phi_C = \LLet{e(t_1, \dots, t_k)}{\psi}{\phi_A}$
+    %             for some $e \in \Events_A \cap \Events_C$ where
+    %             $\Gamma, e: t \vdash \phi_A : \Cau$ and $\Gamma \vdash \psi : t$
+    %             for some context $\Gamma$ and capability $t$, or
+    %             \item there exists some $\psi$ such that $\phi_C \refineL \psi$
+    %             and $\psi \refineL \phi_A$.
+    %             \item TODO: add refinement under condition
+    %             (could be a separate definition)
+    %         \end{itemize}
+    %     \item
+    % \end{enumerate}
     \begin{gather*}
-        % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
-        \prftree[r]
-            %%begin novalidate
-            {$R_I$}
-            %%end novalidate
-            % {\Gamma \vdash \phi : \Cau}
-            {\Gamma \vdash \phi \sqsubseteq \phi} \qquad
-        % \prftree[r]
-        %     %%begin novalidate
-        %     {$R_C$}
-        %     %%end novalidate
-        %     {\Gamma \vdash \phi : \Cau}
-        %     {\Gamma \vdash \psi : \Cau}
-        %     {\Gamma \vdash (\phi \wedge \psi) \sqsubseteq \phi} \qquad
-        \prftree[r]
-            %%begin novalidate
-            {$R_T$}
-            %%end novalidate
-            {\Gamma \vdash \phi \sqsubseteq \psi}
-            {\Gamma \vdash \psi \sqsubseteq \phi'}
-            {\Gamma \vdash \phi \sqsubseteq \phi'} \\
-        \prftree[r]
-            %%begin novalidate
-            {$R_L$}
-            %%end novalidate
-            % { \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right) \to \phi}
-            {\Gamma \vdash \psi : \tau}
-            {\Gamma,~ e:\tau \vdash \phi : \Cau}
-            {\Gamma \vdash
-            \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right)
-            \sqsubseteq \phi}
-        \\
-        \prftree[r]
-            %%begin novalidate
-            {$R_{imp}$}
-            %%end novalidate
-            % { \left( \LLet{e(t_1, \dots, t_k)}{\psi}{\phi} \right) \to \phi}
-            {\psi \to \phi}
-            {\Gamma \vdash \psi : \tau_1}
-            {\Gamma \vdash \phi : \tau_2}
-            {\tau_1 \sqsubseteq \tau_2}
-            {\Gamma \vdash \psi \sqsubseteq \phi}
-    \end{gather*} % the latex compiler complains when the rule names use an "under score" while they are not enclosed with $-signs. But when surrounding them with $-signs the compiler complains as well (on overleaf)
+        \prftree[r]{Ref-Imp}
+            {\phi_C \implies \phi_A}
+            {\Gamma \vdash \phi_C : \tau}
+            {\Gamma \vdash \phi_A : \tau}
+            % TODO: do the two contexts actually have to be equal, does it matter
+            {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+        \prftree[r]{Ref-Conj}
+            {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+        \prftree[r]{Ref-Let}
+            {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+            {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+            {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_c
+                \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+        \prftree[r]{Ref-Trans}
+            {S_C, \Gamma_C \refineL S_B, \Gamma_B}
+            {S_B, \Gamma_B \refineL S_A, \Gamma_A}
+            {S_C, \Gamma_C \refineL S_A, \Gamma_A}
+    \end{gather*}
 \end{definition}
 
-The rule $R_I$ is the identity property of refinement,
-% $R_C$ specifies refinement under condition a condition,
-$R_L$ specifies refinement with let-bindings,
-and $R_T$ is the transitivity rule for refinement.
 
-\begin{lemma}
-    \label{lem:mfotl-refinement-implies-enforcement-event-system-refinement}
-    If $\phi_A$ is causable and $\phi_C$ is a refinement of $\phi_A$,
-    then $\phi_C$ is causable.
-\end{lemma}
-
+\begin{theorem}
+    \label{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
+    $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
+    $\phi_C$ is enforceable.
+\end{theorem}
 \begin{proof}
     \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
-    TODO: fix this proof
-    % TODO
-    
-    We proof this by structural induction over the refinement rules specified
-    above.
-    We make a case distinction on the refinement rules for
-    $\phi_C \sqsubseteq \phi_A$.
+    The proof for Theorem \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+    proceeds by structural induction over the refinement rules for MFOTL specifications.
     \begin{itemize}
-        \item $R_I$
-        
-        In this case $\phi_C = \phi_A$ and thus $\phi_C:\Cau$.
-        
-        % \item $R_C$
-        % In this case $\phi_C = \phi_A \wedge \psi$ for some well-formed
-        % MFOTL formula $\psi$.
-        % We do have a sound enforcer for $\phi_A$ and
-        % also for $\psi$.
+        \item \textbf{Induction Hypothesis}
 
-        \item $R_L$
-        
-        There exists some formula $\psi$ such that 
-        $\phi_C \sqsubseteq \psi$ and $\psi \sqsubseteq \phi_A$.
-        TODO
-
-        \item $R_T$
-
-        In this case $\phi_C := \LLet{e(t_1, \dots, t_k)}{\psi}{\phi_A}$
-        for some event $e$, terms $t_1, \dots, t_k$ and formula $\psi$.
-        Further $\dots$ TODO
         
     \end{itemize}
-    \begin{equation*}
-       \dots \text{ TODO } \dots
-    \end{equation*}
+    
+    \begin{equation}
+        TODO
+    \end{equation}
 \end{proof}
 
-% Without loss of generality we can consider any MFOTL formula with let bindings 
-% as an ordered list of let bindings
-% $l = \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right)$
-% where $e_i$ are events and $\phi_i$ are MFOTL formulas without let 
-% bindings for all $1 \leq i \leq k$
-% and some MFOTL formula $\psi$ with no let bindings.
+% \begin{proof}
+%     \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
+%     The proof for Theorem
+%     \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+%     proceeds in a few steps.
+%     First, Hublet et. al have shown that if $\phi_A : \Cau$,
+%     then there exists a sound enforcer
+%     $\Enforcer_A = (\EnfStates_A, s_{A0}, \mu_A)$
+%     which is sound for $\phi_A$, i.e.
+%     $\forall \sigma \in \Traces_\omega .~ \Enforcer_A(\sigma) \in \Language(\phi_A)$.
+%     Thus
+%     \begin{align*}
+%         &(S_C, \Gamma_C \refineL S_A, \Gamma_A) \wedge (\phi_A : \Cau) \\
+%         &\stackrel{\cite{whyenf}}{\implies} (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \Enforcer_A .~
+%         \forall \sigma \in \Traces_\omega .~ \Enforcer_A(\sigma) \in \Language(\phi_A)).
+%     \end{align*}
+%     Next, we have shown in Lemma \ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}
+%     that the existence of a sound enforcer $\Enforcer_A$ for
+%     $\phi_A$ implies the existence of a sound enforcement event system
+%     $\EventSystem_A =
+%     (\Traces_A, \Databases_A \cup \{ \tick, \sskip \}, \RFun_A, \PFun_A)$
+%     for $\phi_A$.
+%     \begin{align*}
+%         &(S_C, \Gamma_C \refineL S_A, \Gamma_A) \wedge (\phi_A : \Cau) \\
+%         &\stackrel{\cite{whyenf}}{\implies}
+%         (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \Enforcer_A .~
+%         \forall \sigma \in \Traces_\omega .~ \Enforcer_A(\sigma) \in \Language(\phi_A)) \\
+%         &\stackrel{\text{L. } \ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}}{\implies}
+%         (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \EventSystem_A .~
+%         \EventSystem_A, \emptytrace_\sys \vDash \cConv(\Language(\phi_A)))
+%     \end{align*}
 
-% \begin{definition}
-%     \label{def:mfotl-refinement}
-%     An MFOTL formula
-%     $$
-%     \Phi =
-%     \left( \left( \left(e_1, \phi_1 \right), \dots, \left( e_k, \phi_k \right) \right),
-%     \phi_{k+1} \right)
-%     $$
-%     refines an MFOTL formula
-%     $$
-%     \Psi =
-%     \left( \left( \left(f_1, \psi \right), \dots, \left( f_k, \psi \right) \right),
-%     \psi_{k+1} \right)
-%     $$
-%     iff
-%     \begin{enumerate}
-%         \item For all events in $\Psi$, there exists a let binding in
-%         $\Phi$ defining that event
-%         \item
-%     \end{enumerate}
-%     $$
-%     \Phi \implies \Psi
-%     $$
-% \end{definition}
+%     And now we will show that there exists an enforcement event system that
+%     is sound for $\phi_C$, i.e.
+%     \begin{align*}
+%         & (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \EventSystem_A .~
+%         \EventSystem_A, \emptytrace_\sys \vDash \cConv(\Language(\phi_A))) \\
+%         &\implies
+%         \exists \EventSystem_C .~
+%         \EventSystem_C, \emptytrace_\sys \vDash \cConv(\Language(\phi_C))
+%     \end{align*}
+%     for some enforcement event system
+%     $\EventSystem_C =
+%     (\Traces_C, \Databases_C \cup \{\tick, \sskip \}, \RFun_C, \PFun_C)$.
+
+%     To show this we must provide update functions $\RFun_C$ and $\PFun_C$
+%     such that $\EventSystem_C$ is sound for $\phi_C$.
+%     This can be proved by structural induction over the refinement rules
+%     of Definition \ref{def:mfotl-refinement}.
+%     \begin{itemize}
+%         \item $\phi_C = \phi_A$
+        
+%         In this case the update functions are trivially
+%         $\RFun_C := \RFun_A$ and  $\PFun_C := \PFun_A$ and thus
+%         $\EventSystem_C = \EventSystem_A$.
+
+%         \item $\phi_C = \LLet{e(t_1, \dots, e_k}{\psi}{\phi_A}$ 
+        
+%     \end{itemize}
+
+%     \begin{align*}
+%         TODO
+%     \end{align*}
+
+%     We now have
+%     \begin{align*}
+%         &(S_C, \Gamma_C \refineL S_A, \Gamma_A) \wedge (\phi_A : \Cau) \\
+%         &\stackrel{\cite{whyenf}}{\implies}
+%         (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \Enforcer_A .~
+%         \forall \sigma \in \Traces_\omega .~ \Enforcer_A(\sigma) \in \Language(\phi_A)) \\
+%         &\stackrel{\text{L. } \ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}}{\implies}
+%         (S_C, \Gamma_C \refineL S_A, \Gamma_A)
+%         \wedge
+%         (\exists \EventSystem_A .~
+%         \EventSystem_A, \emptytrace_\sys \vDash \cConv(\Language(\phi_A))) \\
+%         &\implies
+%         \exists \EventSystem_C .~
+%         \EventSystem_C, \emptytrace_\sys \vDash \cConv(\Language(\phi_C)) \\
+%         &\stackrel{\text{L. } \ref{lem:enforcer-soundness-and-enforcement-event-system-soundness-property}}{\implies}
+%         \exists \Enforcer_C .~
+%         \forall \sigma \in \Traces_\omega .~ \Enforcer_C(\sigma) \in \Language(\phi_C)
+%     \end{align*}
+%     for some Enforcer $\Enforcer_C = (\EnfStates_C, s_{C0}, \mu_C)$.
+%     And thus $\phi_C$ is enforceable.
+% \end{proof}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of CRE Specifications}
@@ -1782,7 +1803,7 @@ formulas are likewise refinements of each other.
         $e \in \Events_A \cap \Events_C,
         \iota_A(e) = \iota_C(e)$
         and
-        $\kappa_A(e) \sqsubseteq \kappa_C(e)$;
+        $\kappa_A(e) \refineL \kappa_C(e)$;
         \item
         $C_A \subseteq C_C$ and
         there exists
