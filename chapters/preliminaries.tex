@@ -441,9 +441,9 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
 \begin{definition}
     \label{def:enforcer-triple}
     An \emph{Enforcer} $\Enforcer$ is a triple
-    $\left(\EnfStates, s_0, \mu \right)$, where $\EnfStates$ is a set of states
+    $\left(\EnfStates, s_0, \EnfFun \right)$, where $\EnfStates$ is a set of states
     $s_0 \in \EnfStates$ is an initial state and
-    $\mu : \Traces_f \times \EnfStates
+    $\EnfFun : \Traces_f \times \EnfStates
     \times \Nat \times \left( \Databases \cup \left\{ \tick \right\} \right)
     \to \EnfCommands \times \EnfStates$
     is a computable update function such that the following two
@@ -475,7 +475,8 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
 
 % TODO: insert enforcer soundness conditions
 
-Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as followed.
+Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically via
+Algorithm~\ref{alg:loop}.
 
 \begin{definition}
   For any $\sigma \in \Traces$ and enforcer  $\Enforcer=(\EnfStates,s_0,\mu)$, the
@@ -486,7 +487,7 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
     \State $\mid \varepsilon \Rightarrow \varepsilon$
     \State $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' > \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,\mathsf{tick})$ \IIn{}
     \State \quad \Case\;$o$ \OOf~$\mid\PCom(D_\Cau) \Rightarrow (\tau,D_\Cau) \cdot \run(s',\sigma\cdot (\tau, D_\Cau),\sigma',\tau+1)$
-    \State \qquad\qquad\quad\, $\mid\NCom \Rightarrow \run(s',\sigma,\sigma',\tau+1)$
+    \State \qquad\qquad\quad~$\mid\NCom \Rightarrow \run(s',\sigma,\sigma',\tau+1)$
     \State  $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' = \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,D); D' = (D \setminus D_\Sup) \cup D_\Cau)$ \IIn
     \State \quad \Case\;$o$ \OOf ~$\mid \RCom(D_\Cau,D_\Sup) \Rightarrow (\tau, D') \cdot \run(s',\sigma \cdot (\tau, D'),\sigma'',\tau+1)$
     \State $\Enforcer(\sigma)=\run(s_0,\emptytrace,\sigma,\Ternaryop{\sigma=\emptytrace}{0}{\fts(\sigma)})$
@@ -511,7 +512,7 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
 
 \begin{definition}
     \label{def:enf-transparent-property}
-    An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
+    An enforcer $\Enforcer = \left( \EnfStates, s_0, \EnfFun \right)$ is transparent
     with respect to some property $P$ iff for all $\sigma \in P$,
     $\Enforcer(\sigma) = \sigma$.
 \end{definition}
@@ -532,7 +533,7 @@ Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically as f
 
 \begin{definition}
     \label{def:enf-transparent-policy}
-    An enforcer $\Enforcer = \left( \EnfStates, s_0, \mu \right)$ is transparent
+    An enforcer $\Enforcer = \left( \EnfStates, s_0, \EnfFun \right)$ is transparent
     with respect to some policy $\phi$ iff it is transparent for
     the language $\Language(\phi)$.
 \end{definition}

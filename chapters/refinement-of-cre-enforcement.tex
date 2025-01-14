@@ -144,87 +144,87 @@ $\trim(A) := \{ \trim(\sigma) \mid \sigma \in A \}$.
     gives the number of database events in a system trace.
 \end{definition}
 
-\begin{definition}
-    \label{def:prefix-system-trace}
-    The \emph{(System) Prefix Function}
-    \begin{equation*}
-        \prefix_\sys : \Nat \times \Traces_\sys \to \trim(\Traces_{\sys f})
-    \end{equation*}
+% \begin{definition}
+%     \label{def:prefix-system-trace}
+%     The \emph{(System) Prefix Function}
+%     \begin{equation*}
+%         \prefix_\sys : \Nat \times \Traces_\sys \to \trim(\Traces_{\sys f})
+%     \end{equation*}
 
-    \begin{align*}
-        \prefix_\sys(i, \sigma_\sys) =
-        \begin{cases}
-            \emptytrace_\sys &\text{if } i = 0 \\
-            \trim(\sigma_\sys) &\text{if } \numDBs(\sigma_\sys) < i \\
-            \tick^k \cdot D \cdot \prefix_\sys(i-1, \sigma_\sys')
-                &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys' \\
-                & \text{for } k \geq 0 \text{ and } D \in \Databases
-        \end{cases}
-    \end{align*}
-    returns the prefix with a desired number of databases
-    for any system trace.
-\end{definition}
+%     \begin{align*}
+%         \prefix_\sys(i, \sigma_\sys) =
+%         \begin{cases}
+%             \emptytrace_\sys &\text{if } i = 0 \\
+%             \trim(\sigma_\sys) &\text{if } \numDBs(\sigma_\sys) < i \\
+%             \tick^k \cdot D \cdot \prefix_\sys(i-1, \sigma_\sys')
+%                 &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys' \\
+%                 & \text{for } k \geq 0 \text{ and } D \in \Databases
+%         \end{cases}
+%     \end{align*}
+%     returns the prefix with a desired number of databases
+%     for any system trace.
+% \end{definition}
 
-\begin{definition}
-    \label{def:prefix-mfotl-trace}
-    The \emph{(MFOTL) Prefix Function}
-    \begin{equation*}
-        \prefix : \Nat \times \Traces \to \Traces_f
-    \end{equation*}
-    \begin{align*}
-        \prefix(i, \sigma) =
-        \begin{cases}
-            \sigma &\text{if } |\sigma| \leq i \\
-            \emptytrace &\text{if } i = 0 \\
-            \left(\tau, D\right) \cdot \prefix(i-1, \sigma') 
-                &\text{if } \sigma = \left( \tau, D \right) \cdot \sigma'
-        \end{cases}
-    \end{align*}
-    returns the prefix of a desired length for any trace.
-\end{definition}
+% \begin{definition}
+%     \label{def:prefix-mfotl-trace}
+%     The \emph{(MFOTL) Prefix Function}
+%     \begin{equation*}
+%         \prefix : \Nat \times \Traces \to \Traces_f
+%     \end{equation*}
+%     \begin{align*}
+%         \prefix(i, \sigma) =
+%         \begin{cases}
+%             \sigma &\text{if } |\sigma| \leq i \\
+%             \emptytrace &\text{if } i = 0 \\
+%             \left(\tau, D\right) \cdot \prefix(i-1, \sigma') 
+%                 &\text{if } \sigma = \left( \tau, D \right) \cdot \sigma'
+%         \end{cases}
+%     \end{align*}
+%     returns the prefix of a desired length for any trace.
+% \end{definition}
 
-\begin{definition}
-    \label{def:suffix-system-trace}
-    The \emph{(System) Suffix Function}
-    \begin{equation*}
-        \suffix_\sys : \Nat \times \Traces_\sys \to \Traces_\sys
-    \end{equation*}
-    \begin{align*}
-        \suffix_\sys(i, \sigma_\sys) =
-        \begin{cases}
-            \emptytrace_\sys &\text{if } i > \numDBs(\sigma_\sys) \\
-            \sigma_\sys &\text{if } i = 0 \\
-            \suffix_\sys(i-1, \sigma_\sys')
-                &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-                \text{ for } k \geq 0
-                \text{ and } D \in \Databases
-        \end{cases}
-    \end{align*}
+% \begin{definition}
+%     \label{def:suffix-system-trace}
+%     The \emph{(System) Suffix Function}
+%     \begin{equation*}
+%         \suffix_\sys : \Nat \times \Traces_\sys \to \Traces_\sys
+%     \end{equation*}
+%     \begin{align*}
+%         \suffix_\sys(i, \sigma_\sys) =
+%         \begin{cases}
+%             \emptytrace_\sys &\text{if } i > \numDBs(\sigma_\sys) \\
+%             \sigma_\sys &\text{if } i = 0 \\
+%             \suffix_\sys(i-1, \sigma_\sys')
+%                 &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%                 \text{ for } k \geq 0
+%                 \text{ and } D \in \Databases
+%         \end{cases}
+%     \end{align*}
     
-    returns the suffix starting at a desired database
-    for any system trace.
-\end{definition}
+%     returns the suffix starting at a desired database
+%     for any system trace.
+% \end{definition}
 
-It is important to note that the system suffix function does not remove
-ticks that come before a database.
+% It is important to note that the system suffix function does not remove
+% ticks that come before a database.
 
-\begin{definition}
-    \label{def:suffix-mfotl-trace}
-    The \emph{(MFOTL) Suffix Function}
-    \begin{equation*}
-        \suffix : \Nat \times \Traces \to \Traces
-    \end{equation*}
-    \begin{align*}
-        \suffix(i, \sigma) =
-        \begin{cases}
-            \emptytrace &\text{if } i > |\sigma| \\
-            \sigma &\text{if } i = 0 \\
-            \tick^k \cdot \suffix(i-1, \sigma')
-                &\text{if } \sigma = \left(\tau, D\right) \cdot \sigma'
-        \end{cases}
-    \end{align*}
-    returns the suffix starting at a given time-point.
-\end{definition}
+% \begin{definition}
+%     \label{def:suffix-mfotl-trace}
+%     The \emph{(MFOTL) Suffix Function}
+%     \begin{equation*}
+%         \suffix : \Nat \times \Traces \to \Traces
+%     \end{equation*}
+%     \begin{align*}
+%         \suffix(i, \sigma) =
+%         \begin{cases}
+%             \emptytrace &\text{if } i > |\sigma| \\
+%             \sigma &\text{if } i = 0 \\
+%             \tick^k \cdot \suffix(i-1, \sigma')
+%                 &\text{if } \sigma = \left(\tau, D\right) \cdot \sigma'
+%         \end{cases}
+%     \end{align*}
+%     returns the suffix starting at a given time-point.
+% \end{definition}
 
 We say a system trace $\sigma_\sys \in \Traces_\sys$
 is finite iff $\numDBs(\sigma_\sys) \in \Nat$
@@ -246,149 +246,149 @@ We also use $\emptytrace_\sys$ to denote an empty system
 trace and will omit the subscript if the meaning is clear from
 context.
 
-\begin{lemma}
-    \label{lem:mfotl-prefix-plus-suffix}
-    For any MFOTL trace $\sigma \in \Traces$ and $i \in \Nat$,
-    the concatenation of prefix and suffix is the trace itself.
-    \begin{equation*}
-        \forall \sigma \in \Traces ~ \forall i \in \Nat .~
-        \prefix(i,\sigma) \cdot \suffix(i+1, \sigma) = \sigma
-    \end{equation*}
-\end{lemma}
+% \begin{lemma}
+%     \label{lem:mfotl-prefix-plus-suffix}
+%     For any MFOTL trace $\sigma \in \Traces$ and $i \in \Nat$,
+%     the concatenation of prefix and suffix is the trace itself.
+%     \begin{equation*}
+%         \forall \sigma \in \Traces ~ \forall i \in \Nat .~
+%         \prefix(i,\sigma) \cdot \suffix(i+1, \sigma) = \sigma
+%     \end{equation*}
+% \end{lemma}
 
 
-Just as for MFOTL traces we define functions for the first
-and last timestamp of system traces.
+% Just as for MFOTL traces we define functions for the first
+% and last timestamp of system traces.
 
-\begin{definition}
-    \label{def:first-time-stamp-system-trace}
-    The function $\fts_\sys : \Traces_\sys \to \Nat \cup \left\{ \bot \right\}$
-    gives the first time stamp in a trace unless it contains no databases.
-    \begin{align*}
-        \fts_\sys(\sigma_\sys) :=
-        \begin{cases}
-            \bot & \text{if } \numDBs(\sigma_\sys) = 0 \\
-            k &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-                \text{ for } k \geq 0 \text{ and } D \in \Databases \\
-        \end{cases}
-    \end{align*}
-\end{definition}
+% \begin{definition}
+%     \label{def:first-time-stamp-system-trace}
+%     The function $\fts_\sys : \Traces_\sys \to \Nat \cup \left\{ \bot \right\}$
+%     gives the first time stamp in a trace unless it contains no databases.
+%     \begin{align*}
+%         \fts_\sys(\sigma_\sys) :=
+%         \begin{cases}
+%             \bot & \text{if } \numDBs(\sigma_\sys) = 0 \\
+%             k &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%                 \text{ for } k \geq 0 \text{ and } D \in \Databases \\
+%         \end{cases}
+%     \end{align*}
+% \end{definition}
 
-\begin{definition}
-    \label{def:last-time-stamp-system-trace}
-    The function $\lts_\sys : \Traces_\sys \to \Nat \cup \left\{ \bot, \infty \right\}$
-    gives the first time stamp in a trace unless it contains no databases.
-    \begin{align*}
-        \lts_\sys(\sigma_\sys) :=
-        \begin{cases}
-            \bot & \text{if } \numDBs(\sigma_\sys) = 0 \\
-            \infty & \text{if } \numDBs(\sigma_\sys) = \infty \\
-            k & \text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-                \text{ and } \numDBs(\sigma_\sys') = 0 \\
-                & \text{for } k \geq 0 \text{, } D \in \Databases
-                \\
-            k + \lts_\sys(\sigma_\sys')
-                & \text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-                \text{ and } \numDBs(\sigma_\sys') > 0 \\
-                & \text{for } k \geq 0 \text{, } D \in \Databases
-        \end{cases}
-    \end{align*}
-\end{definition}
+% \begin{definition}
+%     \label{def:last-time-stamp-system-trace}
+%     The function $\lts_\sys : \Traces_\sys \to \Nat \cup \left\{ \bot, \infty \right\}$
+%     gives the first time stamp in a trace unless it contains no databases.
+%     \begin{align*}
+%         \lts_\sys(\sigma_\sys) :=
+%         \begin{cases}
+%             \bot & \text{if } \numDBs(\sigma_\sys) = 0 \\
+%             \infty & \text{if } \numDBs(\sigma_\sys) = \infty \\
+%             k & \text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%                 \text{ and } \numDBs(\sigma_\sys') = 0 \\
+%                 & \text{for } k \geq 0 \text{, } D \in \Databases
+%                 \\
+%             k + \lts_\sys(\sigma_\sys')
+%                 & \text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%                 \text{ and } \numDBs(\sigma_\sys') > 0 \\
+%                 & \text{for } k \geq 0 \text{, } D \in \Databases
+%         \end{cases}
+%     \end{align*}
+% \end{definition}
 
-\begin{lemma}
-    \label{lem:last-timestamp-of-trimmed-system-trace}
-    For any system trace
-    $\sigma_\sys \in \Traces_{\sys f}$ the last timestamp is
-    the same as the number of ticks after trimming.
-    \begin{equation*}
-        \forall \sigma_\sys \in \Traces_\sys .~
-        \lts_\sys(\sigma_\sys) = \numTicks(\trim(\sigma_\sys))
-    \end{equation*}
-\end{lemma}
+% \begin{lemma}
+%     \label{lem:last-timestamp-of-trimmed-system-trace}
+%     For any system trace
+%     $\sigma_\sys \in \Traces_{\sys f}$ the last timestamp is
+%     the same as the number of ticks after trimming.
+%     \begin{equation*}
+%         \forall \sigma_\sys \in \Traces_\sys .~
+%         \lts_\sys(\sigma_\sys) = \numTicks(\trim(\sigma_\sys))
+%     \end{equation*}
+% \end{lemma}
 
 
-\begin{definition}
-    \label{def:first-time-point-system-trace}
-    The \emph{Time-Point} function for system traces returns
-    $i$-th database in a system trace (0 indexed)
-    and is defined as followed.
-    \begin{equation*}
-        \tp_\sys : \Nat \times \Traces_\sys \to \Databases \cup \{ \bot \}
-    \end{equation*}
-    \begin{align*}
-        \tp_\sys(i, \sigma_\sys) :=
-        \begin{cases}
-            \bot &\text{if } \numDBs(\sigma_\sys) < i \\
-            D &\text{if } i=0 \text{ and }
-            \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-            \text{ for } k \geq 0 \\
-            \tp(i-1, \sigma_\sys')  &\text{if } i > 0 \text{ and }
-            \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
-            \text{ for } k \geq 0 \\
-        \end{cases}
-    \end{align*}
-\end{definition}
+% \begin{definition}
+%     \label{def:first-time-point-system-trace}
+%     The \emph{Time-Point} function for system traces returns
+%     $i$-th database in a system trace (0 indexed)
+%     and is defined as followed.
+%     \begin{equation*}
+%         \tp_\sys : \Nat \times \Traces_\sys \to \Databases \cup \{ \bot \}
+%     \end{equation*}
+%     \begin{align*}
+%         \tp_\sys(i, \sigma_\sys) :=
+%         \begin{cases}
+%             \bot &\text{if } \numDBs(\sigma_\sys) < i \\
+%             D &\text{if } i=0 \text{ and }
+%             \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%             \text{ for } k \geq 0 \\
+%             \tp(i-1, \sigma_\sys')  &\text{if } i > 0 \text{ and }
+%             \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
+%             \text{ for } k \geq 0 \\
+%         \end{cases}
+%     \end{align*}
+% \end{definition}
 
-For example for any system trace $\sigma_\sys \in \Traces_\sys$ with at least one
-database, $\tp(0, \sigma_\sys)$ is the first database in $\sigma_\sys$,
-which occurred at the timestamp $\fts_\sys(\sigma_\sys)$.
-Or for any finite system trace $\sigma_\sys \in \Traces_{\sys f}$,
-$\tp(\numDBs(\sigma_\sys)-1, \sigma_\sys)$ is the last database in
-$\sigma_\sys$, which occurred at timestamp $\lts_\sys(\sigma_\sys)$.
+% For example for any system trace $\sigma_\sys \in \Traces_\sys$ with at least one
+% database, $\tp(0, \sigma_\sys)$ is the first database in $\sigma_\sys$,
+% which occurred at the timestamp $\fts_\sys(\sigma_\sys)$.
+% Or for any finite system trace $\sigma_\sys \in \Traces_{\sys f}$,
+% $\tp(\numDBs(\sigma_\sys)-1, \sigma_\sys)$ is the last database in
+% $\sigma_\sys$, which occurred at timestamp $\lts_\sys(\sigma_\sys)$.
 
-\begin{definition}
-    \label{def:system-trace-merge}
-    The $\merge$ function combines two system traces while preserving the
-    position of data bases relative to ticks.
-    \begin{equation*}
-        \merge : \Traces_\sys \times \Traces_\sys \to \Traces_\sys
-    \end{equation*}
+% \begin{definition}
+%     \label{def:system-trace-merge}
+%     The $\merge$ function combines two system traces while preserving the
+%     position of data bases relative to ticks.
+%     \begin{equation*}
+%         \merge : \Traces_\sys \times \Traces_\sys \to \Traces_\sys
+%     \end{equation*}
     
-    $\merge(\sigma_{\sys 1}, \sigma_{\sys 2}) :=$
-    \begin{align*}
-        \begin{cases}
-            \sigma_{\sys 1} \cdot
-                \tick^{\numTicks(\sigma_{\sys 2}) - \numTicks(\sigma_{\sys 1})}
-                &\text{if } \numDBs(\sigma_{\sys 2}) = 0 \\
-                &\text{and }  \numTicks(\sigma_{\sys 1}) < \numTicks(\sigma_{\sys 2}) \\
-            \sigma_{\sys 1}
-                &\text{if } \numDBs(\sigma_{\sys 2}) = 0 \\
-            \sigma_{\sys 2} \cdot
-                \tick^{\numTicks(\sigma_{\sys 1}) - \numTicks(\sigma_{\sys 2})}
-                &\text{if } \numDBs(\sigma_{\sys 1}) = 0 \\
-                &\text{and }  \numTicks(\sigma_{\sys 1}) < \numTicks(\sigma_{\sys 2}) \\
-            \sigma_{\sys 2}
-                &\text{if } \numDBs(\sigma_{\sys 1}) = 0 \\
-            \tick^{k_1} \cdot D_1 \cdot
-                \merge(\sigma_{\sys 1}', \tick^{k_2 - k_1}
-                \cdot D_2 \cdot \sigma_{\sys 2}')
-                &\text{if } \sigma_{\sys 1} = \tick^{k_1} \cdot D_1
-                    \cdot \sigma_{\sys 1}' \\
-                &\text{and } \sigma_{\sys 2} = \tick^{k_2} \cdot D_2
-                    \cdot \sigma_{\sys 2}' \\
-                &\text{for } 0 \leq k_1 \leq k_2
-                \text{ and } D_1, D_2 \in \Databases \\
-            \tick^{k_2} \cdot D_2 \cdot
-                \merge( \tick^{k_1 - k_2} \cdot D_1 \cdot
-                \sigma_{\sys 1}', \sigma_{\sys 2}')
-                &\text{if } \sigma_{\sys 1} = \tick^{k_1} \cdot D_1
-                    \cdot \sigma_{\sys 1}' \\
-                &\text{and } \sigma_{\sys 2} = \tick^{k_2} \cdot D_2
-                    \cdot \sigma_{\sys 2}' \\
-                &\text{for } 0 \leq k_2 \leq k_1
-                \text{ and } D_1, D_2 \in \Databases
-        \end{cases}
-    \end{align*}
-\end{definition}
+%     $\merge(\sigma_{\sys 1}, \sigma_{\sys 2}) :=$
+%     \begin{align*}
+%         \begin{cases}
+%             \sigma_{\sys 1} \cdot
+%                 \tick^{\numTicks(\sigma_{\sys 2}) - \numTicks(\sigma_{\sys 1})}
+%                 &\text{if } \numDBs(\sigma_{\sys 2}) = 0 \\
+%                 &\text{and }  \numTicks(\sigma_{\sys 1}) < \numTicks(\sigma_{\sys 2}) \\
+%             \sigma_{\sys 1}
+%                 &\text{if } \numDBs(\sigma_{\sys 2}) = 0 \\
+%             \sigma_{\sys 2} \cdot
+%                 \tick^{\numTicks(\sigma_{\sys 1}) - \numTicks(\sigma_{\sys 2})}
+%                 &\text{if } \numDBs(\sigma_{\sys 1}) = 0 \\
+%                 &\text{and }  \numTicks(\sigma_{\sys 1}) < \numTicks(\sigma_{\sys 2}) \\
+%             \sigma_{\sys 2}
+%                 &\text{if } \numDBs(\sigma_{\sys 1}) = 0 \\
+%             \tick^{k_1} \cdot D_1 \cdot
+%                 \merge(\sigma_{\sys 1}', \tick^{k_2 - k_1}
+%                 \cdot D_2 \cdot \sigma_{\sys 2}')
+%                 &\text{if } \sigma_{\sys 1} = \tick^{k_1} \cdot D_1
+%                     \cdot \sigma_{\sys 1}' \\
+%                 &\text{and } \sigma_{\sys 2} = \tick^{k_2} \cdot D_2
+%                     \cdot \sigma_{\sys 2}' \\
+%                 &\text{for } 0 \leq k_1 \leq k_2
+%                 \text{ and } D_1, D_2 \in \Databases \\
+%             \tick^{k_2} \cdot D_2 \cdot
+%                 \merge( \tick^{k_1 - k_2} \cdot D_1 \cdot
+%                 \sigma_{\sys 1}', \sigma_{\sys 2}')
+%                 &\text{if } \sigma_{\sys 1} = \tick^{k_1} \cdot D_1
+%                     \cdot \sigma_{\sys 1}' \\
+%                 &\text{and } \sigma_{\sys 2} = \tick^{k_2} \cdot D_2
+%                     \cdot \sigma_{\sys 2}' \\
+%                 &\text{for } 0 \leq k_2 \leq k_1
+%                 \text{ and } D_1, D_2 \in \Databases
+%         \end{cases}
+%     \end{align*}
+% \end{definition}
 
-\begin{lemma}
-    \label{lem:system-trace-prefix-suffix-fts-lts}
-    For any trimmed system trace $\sigma_\sys \in \trim(\Traces_\sys)$
-    and $i > 0$ if $\numDBs(\sigma_\sys) > i$ then
-    \begin{equation*}
-        \lts_\sys(\prefix_\sys(i, \sigma_\sys)) \leq \fts_\sys(i, \sigma_\sys)).
-    \end{equation*}
-\end{lemma}
+% \begin{lemma}
+%     \label{lem:system-trace-prefix-suffix-fts-lts}
+%     For any trimmed system trace $\sigma_\sys \in \trim(\Traces_\sys)$
+%     and $i > 0$ if $\numDBs(\sigma_\sys) > i$ then
+%     \begin{equation*}
+%         \lts_\sys(\prefix_\sys(i, \sigma_\sys)) \leq \fts_\sys(i, \sigma_\sys)).
+%     \end{equation*}
+% \end{lemma}
 
 
 % \begin{lemma}
@@ -408,16 +408,16 @@ $\sigma_\sys$, which occurred at timestamp $\lts_\sys(\sigma_\sys)$.
 %     TODO
 % \end{proof}
 
-\begin{lemma}
-    \label{lem:system-trace-merge-prefix-and-suffix}
-    For any trimmed system trace $\sigma_\sys \in \trim(\Traces_\sys)$ and
-    $i \in \Nat$, merging the prefix and suffix gives the system trace itself.
-    \begin{equation*}
-        \forall \sigma_\sys \in \trim(\Traces_\sys) ~ \forall i \in \Nat .~
-        \sigma_\sys =
-        \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
-    \end{equation*}
-\end{lemma}
+% \begin{lemma}
+%     \label{lem:system-trace-merge-prefix-and-suffix}
+%     For any trimmed system trace $\sigma_\sys \in \trim(\Traces_\sys)$ and
+%     $i \in \Nat$, merging the prefix and suffix gives the system trace itself.
+%     \begin{equation*}
+%         \forall \sigma_\sys \in \trim(\Traces_\sys) ~ \forall i \in \Nat .~
+%         \sigma_\sys =
+%         \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
+%     \end{equation*}
+% \end{lemma}
 
 
 
@@ -841,48 +841,38 @@ update functions, one for the proactive and one for the reactive case
 \begin{definition}
     \label{def:enf-transition-relation}
     The \emph{Transition Relation} is a subset
-    % $\Transitionrelation{}{} \subseteq
-    % \Statespace \times \Eventspace \times \Statespace$.
     \begin{equation*}
         \Transitionrelation{}{} \subseteq
         \Traces_\sys
         \times \left( \Databases \cup \left\{\tick, \sskip \right\} \right)
         \times \Traces_\sys
     \end{equation*}
-    We write $\sigma \Transitionrelation{}{e} \sigma'$
-    as a shorthand for
-    $\left(\sigma, e, \sigma'\right) \in \Transitionrelation{}{}$.
-    Further for events $e_1, e_2 \in \Eventspace$,
-    $\sigma \Transitionrelation{}{e_1 \cdot e_2} \sigma'$ iff
-    there exists $\sigma''$ such that
-    $\sigma \Transitionrelation{}{e_1} \sigma''$ and
-    $\sigma'' \Transitionrelation{}{e_2} \sigma'$.
-    This syntax can be extend to sequences of events (i.e. system traces)
-    $\rho_1, \rho_2 \in \Traces_\sys$,
-    $\sigma \Transitionrelation{}{\rho_1 \cdot \rho_2} \sigma'$ iff
-    there exists $\sigma''$ such that
-    $\sigma \Transitionrelation{}{\rho_1} \sigma''$ and
-    $\sigma'' \Transitionrelation{}{\rho_2} \sigma'$.
-
-    The transition relation is then defined via the following three transition
+    The transition relation is by defined  the following three transition
     rules.
     \begin{align*}
-        % \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
-        %     & \text{(Skip)} \\
-        % \sigma &\Transitionrelation{}{D} \sigma \cdot \RFun(\sigma, D)
-        %     & \text{(Step-R)} \\
-        % \sigma &\Transitionrelation{}{\tick}
-        %     \sigma \cdot \PFun(\sigma) \cdot \tick
-        %     & \text{(Step-P)} \\
         \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
             & \text{(Skip)} \\
         \sigma &\Transitionrelation{}{\RFun(\sigma, D)} \sigma \cdot \RFun(\sigma, D)
             & \text{(Step-R)} \\
         \sigma &\Transitionrelation{}{\PFun(\sigma) \cdot \tick}
             \sigma \cdot \PFun(\sigma) \cdot \tick
-            & \text{(Step-P)} \\
+            & \text{(Step-P)}
     \end{align*}
 \end{definition}
+We write $\sigma \Transitionrelation{}{e} \sigma'$
+as a shorthand for
+$\left(\sigma, e, \sigma'\right) \in \Transitionrelation{}{}$.
+Further for events $e_1, e_2 \in \Eventspace$,
+$\sigma \Transitionrelation{}{e_1 \cdot e_2} \sigma'$ iff
+there exists $\sigma''$ such that
+$\sigma \Transitionrelation{}{e_1} \sigma''$ and
+$\sigma'' \Transitionrelation{}{e_2} \sigma'$.
+This syntax can be extend to sequences of events (i.e. system traces)
+$\rho_1, \rho_2 \in \Traces_\sys$,
+$\sigma \Transitionrelation{}{\rho_1 \cdot \rho_2} \sigma'$ iff
+there exists $\sigma''$ such that
+$\sigma \Transitionrelation{}{\rho_1} \sigma''$ and
+$\sigma'' \Transitionrelation{}{\rho_2} \sigma'$.
 
 \begin{definition}
     \label{def:enforcement-event-system}
@@ -934,6 +924,32 @@ are infinite with all skips removed and trimmed (ticks not followed
 by a database removed).
 
 \begin{definition}
+    \label{def:induced-event-system}
+    The \emph{induced enforcement event system} of an enforcer
+    $\Enforcer = (\EnfStates, s_0, \EnfFun)$ is defined as
+    $ \EventSystem(\Enforcer) :=
+    (\Traces_\sys, \Databases \cup \{\tick, \sskip \}, \RFun, \PFun), $
+    with  $\RFun$ and $\PFun$ defined as followed
+    \begin{align*}
+        \RFun(\sigma_\sys, D)
+        &:= D \setminus D_\Sup \cup D_\Cau \\
+        &\qquad \text{with }
+        \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
+        (\RCom(D_\Cau, D_\Sup), ???) % TODO: how to involve underlying system state??
+        \\
+        \PFun(\sigma_\sys) &:=
+        \begin{cases}
+            \sskip &\text{if }
+                \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
+                (\NCom, ???) \\
+            D_\Cau &\text{if }
+                \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
+                (\PCom(D_\Cau), ???)
+        \end{cases}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
     \label{def:enf-event-system-soundness-property}
     An enforcement event system
     $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
@@ -945,85 +961,104 @@ by a database removed).
         \EventSystem, \emptytrace_\sys \vDash P
     \end{equation*}    
 \end{definition}
-Or equivalently iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
+Equivalently, Definition \ref{def:enf-event-system-soundness-property}
+states that an enforcement event system $\EventSystem$ and
+$\Initialstates = \{ \emptytrace_\sys \}$
+are sound for a property $P \subseteq \Traces_{\sys \omega}$
+iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
 
 \begin{theorem}
-    \label{theo:enforcer-soundness-and-enforcement-event-system-soundness-property}
-    % An enforcement event system
-    % $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
-    % with $\Statespace = \Traces_\sys$,
-    % $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
-    % $\Initialstates = \{ \emptytrace_\sys \}$
-    % is sound with respect to a property $P \subseteq \Traces_\sys$
-    % (i.e. $\EventSystem, \Initialstates \vDash P$),
-    % iff there  exists a sound  enforcer
-    % $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
-    % $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
-    % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
-
-    % TODO: might be an equivalence / iff relation
-    
-    % If there  exists a sound  enforcer
-    There exists a sound enforcer
-    $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
-    $\dConv(P)$
-    % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$),
-    iff  there exist $\PFun$ and $\RFun$, such that the
-    % then there exist $\PFun$ and $\RFun$, such that the
-    enforcement event system
-    $\EventSystem =
-    \left(\Traces_\sys, \Databases \cup \{\tick, \sskip\}, \RFun, \PFun \right)$
-    with $\Initialstates = \{ \emptytrace_\sys \}$
-    is sound with respect to the property $P \subseteq \Traces_\sys$.
+    \label{theo:induced-enforcement-event-system-soundness}
+    If an enforcer $\Enforcer = (\EnfStates, s_0, \EnfFun)$ is sound for a
+    property $P \subseteq \Traces_\omega$, then the induced enforcement event
+    system $\EventSystem(\Enforcer)$ is sound for the property
+    $\cConv(P) \subseteq \Traces_{\sys \omega}$.
 \end{theorem}
 
-Formally, Theorem
-\ref{theo:enforcer-soundness-and-enforcement-event-system-soundness-property}
-states the following
-\begin{align*}
-    \forall P \subseteq \Traces_\omega .~
-    &(\exists \Enforcer = (\EnfStates, s_0, \mu) .~ \forall \sigma \in \Traces .~
-    \Enforcer(\sigma) \in P) 
-    \Leftrightarrow \\
-    &(\exists  \EventSystem
-    = (\Traces_\sys, \Databases \cup \{\tick, \sskip \}, \gamma, \delta) .~
-    \EventSystem, \emptytrace_\sys \vDash \cConv(P)).
-\end{align*}
-
 \begin{proof}
-    \label{proof:soundness-definitions-are-equivalent-proof}
-    On a high level we can always issue a $\RCom$ for a transition based
-    on the reactive update function $\RFun$ and either a $\PCom$ or a $\NCom$
-    for a transition based on the proactive update function $\PFun$.
-
-    % We first proof that
-    % \begin{equation}
-    %     \label{eq:soundness-iff-d1}
-    %     \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P
-    %     \implies
-    %     \exists \Enforcer .~ 
-    %     \forall \sigma \in \Traces_\omega .~ \Enforcer(\sigma) \in \dConv(P).
-    % \end{equation}
-
-    % After that we will proof the other direction
-    
-    \begin{equation}
-        \label{eq:soundness-iff-d2}
-        \forall \sigma \in \Traces_\omega .~
-        \Enforcer(\sigma) \in P
-        \implies
-        \exists \EventSystem .~
-        \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq \cConv(P).
-    \end{equation}
-
-    We proof Equation \ref{eq:soundness-iff-d2} via induction for all traces 
-    $\sigma_\sys \in \EStraces(\EventSystem, \emptytrace_\sys)$
-
-    \begin{equation*}
-        \dots \text{ TODO } \dots
-    \end{equation*}
-    
+    \label{proof:theorem-induced-enforcement-event-system-soundness}
+    The proof for Theorem
+    \ref{theo:induced-enforcement-event-system-soundness}
+    proceeds by ... TODO %TOOD
 \end{proof}
+
+% \begin{theorem}
+%     \label{theo:enforcer-soundness-and-enforcement-event-system-soundness-property}
+%     % An enforcement event system
+%     % $\EventSystem = \left(\Statespace, \Eventspace, \RFun, \PFun \right)$
+%     % with $\Statespace = \Traces_\sys$,
+%     % $\Eventspace = \Databases \cup \{ \tick, \sskip \}$, and
+%     % $\Initialstates = \{ \emptytrace_\sys \}$
+%     % is sound with respect to a property $P \subseteq \Traces_\sys$
+%     % (i.e. $\EventSystem, \Initialstates \vDash P$),
+%     % iff there  exists a sound  enforcer
+%     % $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
+%     % $\dConv(P) := \{ \dConv(\sigma_P) \mid \sigma_P \in P \} \subseteq \Traces$
+%     % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$).
+
+%     % TODO: might be an equivalence / iff relation
+    
+%     % If there  exists a sound  enforcer
+%     There exists a sound enforcer
+%     $\Enforcer = \left(\EnfStates, s_0, \mu \right)$ for the property
+%     $\dConv(P)$
+%     % (i.e. $\forall \sigma \in \Traces.~ \Enforcer(\sigma) \in \dConv(P)$),
+%     iff  there exist $\PFun$ and $\RFun$, such that the
+%     % then there exist $\PFun$ and $\RFun$, such that the
+%     enforcement event system
+%     $\EventSystem =
+%     \left(\Traces_\sys, \Databases \cup \{\tick, \sskip\}, \RFun, \PFun \right)$
+%     with $\Initialstates = \{ \emptytrace_\sys \}$
+%     is sound with respect to the property $P \subseteq \Traces_\sys$.
+% \end{theorem}
+
+% Formally, Theorem
+% \ref{theo:enforcer-soundness-and-enforcement-event-system-soundness-property}
+% states the following
+% \begin{align*}
+%     \forall P \subseteq \Traces_\omega .~
+%     &(\exists \Enforcer = (\EnfStates, s_0, \mu) .~ \forall \sigma \in \Traces .~
+%     \Enforcer(\sigma) \in P) 
+%     \Leftrightarrow \\
+%     &(\exists  \EventSystem
+%     = (\Traces_\sys, \Databases \cup \{\tick, \sskip \}, \gamma, \delta) .~
+%     \EventSystem, \emptytrace_\sys \vDash \cConv(P)).
+% \end{align*}
+
+% \begin{proof}
+%     \label{proof:soundness-definitions-are-equivalent-proof}
+%     On a high level we can always issue a $\RCom$ for a transition based
+%     on the reactive update function $\RFun$ and either a $\PCom$ or a $\NCom$
+%     for a transition based on the proactive update function $\PFun$.
+
+%     % We first proof that
+%     % \begin{equation}
+%     %     \label{eq:soundness-iff-d1}
+%     %     \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P
+%     %     \implies
+%     %     \exists \Enforcer .~ 
+%     %     \forall \sigma \in \Traces_\omega .~ \Enforcer(\sigma) \in \dConv(P).
+%     % \end{equation}
+
+%     % After that we will proof the other direction
+    
+%     \begin{equation}
+%         \label{eq:soundness-iff-d2}
+%         \forall \sigma \in \Traces_\omega .~
+%         \Enforcer(\sigma) \in P
+%         \implies
+%         \exists \EventSystem .~
+%         \EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq \cConv(P).
+%     \end{equation}
+
+%     We proof Equation \ref{eq:soundness-iff-d2} via induction for all traces 
+%     $\sigma_\sys \in \EStraces(\EventSystem, \emptytrace_\sys)$
+
+%     \begin{equation*}
+%         \dots \text{ TODO } \dots
+%     \end{equation*}
+    
+% \end{proof}
 
 \begin{definition}
     \label{def:enforcement-event-system-transparency}
