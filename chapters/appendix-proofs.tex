@@ -1,0 +1,354 @@
+\chapter{Additional Proofs}
+\section{System Traces}
+\subsection{Lemma \ref{lem:mfotl-prefix-plus-suffix}}
+\begin{proof}
+    \label{proof:mfotl-prefix-plus-suffix}
+    The proof for Lemma \ref{lem:mfotl-prefix-plus-suffix}
+    starts with a case distinction based on
+    the length of $\sigma$ and $i$.
+    \begin{itemize}
+        \item $i \geq | \sigma |$
+
+        \begin{align*}
+            \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
+            &\stackrel{\ref{def:prefix-mfotl-trace}}{=} \sigma \cdot \suffix(i+1, \sigma)
+            \\
+            &\stackrel{\ref{def:suffix-mfotl-trace}}{=} \sigma \cdot \emptytrace
+            \\
+            &= \sigma
+        \end{align*}
+
+        \item $i < | \sigma |$
+
+        This case can be proofed by induction over $i \in \Nat$ for any $\sigma$ where
+        $i < |\sigma|$.
+        Specifically we proof
+        \begin{equation*}
+            \forall \sigma \in \Traces ~ \forall i < |\sigma| .~
+            \prefix(i,\sigma) \cdot \suffix(i+1, \sigma) = \sigma
+        \end{equation*}
+
+        \begin{itemize}
+            \item \textbf{Base Case} $i=0$
+            \begin{align*}
+                \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
+                & =  \prefix(0, \sigma) \cdot \suffix(0, \sigma)
+                \\
+                &\stackrel{\ref{def:prefix-mfotl-trace}}{=}
+                    \emptytrace \cdot \suffix(1, \sigma)
+                \\
+                &\stackrel{\ref{def:suffix-mfotl-trace}}{=} \emptytrace \cdot \sigma
+                \\
+                &= \sigma
+            \end{align*}
+
+            \item \textbf{Induction Hypothesis (IH)}
+            \begin{equation*}
+                \forall \sigma \in \Traces ~ \forall 0 < i < |\sigma| .~
+                \prefix(i-1,\sigma) \cdot \suffix(i, \sigma) = \sigma
+            \end{equation*}
+
+            \item \textbf{Induction Step} $0 < i < |\sigma|$
+
+            Since $\sigma$ cannot be empty, we can assume that
+            $\sigma = (\tau, D) \cdot \sigma'$.
+            \begin{align*}
+                \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
+                &\stackrel{\ref{def:prefix-mfotl-trace}}{=}
+                    (\tau, D) \cdot \prefix(i-1, \sigma') \cdot \suffix(i, \sigma')
+                \\
+                &\stackrel{\text{IH}}{=}
+                    (\tau, D) \cdot \sigma'
+                \\
+                &= \sigma
+            \end{align*}
+        \end{itemize}
+    \end{itemize}
+\end{proof}
+
+\subsection{Lemma \ref{lem:last-timestamp-of-trimmed-system-trace}}
+\begin{proof}
+    \label{proof:last-timestamp-of-trimmed-system-trace}
+    To prove Lemma \ref{lem:last-timestamp-of-trimmed-system-trace}
+    we first note that any trimmed system trace ends in a database.
+
+    \begin{equation*}
+        TODO
+    \end{equation*}
+    
+\end{proof}
+
+
+\subsection{Lemma \ref{lem:system-trace-prefix-suffix-fts-lts}}
+
+\begin{proof}
+    \label{proof:lemma-system-trace-prefix-suffix-fts-lts}
+    The proof for Lemma \ref{lem:system-trace-prefix-suffix-fts-lts}
+    proceeds as followed
+        Since $\numDBs(\sigma_\sys) > i$, there exist
+        $k_1, \dots, k_i > 0$ and $D_1, \dots, D_i \in \Databases$
+        such that
+        $$\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \ldots \cdot
+        \tick^{k_i} \cdot D_i \cdot \sigma_\sys'.$$
+        \begin{align*}
+            &\lts_\sys(\prefix_\sys(i, \sigma_\sys)) \\
+            &\stackrel{\ref{def:prefix-system-trace}}{=} 
+                \lts_\sys(\tick^{k_1} \cdot D \cdot
+                \prefix_\sys(i, \ldots \cdot \tick^{k_i}
+                \cdot D_i \cdot \sigma_\sys')) \\
+            &\vdots \\
+            &\stackrel{\ref{def:prefix-system-trace}}{=} 
+                \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
+                \cdot \prefix_\sys(0, \sigma_\sys')) \\
+            &\stackrel{\ref{def:prefix-system-trace}}{=} 
+                \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
+                \cdot \emptytrace_\sys) \\
+            &=  \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i) \\
+            &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
+                k_1 + \lts_\sys(\ldots \cdot \tick^{k_i} \cdot D_i) \\
+            &\vdots \\
+            &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
+                k_1 + \dots + k_i \\
+% 
+            &\leq \Sigma_{n=1}^{i+1} k_n \\
+            &\stackrel{\ref{def:first-time-stamp-system-trace}}=
+                \fts_\sys(\tick^{\Sigma_{n=1}^{i+1} k_n}
+                \cdot D_{i+1} \cdot \sigma_\sys') \\
+            &= \fts_\sys(\tick^{\Sigma_{n=1}^i k_n} \cdot
+                \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys') \\
+            &\stackrel{\ref{def:suffix-system-trace}}{=}
+                \fts_\sys(\tick^{\Sigma_{n=1}^i k_n} \cdot
+                \suffix_\sys(0, \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
+            & \vdots \\
+            &\stackrel{\ref{def:suffix-system-trace}}{=}
+                \fts_\sys(\tick^{k_1} \cdot \suffix_\sys(i-1,
+                \ldots \cdot \tick^{k_i} \cdot D_i \cdot
+                \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
+            &\stackrel{\ref{def:suffix-system-trace}}{=}
+            \fts_\sys(\suffix_\sys(i, \sigma_\sys))
+            \\ &\text{TODO: finish and fix this proof}
+        \end{align*}
+%     proceeds by induction over $i > 0$.
+%     \begin{itemize}
+%         \item \textbf{Base Case} $i=1$
+
+%         We recall that $\numDBs(\sigma_\sys) > 1$.
+%         Therefore, there exist $k_1, k_2 \geq 0$ and $D_1, D_2 \in \Databases$
+%         such that
+%         $\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \tick^{k_2}
+%         \cdot D_2 \cdot \sigma_\sys'$.
+%         \begin{align*}
+%             \lts_\sys(\prefix_\sys(i, \sigma_\sys))
+%             &= \lts_\sys(\prefix_\sys(1, \sigma_\sys)) \\
+%             &\stackrel{\ref{def:prefix-system-trace}}{=}
+%                 \lts_\sys(\tick^{k_1} \cdot D \cdot
+%                 \prefix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys'))) \\
+%             &\stackrel{\ref{def:prefix-system-trace}}{=}
+%                 \lts_\sys(\tick^{k_1} \cdot D \cdot \emptytrace_\sys) \\
+%             &= \lts_\sys(\tick^{k_1} \cdot D) \\
+%             &= k_1 \\
+%             &\leq k_1 + k_2 \\
+%             &\stackrel{\ref{def:first-time-stamp-system-trace}}=
+%                 \fts_\sys(\tick^{k_1 + k_2} \cdot D_2 \cdot \sigma_\sys') \\
+%             &= \fts_\sys(\tick^{k_1} \cdot \tick^{k_2} \cdot D_2 \cdot \sigma_\sys') \\
+%             &\stackrel{\ref{def:suffix-system-trace}}{=}
+%                 \fts_\sys(\tick^{k_1} \cdot
+%                 \suffix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys')) \\
+%             &\stackrel{\ref{def:suffix-system-trace}}{=}
+%                 \fts_\sys(\suffix_\sys(1, \sigma_\sys)) \\
+%             &= \fts_\sys(\suffix_\sys(i, \sigma_\sys))
+%         \end{align*}
+
+%         \item \textbf{Induction Hypothesis}
+
+%         For all $i > 1$ and $\sigma_\sys \in \Traces_\sys$, if
+%         $\numDBs(\sigma_\sys) > i$
+%         \begin{equation*}
+%             \lts_\sys(\prefix_\sys(i, \sigma_\sys)) \leq \fts_\sys(i, \sigma_\sys))
+%         \end{equation*}
+        
+%         \item \textbf{Induction Step} $i+1$
+        
+%         Since $\numDBs(\sigma_\sys) > i$, there exist
+%         $k_1, \dots, k_i, k_{i+1} > 0$ and $D_1, \dots, D_i, D_{i+1} \in \Databases$
+%         such that
+%         $$\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \ldots \cdot \tick^{k_i} \cdot D_i
+%         \cdot \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys'.$$
+%         \begin{align*}
+%             &\lts_\sys(\prefix_\sys(i+1, \sigma_\sys)) \\
+%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
+%                 \lts_\sys(\tick^{k_1} \cdot D \cdot
+%                 \prefix_\sys(i, \ldots \cdots \tick^{k_i}
+%                 \cdot D_i \cdot \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
+%             &\vdots \\
+%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
+%                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
+%                 \cdot \prefix_\sys(0, \tick^{k_{i+1}}
+%                 \cdot D_{i+1} \cdot \sigma_\sys')) \\
+%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
+%                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
+%                 \cdot \emptytrace_\sys) \\
+%             &=  \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i) \\
+%             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
+%                 k_1 + \lts_\sys(\ldots \cdot \tick^{k_i} \cdot D_i) \\
+%             &\vdots \\
+%             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=} \Sigma_{n=1}^i k_i \\
+% % 
+%             &\leq \Sigma_{n=1}^{i+1} k_i \\
+%             &\stackrel{\ref{def:first-time-stamp-system-trace}}=
+%                 \fts_\sys(\tick^{k_1 + k_2} \cdot D_2 \cdot \sigma_\sys') \\
+%             &= \fts_\sys(\tick^{k_1} \cdot \tick^{k_2} \cdot D_2 \cdot \sigma_\sys') \\
+%             &\stackrel{\ref{def:suffix-system-trace}}{=}
+%                 \fts_\sys(\tick^{k_1} \cdot
+%                 \suffix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys')) \\
+%             &\stackrel{\ref{def:suffix-system-trace}}{=}
+%                 \fts_\sys(\suffix_\sys(1, \sigma_\sys)) \\
+%             &= \fts_\sys(\suffix_\sys(i, \sigma_\sys))
+%         \end{align*}
+        
+%     \end{itemize}
+\end{proof}
+
+\subsection{Lemma \ref{lem:system-trace-merge-prefix-and-suffix}}
+\begin{proof}
+    \label{proof:system-trace-merge-prefix-and-suffix}
+    To proof Lemma \ref{lem:system-trace-merge-prefix-and-suffix}
+    we make a case distinction on $i$ and the length of
+    $\sigma_\sys$ (i.e. the number of databases in $\sigma_\sys$).
+    Let $\sigma_\sys \in \trim(\Traces_\sys)$ and $i \in \Nat$.
+
+    \begin{enumerate}
+        \item $i \geq \numDBs(\sigma_\sys)$
+        \begin{align*}
+            \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
+            & \stackrel{\ref{def:suffix-system-trace}}{=}
+            \merge(\prefix_\sys(i, \sigma_\sys), \emptytrace_\sys)
+            \\
+            & \stackrel{\ref{def:prefix-system-trace}}{=}
+            \merge(\sigma_\sys, \emptytrace_\sys)
+            \\
+            & \stackrel{\ref{def:system-trace-merge}}{=}
+            \sigma_\sys
+        \end{align*}
+
+        \item $i < \numDBs(\sigma_\sys)$
+
+        We prove this case by induction on $i$ for an arbitrary system trace
+        $\sigma \in \trim(\Traces_\sys)$ with $i < \numDBs(\sigma_\sys)$
+        \begin{enumerate}
+            \item \textbf{Base Case} $i=0$
+            \begin{align*}
+                & \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
+                \\
+                &= \merge(\prefix_\sys(0, \sigma_\sys), \suffix_\sys(1, \sigma_\sys))
+                \\
+                & \stackrel{\ref{def:suffix-system-trace}}{=}
+                \merge(\prefix_\sys(0, \sigma_\sys), \sigma_\sys)
+                \\
+                & \stackrel{\ref{def:prefix-system-trace}}{=}
+                \merge(\emptytrace_\sys, \sigma_\sys)
+                \\
+                & \stackrel{\ref{def:system-trace-merge}}{=}
+                \sigma_\sys
+            \end{align*}
+
+            \item \textbf{Induction Hypothesis}
+            \begin{align*}
+                &\forall \sigma_\sys \in \Traces_\sys ~
+                \forall 0 < i < \numDBs(\sigma_\sys) .~
+                \\
+                &\sigma_\sys =
+                \merge(\prefix_\sys(i-1, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
+            \end{align*}
+
+            \item \textbf{Induction Step} $0 < i < \numDBs(\sigma_\sys)$
+
+            Since $\numDBs(\sigma_\sys) > 0$, we can assume that
+            $\sigma_\sys
+            = \tick^k \cdot D \cdot \sigma_\sys'$
+            for some $k \in \Nat$.
+
+            \begin{align*}
+                & \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
+                \\
+                & =
+                \merge(
+                    \prefix_\sys(i,
+                        \tick^k \cdot D \cdot \sigma_\sys'
+                    ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, \sigma_\sys))
+                \\
+                & =
+                \merge(
+                    \prefix_\sys(i,
+                        \tick^k \cdot D \cdot \sigma_\sys'
+                    ),
+                    % \\ & \qquad
+                    \suffix_\sys(i,
+                        \tick^k \cdot D \cdot \sigma_\sys'
+                    ))
+                \\
+                & \begin{cases}
+                & \stackrel{\ref{def:prefix-system-trace}}{=}
+                \merge(
+                    \tick \cdot \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, \tick^k \cdot D \cdot \sigma_\sys' ))
+                \\
+                & \stackrel{\ref{def:suffix-system-trace}}{=}
+                \merge(
+                    \tick \cdot \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
+                    % \\ & \qquad
+                    \tick \cdot \suffix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ))
+                \\
+                & \stackrel{\ref{def:system-trace-merge}}{=}
+                \tick \cdot \merge(
+                    \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ))
+                \end{cases}
+                \\
+                & \qquad \vdots
+                \\
+                & \stackrel{\ref{def:system-trace-merge}}{=}
+                \tick^k \cdot
+                \merge(
+                    \prefix_\sys(i, D \cdot \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, D \cdot \sigma_\sys' ))
+                \\
+                & \stackrel{\ref{def:prefix-system-trace}}{=}
+                \tick^k \cdot
+                \merge(
+                    D \cdot \prefix_\sys(i-1, \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, D \cdot \sigma_\sys' ))
+                \\
+                & \stackrel{\ref{def:system-trace-merge}}{=}
+                \tick^k \cdot
+                D \cdot \merge(
+                    \prefix_\sys(i-1, \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i, D \cdot \sigma_\sys' ))
+                \\
+                & \stackrel{\ref{def:suffix-system-trace}}{=}
+                \tick^k \cdot
+                D \cdot \merge(
+                    \prefix_\sys(i-1, \sigma_\sys' ),
+                    % \\ & \qquad
+                    \suffix_\sys(i-1, \sigma_\sys' ))
+                \\
+                & \stackrel{\text{IH}}{=}
+                \tick^k \cdot
+                D \cdot \sigma_\sys'
+                \\
+                &= \sigma_\sys
+                \\ &\text{TODO: check proof with new merge function definition}
+            \end{align*}
+            
+        \end{enumerate}
+    \end{enumerate}
+\end{proof}
+
+
