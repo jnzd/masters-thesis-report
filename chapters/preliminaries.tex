@@ -441,8 +441,9 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
 \begin{definition}
     \label{def:enforcer-triple}
     An \emph{Enforcer} $\Enforcer$ is a triple
-    $\left(\EnfStates, s_0, \EnfFun \right)$, where $\EnfStates$ is a set of states
-    $s_0 \in \EnfStates$ is an initial state and
+    $\left(\EnfStates, s_0, \EnfFun \right)$, where $\EnfStates$ is a set of 
+    enforcer states
+    $s_0 \in \EnfStates$ is an initial enforcer state and
     $\EnfFun : \Traces_f \times \EnfStates
     \times \Nat \times \left( \Databases \cup \left\{ \tick \right\} \right)
     \to \EnfCommands \times \EnfStates$
@@ -468,9 +469,7 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
                 \mu(\sigma,s,\tau,\tick)
                 \in \{(\PCom(D_\Cau), s'), (\NCom,s')\}
             \end{equation*}
-        
     \end{enumerate}
-    
 \end{definition}
 
 % TODO: insert enforcer soundness conditions

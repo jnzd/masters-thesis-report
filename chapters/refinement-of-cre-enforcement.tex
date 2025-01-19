@@ -503,13 +503,14 @@ for all allowed inputs is $\trim(\Traces_\sys)$ and
 not $\Traces_\sys$, note that a $\tick$ is only added when
 the trace is not yet empty, thus any inserted $\tick$ will
 eventually be followed by some database $D$.
-For any set of system traces $A \in \Traces_\sys$ and timestamp
+For any set of MFOTL traces $A \subseteq \Traces$ and any
+set of system traces $B \in \Traces_\sys$ and timestamp
 $\tau \in \Nat$, we write
 \begin{align*}
-    &\cConv(A) &&:= \{ \cConv(\sigma) \mid \sigma \in A \}, \\
-    &\cConv'(\tau, A) &&:= \{ \cConv'(\tau, \sigma) \mid \sigma \in A \}, \\
-    &\dConv(A) &&:= \{ \dConv(\sigma) \mid \sigma \in A \}, and \\
-    &\dConv'(\tau, A) &&:= \{ \dConv'(\tau, \sigma) \mid \sigma \in A \}. \\
+    &\cConv(A) &&:= \{ \cConv(\sigma_\sys) \mid \sigma_\sys \in A \}, \\
+    &\cConv'(\tau, A) &&:= \{ \cConv'(\tau, \sigma_\sys) \mid \sigma_\sys \in A \}, \\
+    &\dConv(B) &&:= \{ \dConv(\sigma) \mid \sigma \in B \}, and \\
+    &\dConv'(\tau, B) &&:= \{ \dConv'(\tau, \sigma) \mid \sigma \in B \}. \\
 \end{align*}
 
 \begin{theorem}
@@ -923,6 +924,54 @@ Note that system traces are only considered infinite if they
 are infinite with all skips removed and trimmed (ticks not followed
 by a database removed).
 
+Next we will show that any enforcer as in Hublet et al. \cite{whyenf} has a
+corresponding enforcement event system.
+To simplify this we define a helper function, that can compute the
+state of an enforcer after having enforced some trace as well as potentially
+some "leftover" ticks.
+
+\begin{definition}
+    \label{def:enforcer-state-function}
+    The \emph{Enforcer State Function}
+    \begin{equation*}
+        \state : \EnfStates \times \Traces_\sys \to \EnfStates
+    \end{equation*}
+    This function is defined by simulating the $\run$ function of
+    Algorithm \ref{alg:loop}.
+    The simulation uses a helper function
+    \begin{equation*}
+        \state' : \EnfStates \times \Traces_\sys \times \Traces_\sys \to \EnfStates
+    \end{equation*}
+    
+    % Any system trace $\sigma_\sys$ is of the form
+    % $\trim(\sigma_\sys) \cdot \tick^k$ for some $k \geq 0$.
+    % Thus we let $\sigma_\sys = \sigma_\sys' \cdot \tick^k$ for 
+    $\state'(s, \sigma_{\sys 1}, \sigma_{\sys 2}) := $
+    \begin{align*}
+        \begin{cases}
+            s
+                &\text{if } \sigma_{\sys 2} = \emptytrace_\sys \\
+            \state'(s', \sigma_{\sys 1} \cdot D_\Cau \cdot \tick, \sigma_{\sys 2}')
+                &\text{if } \sigma_{\sys 2} = \tick \cdot \sigma_{\sys 2}' \\
+                &\text{and } (\PCom(D_\Cau), s') \\
+                &\quad = \EnfFun(\cConv(\sigma_{\sys 1}), s, \numTicks(\sigma_{\sys 1}), \tick) \\
+            \state'(s', \sigma_{\sys 1} \cdot \tick, \sigma_{\sys 2}')
+                &\text{if } \sigma_{\sys 2} = \tick \cdot \sigma_{\sys 2}' \\
+                &\text{and } (\NCom, s') \\
+                &\quad = \EnfFun(\cConv(\sigma_{\sys 1}), s, \numTicks(\sigma_{\sys 1}), \tick) \\
+            \state'(s', \sigma_{\sys 1} \cdot (D \setminus D_\Sup \cup D_\Cau, \sigma_{\sys 2}')
+                &\text{if } \sigma_{\sys 2} = D \cdot \sigma_{\sys 2}' \\
+                &\text{and } (\RCom(D_\Cau, D_\Sup), s') \\
+                &\quad = \EnfFun(\cConv(\sigma_{\sys 1}), s, \numTicks(\sigma_{\sys 1}), D)
+        \end{cases}
+    \end{align*}
+    With that $\state$ is defined as followed for any enforcer state $s \in \EnfStates$
+    and system trace~$\sigma_\sys \in \Traces_\sys$
+    \begin{equation*}
+        \state(s, \sigma_\sys) := \state'(s, \emptytrace_\sys, \sigma_\sys).
+    \end{equation*}
+\end{definition}
+
 \begin{definition}
     \label{def:induced-event-system}
     The \emph{induced enforcement event system} of an enforcer
@@ -934,17 +983,17 @@ by a database removed).
         \RFun(\sigma_\sys, D)
         &:= D \setminus D_\Sup \cup D_\Cau \\
         &\qquad \text{with }
-        \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
-        (\RCom(D_\Cau, D_\Sup), ???) % TODO: how to involve underlying system state??
+        \EnfFun(\cConv(\sigma_\sys), \state(s_0, \sigma_\sys), \numTicks(\sigma_\sys), D) =
+        (\RCom(D_\Cau, D_\Sup), s) % TODO: how to involve underlying system state??
         \\
         \PFun(\sigma_\sys) &:=
         \begin{cases}
             \sskip &\text{if }
-                \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
-                (\NCom, ???) \\
+                \EnfFun(\cConv(\sigma_\sys), \state(s_0, \sigma_\sys), \numTicks(\sigma_\sys), D) =
+                (\NCom, s) \\
             D_\Cau &\text{if }
-                \EnfFun(\cConv(\sigma_\sys), \numTicks(\sigma_\sys), ???, D) =
-                (\PCom(D_\Cau), ???)
+                \EnfFun(\cConv(\sigma_\sys), \state(s_0, \sigma_\sys), \numTicks(\sigma_\sys), D) =
+                (\PCom(D_\Cau), s)
         \end{cases}
     \end{align*}
 \end{definition}
@@ -958,7 +1007,7 @@ by a database removed).
     is \emph{sound} with respect to some
     property $P \subseteq \Traces_{\sys \omega}$ iff
     \begin{equation*}
-        \EventSystem, \emptytrace_\sys \vDash P
+        \EventSystem, \emptytrace_\sys \vDash P.
     \end{equation*}    
 \end{definition}
 Equivalently, Definition \ref{def:enf-event-system-soundness-property}
@@ -979,7 +1028,17 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
     \label{proof:theorem-induced-enforcement-event-system-soundness}
     The proof for Theorem
     \ref{theo:induced-enforcement-event-system-soundness}
-    proceeds by ... TODO %TOOD
+    proceeds by structural induction over traces
+    $\EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    of an enforcement event system that is induced by some enforcer
+    $\Enforcer = (\EnfStates, s_0, \EnfFun)$ which is sound for
+    a property $P \subseteq \Traces_\omega$.
+    Specifically we will prove that all
+    $\sigma_\sys \in \EStraces(\EventSystem(\Enforcer)), \emptytrace_\sys)$
+    are in $\cConv(P) \subseteq \Traces_{\sys \omega}$.
+
+    TODO: argue that for any finite trace of the event system, there exists
+    a sequence in c(P) of which the trace is a finite prefix...
 \end{proof}
 
 % \begin{theorem}
@@ -1347,7 +1406,8 @@ Now, the existence of an enforcer for $\phi_C$ could quite directly imply the
 existence of an enforcer for $\phi_A$.
 \begin{theorem}
     If $\phi_C, \Sigma_C \refineL \phi_A, \Sigma_A$ and $\phi_C : \Cau$,
-    then $\phi_A$ is enforceable.
+    then $\phi_A$ is enforceable under the condition that all event in $\Events_A$
+    for which $\phi_C$ does not provide a let-binding are absent.
 \end{theorem}
 
 \begin{proof}
