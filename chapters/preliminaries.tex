@@ -651,100 +651,115 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
         % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
         \prftree[r]
             %%begin novalidate
-            {$\Events^+_\PG$}
+            {$\Events^+_\PG_E$}
             %%end novalidate
-            {\vdash e(\dots, x, \dots) : \PG(x)^+}
+            {\gamma \vdash e(\dots, x, \dots) : \PG_E(x)^+}
         \quad
         \prftree[r]
             %%begin novalidate
-            {$\neg_\PG$}
+            {$\neg_\PG_E$}
             %%end novalidate
-            {\vdash \phi : \PG(x)^{\neg p}}
-            {\vdash \neg \phi : \PG(x)^p}
+            {\gamma \vdash \phi : \PG_E(x)^{\neg p}}
+            {\gamma \vdash \neg \phi : \PG_E(x)^p}
         \\
         \prftree[r]
             %%begin novalidate
-            {$\exists_\PG$}
+            {$\exists_\PG_E$}
             %%end novalidate
             {x \neq z}
-            {\vdash \phi : \PG(z)^p}
-            {\vdash \exists x .~ \phi : \PG(z)^p}
+            {\gamma \vdash \phi : \PG_E(z)^p}
+            {\gamma \vdash \exists x .~ \phi : \PG_E(z)^p}
         \quad
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG^{\Left+}$}
+            {$\wedge_\PG_E^{\Left+}$}
             %%end novalidate
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \wedge \psi : \PG(x)^+}
+            {\gamma \vdash \phi : \PG_E(x)^+}
+            {\gamma \vdash \phi \wedge \psi : \PG_E(x)^+}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG^{\Right+}$}
+            {$\wedge_\PG^_E{\Right+}$}
             %%end novalidate
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \wedge \psi : \PG(x)^+}
+            {\gamma \vdash \psi : \PG_E(x)^+}
+            {\gamma \vdash \phi \wedge \psi : \PG_E(x)^+}
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG^-$}
+            {$\wedge_\PG_E^-$}
             %%end novalidate
-            {\vdash \phi : \PG(x)^-}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \wedge \psi : \PG(x)^-}
+            {\gamma \vdash \phi : \PG_E(x)^-}
+            {\gamma \vdash \psi : \PG_E(x)^-}
+            {\gamma \vdash \phi \wedge \psi : \PG_E(x)^-}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG^{\Left+}$}
+            {$\Since_\PG_E^{\Left+}$}
             %%end novalidate
             {0 \notin I}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            {\gamma \vdash \phi : \PG_E(x)^+}
+            {\gamma \vdash \phi \Since_I \psi : \PG_E(x)^+}
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG^{\Right+}$}
+            {$\Since_\PG_E^{\Right+}$}
             %%end novalidate
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \Since_I \psi : \PG(x)^+}
+            {\gamma \vdash \psi : \PG_E(x)^+}
+            {\gamma \vdash \phi \Since_I \psi : \PG_E(x)^+}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG^-$}
+            {$\Since_\PG_E^-$}
             %%end novalidate
             {0 \in I}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \Since_I \psi : \PG(x)^-}
+            {\gamma \vdash \psi : \PG_E(x)^-}
+            {\gamma \vdash \phi \Since_I \psi : \PG_E(x)^-}
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG^{\Left+}$}
+            {$\UUntil_\PG_E^{\Left+}$}
             %%end novalidate
             {0 \notin I}
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            {\gamma \vdash \phi : \PG_E(x)^+}
+            {\gamma \vdash \phi \UUntil_I \psi : \PG_E(x)^+}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG^{\LeftRight+}$}
+            {$\UUntil_\PG_E^{\LeftRight+}$}
             %%end novalidate
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \psi : \PG(x)^+}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^+}
+            {\gamma \vdash \phi : \PG_E(x)^+}
+            {\gamma \vdash \psi : \PG_E(x)^+}
+            {\gamma \vdash \phi \UUntil_I \psi : \PG(_Ex)^+}
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG^-$}
+            {$\UUntil_\PG_E^-$}
             %%end novalidate
             {0 \in I}
-            {\vdash \psi : \PG(x)^-}
-            {\vdash \phi \UUntil_I \psi : \PG(x)^-}
+            {\gamma \vdash \psi : \PG_E(x)^-}
+            {\gamma \vdash \phi \UUntil_I \psi : \PG_E(x)^-}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Prev_\PG^+$}
+            {$\Prev_\PG_E^+$}
             %%end novalidate
-            {\vdash \phi : \PG(x)^+}
-            {\vdash \Prev_I \phi : \PG(x)^+}
+            {\gamma \vdash \phi : \PG_E(x)^+}
+            {\gamma \vdash \Prev_I \phi : \PG_E(x)^+}
+        \qquad
+        \prftree[r]
+            %%begin novalidate
+            {$\gamma_\PG_E$}
+            %%end novalidate
+            {\gamma((e,i))=E}
+            {\gamma \vdash e(x_1,\dots,x_i=x,\dots,x_k) : \PG_E^p(x)}
+        \\
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{let}_\PG$}
+            %%end novalidate
+            {\forall i.~\gamma \vdash \phi_1 :\PG^p_{E_i}(x_i)}
+            {\gamma, (e,1) : E_1,\dots, (e,k):E_k \vdash \phi_2 : \PG^p_{E}(x)}
+            {\gamma \vdash \LLet{e(x_1,\dots,x_k)}{\phi_1}{\phi_2}:\PG^p_{E}(x)}
     \end{gather*}
 \end{definition}
 
@@ -807,9 +822,9 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             %%begin novalidate
             {$\exists^\Sup$}
             %%end novalidate
-            {\Gamma \vdash \exists x.~\phi : \Sup}
             {\Gamma \vdash \phi : \Sup}
             {\vdash \phi : \PG(x)^+}
+            {\Gamma \vdash \exists x.~\phi : \Sup}
             \quad
         \prftree[r]
             %%begin novalidate
@@ -896,7 +911,103 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             %%end novalidate
             {\Gamma \vdash \phi : \Sup}
             {\Gamma \vdash \Next_I \phi : \Sup}
+        \qquad
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{let}$}
+            %%end novalidate
+            {\Gamma \vdash \phi_1 : \tau_1}
+            {\Gamma, e : \tau_1 \vdash \phi_2 : \tau_2}
+            {\Gamma \vdash \LLet{e(\overline{t})}{\phi_1}{\phi_2} : \tau_2}
     \end{gather*}
+\end{definition}
+
+\begin{definition}
+    \label{def:mfotl-monotonicity}
+    MFOTL (Anti) Monotonicity Rules
+    \begin{gather*}
+        \prftree[r]
+            %%begin novalidate
+            {$\Events^+_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash e(\bar{x}) : \mono{e}^+}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\Events^\mathsf{let}_\mathsf{mon}$}
+            %%end novalidate
+            {\mathsf{let}_d \in \mathsf{dom}~\Gamma}
+            {\Gamma(\mathsf{let}_d) = (\phi, \Gamma')} 
+            {\Gamma' \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash d(\bar{x}) : \mono{e}^p}
+        \\[5pt]
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{occ}^p_\mathsf{mon}$}
+            %%end novalidate
+            {e \not \in \events{\phi}}
+            {\Gamma \vdash \phi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\neg^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^{\neg p}}
+            {\Gamma \vdash \neg \phi : \mono{e}^p}
+        \\[5pt]
+        \prftree[r]
+            %%begin novalidate
+            {$\wedge^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \wedge \psi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\exists^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \exists x.~ \phi : \mono{e}^p}
+        \\[5pt]
+        \prftree[r]
+            %%begin novalidate
+            {$\Next^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \Next \phi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\Prev^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \Prev \phi : \mono{e}^p}
+        \\[5pt]
+        \prftree[r]
+            %%begin novalidate
+            {$\Since^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \Since \psi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\UUntil^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \UUntil \psi : \mono{e}^p}
+        \\[5pt]
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{let}^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma, \mathsf{let}_d : (\phi, \Gamma) \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
+    \end{gather*}
+    Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
 \end{definition}
 
 For enforcement under a condition as in Definition
@@ -905,7 +1016,7 @@ typing rule to expand the fragment of enforceable MFOTL formulae.
 
 \begin{definition}
     \label{def:emfotl-under-condition-additional-typing-rule}
-    Additional typing rule when enforcement is done under some condtion
+    Additional typing rule when enforcement is done under some condition
     \begin{equation*}
         \prftree[r]
             % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf

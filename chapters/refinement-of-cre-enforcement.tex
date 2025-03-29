@@ -165,7 +165,17 @@ We also use $\emptytrace_\sys$ to denote an empty system
 trace and will omit the subscript if the meaning is clear from
 context.
 
-
+\begin{lemma}
+    \label{lem:trimmed-infinite-system-traces}
+    For any infinite system trace $\sigma_\sys \in \Traces_{\sys \omega}$,
+    $\sigma_\sys = \trim(\sigma_\sys).$
+\end{lemma}
+This follows directly from our definition for infinite system traces.
+At any point within an infinite trace, there must eventually follow
+at least one database, because otherwise there would not
+be an infinite number of databases in the trace.
+Lemma \ref{lem:trimmed-infinite-system-traces} can be rewritten as
+$\Traces_{\sys \omega} = \trim(\Traces_{\sys \omega})$.
 
 \begin{definition}
     \label{def:cconv'}
@@ -202,6 +212,85 @@ context.
         \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
     \end{align*}
 \end{definition}
+
+\begin{lemma}
+    \label{lem:cconv'-splitting}
+    For all $\sigma_\sys, \sigma_\sys' \in \Traces_\sys$
+    and $\tau \in \Nat$,
+    \begin{equation*}
+        \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+        = \cConv'(\tau, \sigma_\sys) \cdot
+        \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
+    \end{equation*}
+\end{lemma}
+
+\begin{proof}
+    \label{proof:cconv'-splitting}
+    Let $\sigma_\sys' \in \Traces_\sys$ and $\tau \in \Nat$.
+    The proof for Lemma \ref{lem:cconv'-splitting} proceeds
+    by structural induction over system traces $\sigma_\sys \in \Traces_\sys$.
+    \begin{itemize}
+        \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+        \begin{align*}
+            \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+            &=  \cConv'(\tau, \emptytrace_\sys \cdot \sigma_\sys') \\
+            &=  \cConv'(\tau, \sigma_\sys') \\
+            &=  \emptytrace \cdot \cConv'(\tau + 0, \sigma_\sys') \\
+            &\stackrel{\ref{def:num-ticks}}{=} 
+                \emptytrace \cdot
+                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
+            &\stackrel{\ref{def:cconv'}}{=} 
+                \cConv'(0, \emptytrace_\sys) \cdot
+                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
+            &= \cConv'(0, \sigma_\sys) \cdot
+                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys')
+        \end{align*}
+        \item \textbf{Induction Hypothesis}
+
+        For any true suffix $\sigma_\sys''$ of $\sigma_\sys$ 
+        (i.e. $|\sigma_\sys''| < |\sigma_\sys|$)
+        $$
+        \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys')
+        = \cConv'(\tau, \sigma_\sys'') \cdot
+        \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys').
+        $$
+
+        \item \textbf{Induction Step}
+
+        We make a case distinction based on whether $\sigma_\sys$
+        starts with $\sskip$, $\tick$, or $D \in \Databases$.
+        \begin{itemize}
+            \item $\sigma_\sys = \sskip \cdot \sigma_\sys''$
+            \begin{align*}
+                \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+                &=  \cConv'(\tau, \sskip \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
+                &\stackrel{\sskip}{=} 
+                    \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys') \\
+                &\stackrel{IH}{=} \cConv'(\tau, \sigma_\sys'') \cdot
+                    \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys') \\
+                &\stackrel{\sskip}{=} \cConv'(\tau, \sskip \cdot \sigma_\sys'') 
+                \cdot
+                \cConv(\tau + \numTicks(\sskip \cdot \sigma_\sys''), \sigma_\sys') \\
+                &= \cConv'(\tau, \sigma_\sys) 
+                \cdot \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
+            \end{align*}
+            \item $\sigma_\sys' = \tick \cdot \sigma_\sys''$
+            \begin{align*}
+                \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+                &=  \cConv'(\tau, \tick \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
+            \end{align*}
+                TODO ...
+            \item $\sigma_\sys' = D \cdot \sigma_\sys''$
+
+            TOOD...
+
+            \begin{equation*}
+                .
+            \end{equation*}
+        \end{itemize}
+        
+    \end{itemize}
+\end{proof}
 
 \begin{definition}
     \label{def:dconv'}
@@ -715,8 +804,8 @@ some "leftover" ticks.
                 &\quad = \EnfFun(\cConv(\sigma_{\sys 1}), s, \numTicks(\sigma_{\sys 1}), D)
         \end{cases}
     \end{align*}
-    With that $\state$ is defined as followed for any enforcer state $s \in \EnfStates$
-    and system trace~$\sigma_\sys \in \Traces_\sys$
+    Then the $\state$ function is defined as followed for any enforcer state
+    $s \in \EnfStates$ and system trace~$\sigma_\sys \in \Traces_\sys$
     \begin{equation*}
         \state(s, \sigma_\sys) := \state'(s, \emptytrace_\sys, \sigma_\sys).
     \end{equation*}
@@ -771,6 +860,115 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
     iff it is sound for the property $\Language(\phi)$.
 \end{definition}
 
+\begin{lemma}
+    \label{lem:enforcement-event-system-traces-corresponding-enforced-trace}
+    Let $\Enforcer = (\EnfStates, s_0, \mu)$ be an enforcer.
+    For any system trace
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    there exists a trace $\sigma \in \Traces_f$ such that
+    $\cConv(\sigma_\sys) = \Enforcer(\sigma)$.
+\end{lemma}
+
+\begin{proof}
+    \label{proof:enforcement-event-system-traces-corresponding-enforced-trace}
+    Let $\Enforcer = (\EnfStates, s_0, \mu)$ be an enforcer.
+    The proof for Lemma
+    \ref{lem:enforcement-event-system-traces-corresponding-enforced-trace}
+    proceeds by structural induction over finite system traces
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$.
+    \begin{itemize}
+        \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+        \begin{align*}
+            \cConv(\sigma_\sys)
+            = \cConv(\emptytrace_\sys) 
+            = \emptytrace
+            = \Enforcer(\emptytrace)
+        \end{align*}
+        
+        \item \textbf{Induction Hypothesis}
+
+        For all true prefixes $\sigma_\sys'$ of
+        $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+        ($|\sigma_\sys| < |\sigma_\sys|$)
+        there exists $\sigma' \in \Traces$ such that
+        $\cConv(\sigma_\sys') = \Enforcer(\sigma')$.
+
+        \item \textbf{Induction Step}
+
+        We make a case distinction based on the three possible transitions
+        of enforcement event systems.
+        \begin{itemize}
+            \item $\sigma_\sys = \sigma_\sys' \cdot \sskip$
+            \begin{align*}
+                \cConv(\sigma_\sys) &= \cConv(\sigma_\sys' \cdot \sskip) \\
+                &\stackrel{\sskip}{=} \cConv(\sigma_\sys') \\
+                &\stackrel{IH}{=} \Enforcer(\sigma')
+            \end{align*}
+            \item $\sigma_\sys = \sigma_\sys' \cdot \RFun(\sigma_\sys', D)$
+            \begin{align*}
+                \cConv(\sigma_\sys)
+                &= \cConv(\sigma_\sys' \cdot \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv'(0, \sigma_\sys' \cdot \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{lem:cconv'-splitting}}{=}
+                    \cConv'(0, \sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv(\sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{IH}{=}
+                    \Enforcer(\sigma') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv'}, \ref{def:reactive-update-function}}{=}
+                    \Enforcer(\sigma') \cdot
+                    (\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &=
+                    \Enforcer(\sigma' \cdot
+                    (\numTicks(\sigma_\sys'),  D)))
+            \end{align*}
+            The final step follows from the definition of the
+            reactive update function $\RFun$ by means of the enforcer
+            update function $\mu$ and how $\mu$ is used by
+            the enforcement algorithm to issue $\RCom$ commands.
+
+            TODO: give a better/clearer justification for this final step
+
+            \item $\sigma_\sys = \sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick$
+            \begin{align*}
+                \cConv(\sigma_\sys)
+                &= \cConv(\sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv'(0, \sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick) \\
+                &\stackrel{\ref{lem:cconv'-splitting}}{=}
+                    \cConv'(0, \sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys') \cdot \tick)) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv(\sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys') \cdot \tick)) \\
+                &\stackrel{IH}{=}
+                    \Enforcer(\sigma') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys') \cdot \tick)) \\
+                &= \begin{cases}
+                    \Enforcer(\sigma')
+                        &\text{if } \PFun(\sigma_\sys')  = \sskip \\
+                    \Enforcer(\sigma' \cdot (\numTicks(\sigma_\sys'), D))
+                        &\text{if } \PFun(\sigma_\sys') = D
+                \end{cases}
+            \end{align*}
+            Similarly to the reactive case above, the final step follows
+            from how the proactive update function $\PFun$ is defined
+            by the enforcer update function $\EnfFun$ and
+            how $\EnfFun$ is used by the enforcement algorithm to
+            issue $\PCom$ and $\NCom$ commands.
+            
+            TODO: give a better/clearer justification for this final step
+        \end{itemize}
+    \end{itemize}
+\end{proof}
+
 \begin{theorem}
     \label{theo:induced-enforcement-event-system-soundness}
     If an enforcer $\Enforcer = (\EnfStates, s_0, \EnfFun)$ is sound for a
@@ -781,19 +979,133 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
 
 \begin{proof}
     \label{proof:theorem-induced-enforcement-event-system-soundness}
-    The proof for Theorem
-    \ref{theo:induced-enforcement-event-system-soundness}
-    proceeds by structural induction over traces
-    $\EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)$
-    of an enforcement event system that is induced by some enforcer
-    $\Enforcer = (\EnfStates, s_0, \EnfFun)$ which is sound for
-    a property $P \subseteq \Traces_\omega$.
-    Specifically we will prove that all
-    $\sigma_\sys \in \EStraces(\EventSystem(\Enforcer)), \emptytrace_\sys)$
-    are in $\cConv(P) \subseteq \Traces_{\sys \omega}$.
+    We will show that for all
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    there exists a trace $\sigma_\sys' \in \cConv(P)$
+    of which $\sigma_\sys$ is a prefix
+    (i.e. $\sigma_\sys = \sigma'_{\sys \mid \ldots \leq |\sigma_\sys|}$).
 
-    TODO: argue that for any finite trace of the event system, there exists
-    a sequence in c(P) of which the trace is a finite prefix...
+    Since by definition
+    $\EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    contains all finite prefixes of
+    $\EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)$,
+    if
+    $\EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)
+    \not\subseteq \cConv(P)$,
+    there would exist some
+    contains all finite prefixes of
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    which is not a prefix for any trace $\sigma_\sys' \in \cConv(P)$.
+    Thus if we show that every finite prefix 
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    is also a finite prefix for at least one trace  $\sigma_\sys' \in \cConv(P)$,
+    we will have shown that
+    $\sigma_\sys \in \EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)
+    \subseteq \sigma_\sys' \in \cConv(P)$.
+
+    This property is a consequence of Lemma
+    \ref{lem:enforcement-event-system-traces-corresponding-enforced-trace}.
+    In Lemma
+    \ref{lem:enforcement-event-system-traces-corresponding-enforced-trace}
+    we have shown that any enforcement event system trace
+    corresponds to a trace produced by the enforcer.
+    All those traces "produced" by the enforcer fall into $P$,
+    by the fact that the enforcer is sound for $P$.
+    and since we have shown that for all system traces
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$,
+    there exists a trace $\sigma \in \Traces$
+    such that $\cConv(\sigma_\sys) = \Enforcer(\sigma)$, we have
+    also shown that $\cConv(\sigma_\sys) \in P$ or equivalently
+    $\cConv(\EStraces(\EventSystem(\Enforcer), \emptytrace_\sys)) \subseteq P$.
+    This does also imply 
+    $\EStraces(\EventSystem(\Enforcer), \emptytrace_\sys) \subseteq \cConv(P)$.
+
+    TODO: justify the jump from arguing about finite traces in Lemma 3.25
+    to arguing about infinite event system traces in this proof.
+
+    % We will prove
+    % \begin{equation*}
+    %     \forall \sigma_\sys \in
+    %     \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys) .~
+    %     \exists \sigma_\sys' \in \Traces_{\sys \omega} .~
+    %     \sigma_\sys \cdot \sigma_\sys' \in \cConv(P).
+    % \end{equation*}
+
+    % This proof proceeds by induction
+    % \begin{itemize}
+    %     \item \textbf{Base Case}
+    %     $\sigma_\sys = \emptytrace_\sys$
+    %     (the empty trace is in the set of finite traces for any event system)
+
+    %     As long as $\cConv(P)$ is not empty, there does exist at least one
+    %     $\sigma_\sys' \in \cConv(P)$ for which $\emptytrace_\sys$ is a prefix.
+    %     $\cConv(P)$ cannot not be empty, because there exists a sound enforcer
+    %     for $P$, and a sound enforcer must map any infinite trace to another
+    %     infinite trace within the property $P$, if $P$ was empty this would
+    %     be impossible.
+    %     $\cConv$ is defined for any trace and does map infinite MFOTL traces to
+    %     infinite system traces (with an infinite number of databases).
+    %     Thus we can conclude that $\cConv(P)$ contains at least one element.
+
+    %     \item \textbf{Induction Hypothesis}
+        
+    %     For any true prefix $\sigma_\sys'$ of
+    %     $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    %     (i.e. $\sigma_\sys = \sigma_\sys' \cdot \sigma_\sys''$
+    %     with $\sigma_\sys' \neq \sigma_\sys$ 
+    %     for some $\sigma_\sys'' \in \Traces_{\sys f}$)
+    %     $$
+    %     \exists \sigma_\sys'' \in \Traces_{\sys \omega} .~
+    %     \sigma_\sys' \cdot \sigma_\sys'' \in \cConv(P)
+    %     $$
+
+    %     \item \textbf{Induction Step}
+    %     $\sigma_\sys \in \EStraces(\EventSystem(\Enforcer), \emptytrace_\sys)$ and 
+    %     $\sigma_\sys \neq \emptytrace_\sys$
+
+    %     Thus $\sigma_\sys = \trim(\sigma_\sys) \cdot \tick^k$ for some $k \geq 0$
+    %     Based on the 3 transitions of an enforcement event system we can say that
+    %     $\sigma_\sys$ must have one of the three following forms
+    %     \begin{align*}
+    %         \sigma_\sys =
+    %         \begin{cases}
+    %             \sigma_\sys' \cdot \sskip \\
+    %             \sigma_\sys' \cdot \RFun(\sigma_\sys', D) \\
+    %             \sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick
+    %         \end{cases}
+    %     \end{align*}
+    %     Based on this we can make a case distinction.
+    %     \begin{itemize}
+    %         \item $\sigma_\sys = \sigma_\sys' \cdot \sskip$
+            
+    %         Since $\sskip$ is a special event and any property such as $\cConv(P)$
+    %         is closed under the addition and removal of $\sskip$ events,
+    %         $\sigma_\sys$ and $\sigma_\sys'$ describe the same trace and must therefore
+    %         be prefixes to some trace in $\cConv(P)$, which must exist under the induction
+    %         hypothesis applied to $\sigma_\sys'$.
+            
+    %         \item $\sigma_\sys = \sigma_\sys' \cdot \RFun(\sigma_\sys', D)$
+
+    %         Based on the definition of $\RFun$
+    %         \begin{align*}
+    %             \sigma_\sys &= \sigma_\sys' \cdot \RFun(\sigma_\sys', D) \\
+    %             &= \sigma_\sys' \cdot (D \setminus D_\Sup \cup D_\Cau)
+    %         \end{align*}
+    %         TODO
+            
+    %         \item $\sigma_\sys = \sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick$
+
+    %         Based on the definition of $\PFun$ its output can either be a database $D$
+    %         or the special $\sskip$ event.
+            
+    %         TODO
+            
+    %     \end{itemize}
+    %     \begin{equation}
+    %         \text{(place holder to move the 'qed' square)}
+    %     \end{equation}
+        
+    % \end{itemize}
 \end{proof}
 
 
@@ -820,10 +1132,11 @@ via a mediator function and a simulation relation as in Sprenger et. al \cite{ig
 \begin{definition}
     \label{def:enforcement-event-system-refinement}
     An enforcement event system
-    $\EventSystem_C = \left( \Traces_{\sys C}, \Databases_C \cup \{\tick, \sskip \}, \RFun_C, \PFun_C \right)$
+    $$\EventSystem_C =
+    ( \Traces_{\sys C}, \Databases_C \cup \{\tick, \sskip \}, \RFun_C, \PFun_C )$$
     for some signature 
     $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-    with initial states $\Initialstates_C \subseteq \Statespace_C$
+    with initial states $\Initialstates_C \subseteq \Traces_C$
     refines an enforcement event system
     $\EventSystem_A = \left( \Traces_{\sys A}, \Databases_A \cup \{\tick, \sskip \}, \RFun_A, \PFun_A \right)$
     for some signature 
@@ -831,12 +1144,13 @@ via a mediator function and a simulation relation as in Sprenger et. al \cite{ig
     with initial states $\Initialstates_A \subseteq \Statespace_A$
     via a mediator function
     \begin{equation*}
-        \MFun : \Traces_C \times \Eventspace_C \to \Eventspace_A
+        \MFun : \Traces_C \times (\Databases_C \cup \{ \tick, \sskip \})
+        \to (\Databases_A \cup \{ \tick, \sskip \})
     \end{equation*}
     iff
     there is a simulation relation
     \begin{equation*}
-        \SimRel \subseteq \Statespace_C \times \Statespace_A
+        \SimRel \subseteq \Traces_C \times \Traces_A
     \end{equation*}
     such that
     \begin{enumerate}
@@ -868,6 +1182,56 @@ can of course depend on the past.
 That is why we need the history of events as an additional argument for our mediator
 function.
 
+\begin{definition}
+    \label{def:mediator-function-trace-extension}
+    A mediator function
+    $$\MFun : \Traces_C \times (\Databases_C \cup \{ \tick, \sskip \})
+    \to (\Databases_A \cup \{ \tick, \sskip \})$$
+    can be extended to a trace transducer function
+    $$\vec{\MFun} : \Traces_C \to \Traces_A$$
+    as followed
+    \begin{align*}
+        \vec{\MFun}(\sigma_\sys) :=
+        \begin{cases}
+            \emptytrace_\sys &\text{if } \sigma_\sys = \emptytrace_\sys \\
+            \vec{\MFun}(\sigma_\sys') \cdot \MFun(\vec{\MFun}(\sigma_\sys'), e)
+                &\text{if } \sigma_\sys = \sigma_\sys' \cdot e \\
+                &\text{for some } e \in \Databases_C \cup \{\tick, \sskip \}
+        \end{cases}
+    \end{align*}
+\end{definition}
+
+The following theorem is analogous to Theorem 2.1 in Sprenger et al. \cite{igloo}
+(or Theorem \ref{theo:refinement-traces} in this work).
+\begin{theorem}
+    \label{theo:refinement-traces-enf-event-system}
+    % TODO: is a distinction between finite and infinite traces necessary?
+    % sprenger et al explicitly only works with finite traces
+    $(\EventSystem_C, \Initialstates_C) \refineL_\MFun (\EventSystem_A, \Initialstates_A)$
+    implies
+    $\vec{\MFun}(\EStraces(\EventSystem_C, \Initialstates_C)) \subseteq
+    \EStraces(\EventSystem_A, \Initialstates_A)$.
+\end{theorem}
+\begin{proof}
+    The proof for Theorem \ref{theo:refinement-traces-enf-event-system} ... TODO
+\end{proof}
+
+The following lemma is analogous to Lemma 2.2 in Sprenger et al. \cite{igloo}
+(or Lemma \ref{lem:refinement-property-fullfillment} in this work).
+\begin{lemma}
+    \label{lem:refinement-property-fullfillment-enf-event-system}
+    Suppose 
+    $\EventSystem_A, \Initialstates_A \vDash P$
+    and
+    $\vec{\MFun}(\EStraces(\EventSystem_C, \Initialstates_C)) \subseteq
+    \EStraces(\EventSystem_A, \Initialstates_A)$
+    then
+    $\EventSystem_C, \Initialstates_C \vDash \vec{\MFun}^{-1}(P)$
+\end{lemma}
+\begin{proof}
+    The proof for Lemma \ref{lem:refinement-property-fullfillment-enf-event-system} ... TODO
+\end{proof}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Refinement of MFOTL Specifications}
@@ -896,16 +1260,19 @@ then $\phi_C$ is enforceable.
             {\Gamma \vdash \phi_A : \tau_A}
             {\tau_C \capgeq \tau_A}
             % TODO: do the two contexts actually have to be equal, does it matter
-            {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+            % TODO: also, do the signatures have to be equal and/or is this too restrictive
+            {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
+            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+        \prftree[r]{Ref-Let}
+            {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+            {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+            {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
+            {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
+                \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Conj}
             {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
             {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
             {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
-        \prftree[r]{Ref-Let}
-            {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
-            {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
-            {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_c
-                \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Trans}
             {S_C, \Gamma_C \refineL S_B, \Gamma_B}
             {S_B, \Gamma_B \refineL S_A, \Gamma_A}
@@ -915,37 +1282,120 @@ then $\phi_C$ is enforceable.
 
 
 \begin{theorem}
-    \label{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+    \label{theo:abstract-enforceability-implies-concrete-enforceability}
     If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
     $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
     $\phi_C$ is enforceable.
 \end{theorem}
 \begin{proof}
     \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
-    The proof for Theorem \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
-    proceeds by structural induction over the refinement rules for MFOTL specifications.
+    The proof for Theorem
+    \ref{theo:abstract-enforceability-implies-concrete-enforceability}
+    proceeds by structural induction over derivation trees using
+    the refinement rules for MFOTL specifications.
     \begin{itemize}
-        \item \textbf{Base Case} (Ref-Imp)
-
-        % Under the Ref-Imp rule, we have that $\phi_C \implies \phi_A$.
-        Under the Ref-Imp rule the two enforcer contexts, are identical and the
-        the capability of $\phi_C$ under that single context $\Gamma$ is at least as
-        powerful as that of $\phi_A$.
-        Thus it follows directly that if $\phi_A$ is causable, then $\phi_C$ is at least
-        causable and in turn enforceable.
-            
         \item \textbf{Induction Hypothesis}
-
+        
+        Theorem
+        \ref{theo:abstract-enforceability-implies-concrete-enforceability}
+        holds for all sub-derivation trees.
+        
+        TODO: give a more formal definition for this hypothesis.
+        
         \item \textbf{Induction Step}
 
         We make a case distinction on the remaining refinement rules
+
         \begin{itemize}
+            \item \textbf{Ref-Imp}
+            % Under the Ref-Imp rule, we have that $\phi_C \implies \phi_A$.
+            Under the Ref-Imp rule the two enforcer contexts, are identical and the
+            the capability of $\phi_C$ under that single context $\Gamma$ is at least as
+            powerful as that of $\phi_A$.
+            Thus it follows directly that if $\phi_A$ is causable, then $\phi_C$ is at least
+            causable and in turn enforceable.
+
+            \item \textbf{Ref-Let}
+            Under the Ref-Let rule it also follows fairly directly that 
+            $\phi_C$ is causable, if $\phi_A$ is causable.
+            The causability of $\phi_C$ under the Ref-Let rule
+            follows directly from the typing rules for let-bindings
+            in Definition \ref{def:emfotl-typing-rules}.
+
             \item \textbf{Ref-Conj}
 
             Under this rule, $\phi_A = \phi_{A1} \wedge \phi_{A2}$.
-            Since $\phi_A$ is causable, each conjunct must be causable individually.
-            \item \textbf{Ref-Let}
+            Since $\phi_A$ is causable, each conjunct must be causable individually
+            according to the typing rules of EMFOTL.
+            The induction hypothes can now be implied to either of the
+            two subtrees to arrive at the conclusion that $\phi_C$
+            is causable.
+
+            TODO: possibly write this more formally
+            
             \item \textbf{Ref-Trans}
+            By the induction hypothesis the formula in specification $S_B$
+            is causable and by repeated application of the induction
+            hypothesis, also the formula in specification $S_C$
+            must be causable.
+            
+            TODO: possibly write this more formally
+            
+        \end{itemize}
+    \end{itemize}
+\end{proof}
+
+\begin{theorem}
+    \label{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+    
+    Let $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
+    $S_A = (\phi_A, \Sigma_A, \kappa_A)$.
+    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ and $\phi_C : \Cau$,
+    then for any sound enforcement event system
+    $\EventSystem_C =
+    (\Traces_{\sys C}, \Databases_C \cup \{ \tick, \sskip \}, \RFun_C, \PFun_C)$
+    that is sound for $\phi_C$,
+    there exist $\MFun$ and
+    $\EventSystem_A = 
+    (\Traces_{\sys A}, \Databases_A \cup \{ \tick, \sskip \}, \RFun_A, \PFun_A)$
+    such that
+    $\EventSystem_C, \emptytrace_\sys \refineL_\MFun
+    \EventSystem_A, \emptytrace_\sys$
+    and $\EventSystem_A$ is sound for $\phi_A$.
+\end{theorem}
+
+\begin{proof}
+    \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
+    The proof for Theorem
+    \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+    proceeds by structural induction over the MFOTL rules in Definition
+    \ref{def:mfotl-refinement}.
+
+    \begin{itemize}
+        \item \textbf{Induction Hypothesis}
+
+        Theorem
+        \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+        holds for all derivation sub-trees.
+
+        \item \textbf{Induction Step}
+        \begin{itemize}
+            \item \textbf{Ref-Imp}
+            TODO ... the concrete system should be relatively directly sound
+            for the abstract case
+            
+            \item \textbf{Ref-Let}
+            TODO ... specify a $\MFun$ using the newly introduced let binding
+            and describe how the reactive and proactive update
+            functions can be modified under $\MFun$
+            
+            \item \textbf{Ref-Conj}
+            TOOD ... apply induction hypothesis,
+            use fix-point iteration for the two enforcers of each conjunct
+            to arrive at new update functions
+            
+            \item \textbf{Ref-Trans}
+            TODO ... apply induction hypothesis twice
         \end{itemize}
     \end{itemize}
 \end{proof}
@@ -996,6 +1446,102 @@ formulas are likewise refinements of each other.
         a rule labeled by $s$ exists in
         $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
     \end{enumerate}
+
+    % TODO: update definition to properly introduce these rules
+    % TODO: define monotonicity
+    % TODO: make sure everything used here is properly defined
+    %       specifically events(), and comply()
+    \begin{gather*}
+        \prftree[r]{refl}
+            {S,\Gamma \leadsto_{\mathrm{id}} S,\Gamma}
+        \quad
+        \prftree[r]{trans}
+            {S_1,\Gamma_1 \leadsto_{\pi_1} S_2,\Gamma_2}
+            {S_2,\Gamma_2 \leadsto_{\pi_2} S_3,\Gamma_3}
+            {S_1,\Gamma_1 \leadsto_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
+        \\[5pt]
+        \prftree[r]{ref}
+        {
+          \prfStackPremises
+          {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\} \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
+          {\Events' = \Events \setminus \{e\} \cup \{e_1,\dots,e_\ell\} \quad \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
+          {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\} \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
+          {\forall i.~\tau'_i \sqsubseteq \tau_i \quad \Gamma' \vdash \phi : \Gamma(e)} % TODO: use the sub-capability operator in place of sqsubset, check if sqsubset should be used instead of leadsto for refinement
+          {\pi = \lambda \sigma~D.~D \cup \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \} \setminus \{ e_i(\overline{d}) \mid i, \overline{d} \in \Domain^{\iota(e)_i} \}}
+        }
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_\pi ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
+        \\[5pt]
+        %%begin novalidate
+        \prftree[r]{imp$_R$}
+        %%end novalidate
+        {
+          \prfStackPremises
+          {R' = R \cup \{r_1 : \phi_1 \Rightarrow \psi_1, \dots, r_k : \phi_k
+            \Rightarrow \psi_k \} \setminus \{r : \phi \Rightarrow \psi\}}
+          {\Always(\land_{1 \leq i \leq k} (\phi_i \to \psi_i))
+              \Longrightarrow \phi \to \psi
+          \quad \forall i.~\Gamma \vdash \comply(r_i) : \Cau}
+        }    
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
+            \leadsto_{\mathrm{id}}
+            ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}
+        \\[5pt]
+        %%begin novalidate
+        \prftree[r]{imp$_C^+$}
+        %%end novalidate
+        {
+          \prfStackPremises
+          {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k 
+            \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
+          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : 
+            \psi_\ell \Rightarrow \chi_\ell \}}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
+              \Longrightarrow \lor_{1 \leq i \leq k} \phi_i
+              \Longrightarrow \phi \quad (C,R',E) \in \mono{p}}
+          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau 
+            \Longrightarrow \Gamma \vdash_{C',E} p : \tau
+            \quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+        }    
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
+            \leadsto_{\mathrm{id}}
+            ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+        \\[5pt]
+        %%begin novalidate
+        \prftree[r]{imp$_C^-$}
+        %%end novalidate
+        {
+          \prfStackPremises
+          {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
+          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow \phi \Longrightarrow \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{p}^-}
+          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau \Longrightarrow \Gamma \vdash_{C',E} p : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+        }    
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+        \\[5pt]
+        %%begin novalidate
+        \prftree[r]{imp$_E^+$}
+        %%end novalidate
+        {
+          \prfStackPremises
+          {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
+          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \Longrightarrow \phi \quad (C,R',E) \in \mono{\exc(s)} }
+          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+        }    
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+        \\[5pt]
+        %%begin novalidate
+        \prftree[r]{imp$_E^-$}
+        %%end novalidate
+        {
+          \prfStackPremises
+          {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
+          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \Longrightarrow \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
+          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+        }    
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+    \end{gather*}
     
 \end{definition}
 
