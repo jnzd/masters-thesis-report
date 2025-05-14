@@ -103,7 +103,7 @@ and $e \in \Databases \cup \{tick\}$. Note that for $k=0$, $e^k = \emptytrace_\s
                 &\text{if } \sigma_\sys = \tick^k
                 \text{ for } k \geq 0 \\
             \tick^k \cdot D \cdot \trim(\sigma_\sys')
-                &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sgima_\sys'
+                &\text{if } \sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'
                 \text{ for } k \geq 0
                 \text{ and } D \in \Databases
         \end{cases}
@@ -1124,7 +1124,7 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Refinement of Enforcement Event Systems}
+\subsection{Enforcement Event System Refinement}
 
 For Enforcement Event Systems we will now define refinement
 via a mediator function and a simulation relation as in Sprenger et. al \cite{igloo}.
@@ -1234,7 +1234,7 @@ The following lemma is analogous to Lemma 2.2 in Sprenger et al. \cite{igloo}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Refinement of MFOTL Specifications}
+\subsection{MFOTL Refinement}
 \label{subsection:refinement-of-mfotl-specifications}
 
 In this section we define refinement for MFOTL formulas and we proof
@@ -1403,7 +1403,7 @@ then $\phi_C$ is enforceable.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Refinement of CRE Specifications}
+\subsection{CRE[MFOTL] Refinement}
 \label{subsection:refinement-of-cre-specifications}
 In this subsection we recall refinement of Lex specifications as it is described in
 Hublet et. al \cite{lex}. We then go ahead and proof that whenever a CRE
@@ -1453,23 +1453,33 @@ formulas are likewise refinements of each other.
     %       specifically events(), and comply()
     \begin{gather*}
         \prftree[r]{refl}
-            {S,\Gamma \leadsto_{\mathrm{id}} S,\Gamma}
+            {S,\Gamma \refineL_{\mathrm{id}} S,\Gamma}
         \quad
         \prftree[r]{trans}
-            {S_1,\Gamma_1 \leadsto_{\pi_1} S_2,\Gamma_2}
-            {S_2,\Gamma_2 \leadsto_{\pi_2} S_3,\Gamma_3}
-            {S_1,\Gamma_1 \leadsto_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
+            {S_1,\Gamma_1 \refineL_{\pi_1} S_2,\Gamma_2}
+            {S_2,\Gamma_2 \refineL_{\pi_2} S_3,\Gamma_3}
+            {S_1,\Gamma_1 \refineL_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
         \\[5pt]
         \prftree[r]{ref}
         {
           \prfStackPremises
-          {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\} \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
-          {\Events' = \Events \setminus \{e\} \cup \{e_1,\dots,e_\ell\} \quad \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
-          {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\} \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
-          {\forall i.~\tau'_i \sqsubseteq \tau_i \quad \Gamma' \vdash \phi : \Gamma(e)} % TODO: use the sub-capability operator in place of sqsubset, check if sqsubset should be used instead of leadsto for refinement
-          {\pi = \lambda \sigma~D.~D \cup \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \} \setminus \{ e_i(\overline{d}) \mid i, \overline{d} \in \Domain^{\iota(e)_i} \}}
+          {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\}
+          \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
+          {\Events' = \Events \setminus \{e\} \cup
+          \{e_1,\dots,e_\ell\} \quad
+          \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
+          {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\}
+          \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
+          {\forall i.~\tau'_i \capleq \tau_i \quad
+          \Gamma' \vdash \phi : \Gamma(e)} 
+          {\pi = \lambda \sigma~D.~D \cup
+          \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \}
+          \setminus \{ e_i(\overline{d}) \mid i, \overline{d}
+          \in \Domain^{\iota(e)_i} \}}
         }
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_\pi ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+        \refineL_\pi
+        ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
         \\[5pt]
         %%begin novalidate
         \prftree[r]{imp$_R$}
@@ -1479,11 +1489,13 @@ formulas are likewise refinements of each other.
           {R' = R \cup \{r_1 : \phi_1 \Rightarrow \psi_1, \dots, r_k : \phi_k
             \Rightarrow \psi_k \} \setminus \{r : \phi \Rightarrow \psi\}}
           {\Always(\land_{1 \leq i \leq k} (\phi_i \to \psi_i))
-              \Longrightarrow \phi \to \psi
-          \quad \forall i.~\Gamma \vdash \comply(r_i) : \Cau}
+              \Longrightarrow \phi \to \psi}
+          % {\Always(\land_{1 \leq i \leq k} ((\phi_i \to \psi_i)\vee \exc(r_i)))
+          %     \Longrightarrow ((\phi \to \psi) \vee \exc(r))}
+          {\forall i.~\Gamma \vdash \comply(r_i) : \Cau}
         }    
         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-            \leadsto_{\mathrm{id}}
+            \refineL_{\mathrm{id}}
             ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}
         \\[5pt]
         %%begin novalidate
@@ -1497,13 +1509,19 @@ formulas are likewise refinements of each other.
             \psi_\ell \Rightarrow \chi_\ell \}}
           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
               \Longrightarrow \lor_{1 \leq i \leq k} \phi_i
-              \Longrightarrow \phi \quad (C,R',E) \in \mono{p}}
+              \to \phi}
+          {\Always (\land_{1 \leq j \leq \ell}
+              ((\psi_j \to \chi_j) \vee \exc(s_j)))
+              \Longrightarrow \lor_{1 \leq i \leq k}
+              (\phi_i \wedge \neg \exc(r_i))
+              \to (\phi \wedge \neg \exc(r))}
+          {(C,R',E) \in \mono{p}}
           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau 
             \Longrightarrow \Gamma \vdash_{C',E} p : \tau
-            \quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+            \forall j.~\Gamma \vdash \comply(s_j) : \Cau}
         }    
         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-            \leadsto_{\mathrm{id}}
+            \refineL_{\mathrm{id}}
             ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
         \\[5pt]
         %%begin novalidate
@@ -1513,10 +1531,17 @@ formulas are likewise refinements of each other.
           \prfStackPremises
           {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow \phi \Longrightarrow \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{p}^-}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
+              \Longrightarrow \phi
+              \to \lor_{1 \leq i \leq k} \phi_i}
+          % {\Always (\land_{1 \leq j \leq \ell}
+          %     ((\psi_j \to \chi_j) \vee \exc(s_j))))
+          %     \Longrightarrow (\phi \wedge \neg \exc(r))
+          %     \to \lor_{1 \leq i \leq k} (\phi_i \wedge \neg \exc(r_i))}
+          {(C,R',E) \in \mono{p}^-}
           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau \Longrightarrow \Gamma \vdash_{C',E} p : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
         }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
         \\[5pt]
         %%begin novalidate
         \prftree[r]{imp$_E^+$}
@@ -1525,10 +1550,10 @@ formulas are likewise refinements of each other.
           \prfStackPremises
           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \Longrightarrow \phi \quad (C,R',E) \in \mono{\exc(s)} }
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \to \phi \quad (C,R',E) \in \mono{\exc(s)} }
           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
         }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
         \\[5pt]
         %%begin novalidate
         \prftree[r]{imp$_E^-$}
@@ -1537,10 +1562,10 @@ formulas are likewise refinements of each other.
           \prfStackPremises
           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \Longrightarrow \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
+          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \to \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
         }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \leadsto_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
     \end{gather*}
     
 \end{definition}

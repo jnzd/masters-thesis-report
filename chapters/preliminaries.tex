@@ -651,20 +651,20 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
         % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
         \prftree[r]
             %%begin novalidate
-            {$\Events^+_\PG_E$}
+            {$\Events^+_\PG$}
             %%end novalidate
             {\gamma \vdash e(\dots, x, \dots) : \PG_E(x)^+}
         \quad
         \prftree[r]
             %%begin novalidate
-            {$\neg_\PG_E$}
+            {$\neg_\PG$}
             %%end novalidate
             {\gamma \vdash \phi : \PG_E(x)^{\neg p}}
             {\gamma \vdash \neg \phi : \PG_E(x)^p}
         \\
         \prftree[r]
             %%begin novalidate
-            {$\exists_\PG_E$}
+            {$\exists_\PG$}
             %%end novalidate
             {x \neq z}
             {\gamma \vdash \phi : \PG_E(z)^p}
@@ -672,21 +672,21 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
         \quad
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG_E^{\Left+}$}
+            {$\wedge_\PG^{\Left+}$}
             %%end novalidate
             {\gamma \vdash \phi : \PG_E(x)^+}
             {\gamma \vdash \phi \wedge \psi : \PG_E(x)^+}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG^_E{\Right+}$}
+            {$\wedge_\PG^{\Right+}$}
             %%end novalidate
             {\gamma \vdash \psi : \PG_E(x)^+}
             {\gamma \vdash \phi \wedge \psi : \PG_E(x)^+}
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\wedge_\PG_E^-$}
+            {$\wedge_\PG^-$}
             %%end novalidate
             {\gamma \vdash \phi : \PG_E(x)^-}
             {\gamma \vdash \psi : \PG_E(x)^-}
@@ -694,7 +694,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG_E^{\Left+}$}
+            {$\Since_\PG^{\Left+}$}
             %%end novalidate
             {0 \notin I}
             {\gamma \vdash \phi : \PG_E(x)^+}
@@ -702,14 +702,14 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG_E^{\Right+}$}
+            {$\Since_\PG^{\Right+}$}
             %%end novalidate
             {\gamma \vdash \psi : \PG_E(x)^+}
             {\gamma \vdash \phi \Since_I \psi : \PG_E(x)^+}
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Since_\PG_E^-$}
+            {$\Since_\PG^-$}
             %%end novalidate
             {0 \in I}
             {\gamma \vdash \psi : \PG_E(x)^-}
@@ -717,7 +717,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG_E^{\Left+}$}
+            {$\UUntil_\PG^{\Left+}$}
             %%end novalidate
             {0 \notin I}
             {\gamma \vdash \phi : \PG_E(x)^+}
@@ -725,7 +725,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \\
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG_E^{\LeftRight+}$}
+            {$\UUntil_\PG^{\LeftRight+}$}
             %%end novalidate
             {\gamma \vdash \phi : \PG_E(x)^+}
             {\gamma \vdash \psi : \PG_E(x)^+}
@@ -733,7 +733,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \quad
         \prftree[r]
             %%begin novalidate
-            {$\UUntil_\PG_E^-$}
+            {$\UUntil_\PG^-$}
             %%end novalidate
             {0 \in I}
             {\gamma \vdash \psi : \PG_E(x)^-}
@@ -741,14 +741,14 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             \\
         \prftree[r]
             %%begin novalidate
-            {$\Prev_\PG_E^+$}
+            {$\Prev_\PG^+$}
             %%end novalidate
             {\gamma \vdash \phi : \PG_E(x)^+}
             {\gamma \vdash \Prev_I \phi : \PG_E(x)^+}
         \qquad
         \prftree[r]
             %%begin novalidate
-            {$\gamma_\PG_E$}
+            {$\gamma_\PG$}
             %%end novalidate
             {\gamma((e,i))=E}
             {\gamma \vdash e(x_1,\dots,x_i=x,\dots,x_k) : \PG_E^p(x)}
@@ -930,6 +930,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             %%begin novalidate
             {$\Events^+_\mathsf{mon}$}
             %%end novalidate
+            {\mathsf{let}_d \not\in \mathsf{dom}~\Gamma}
             {\Gamma \vdash e(\bar{x}) : \mono{e}^+}
         \quad
         \prftree[r]
@@ -937,8 +938,8 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             {$\Events^\mathsf{let}_\mathsf{mon}$}
             %%end novalidate
             {\mathsf{let}_d \in \mathsf{dom}~\Gamma}
-            {\Gamma(\mathsf{let}_d) = (\phi, \Gamma')} 
-            {\Gamma' \vdash \phi : \mono{e}^p}
+            {\Gamma(\mathsf{let}_d) = \phi} 
+            {\Gamma \setminus \mathsf{let}_d \vdash \phi : \mono{e}^p}
             {\Gamma \vdash d(\bar{x}) : \mono{e}^p}
         \\[5pt]
         \prftree[r]
@@ -1004,7 +1005,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             %%begin novalidate
             {$\mathsf{let}^p_\mathsf{mon}$}
             %%end novalidate
-            {\Gamma, \mathsf{let}_d : (\phi, \Gamma) \vdash \psi : \mono{e}^p}
+            {\Gamma, \mathsf{let}_d : \phi \vdash \psi : \mono{e}^p}
             {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
     \end{gather*}
     Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
