@@ -14,7 +14,8 @@ combines first-order predicate logic with temporal operators such as
 $\Next$ ("next"), $\Prev$ ("previous"), $\UUntil$ ("until"), and $\Since$ ("since").
 MFOTL is frequently used as a policy language in
 runtime verification \cite{whyenf, lex}. %TODO: more references and reformulate this introductory part
-Let $\Types$ be a set of base types and $\Variables$ a set of variables.
+Let $\Types$ be a set of base types (e.g. integers, strings, booleans, etc.)
+and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:mfotl-signature}
@@ -32,14 +33,19 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 \end{definition}
 \begin{example}
     \label{ex:signature}
-    If
+    Let
     \begin{align*}
-        \Domain &= \Nat \cup \left\lbrace \texttt{true}, \texttt{false} \right\rbrace \\
-        \Events &= \left\lbrace TODO \right\rbrace \\ % TODO: choose event set
-        \Functions &= \left\lbrace TODO \right\rbrace \\ % TODO: choose functions
-        \iota &= TODO, % TODO: define arity-function for chosen events and functions
+        \Domain &= \Nat \cup \{ \texttt{true}, \texttt{false} \} \\
+        \Events &= \{ \mathsf{P}, \mathsf{Q} \} \\
+        \Functions &= \{ \mathsf{isEven}, \mathsf{isOdd}, \min, \max \} \\
+        \iota(\mathsf{P}) &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
+        \iota(\mathsf{Q}) &:= (\Nat) \\
+        \iota(\{\mathsf{isEven}, \mathsf{isOdd}\})
+            &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
+        \iota(\mathsf{isEven}) &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
+        \iota(\{\min, \max\}) &:= (\Nat, \Nat).
     \end{align*}
-    then $ \Sigma = \left( \Domain, \Events, \Functions, \iota \right) $
+    $\Sigma = \left( \Domain, \Events, \Functions, \iota \right)$
     is an MFOTL signature.
 \end{example}
 
@@ -54,7 +60,9 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 \end{definition}
 \begin{example}
     \label{ex:event}
-    An example event ...
+    Some events over the signature $\Sigma$ from Example \ref{ex:signature} are
+    % $\mathsf{P}(1, \mathsf{isOdd}(3))$ or $\mathsf{Q}(\max(0,1))$.
+    $\mathsf{P}(1, \texttt{true})$ or $\mathsf{Q}(1)$.
 \end{example}
 
 \begin{definition}
@@ -74,7 +82,12 @@ Let $\Types$ be a set of base types and $\Variables$ a set of variables.
 \end{definition}
 \begin{example}
     \label{ex:trace}
-    A trace example ...
+    A short (finite) trace example would be
+    \begin{equation*}
+        (0, \{\mathsf{P}(2, \texttt{false}\}),
+        (2, \{ \mathsf{Q}(3), \mathsf{Q}(4), \mathsf{P}(100, \texttt{false}) \}),
+        (10, \emptyset)
+    \end{equation*}
 \end{example}
 
 \begin{definition}
@@ -155,6 +168,9 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     The set of \emph{Non-Empty Intervals} over $\Nat$ is denoted by $\Intervals$.
 \end{definition}
 
+We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which introduced
+"let"-bindings and functions.
+
 \begin{definition}
     \label{def:mfotl-grammar}
     Let $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
@@ -162,7 +178,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     $f \in \Functions$,
     $e \in \Events$,
     and $I \in \Intervals$.
-    Then the \emph{MFOTL Grammar} of our variant is defined by the following grammar rules
+    Then our \emph{MFOTL Grammar} is defined by the following two rules
     \begin{align*}
         t &::= &&c \mid x \mid f(t,\dots,t) \\
         \phi &::= &&\top \mid e(t,\dots,t) \mid t=t \mid \neg \phi \mid
@@ -173,9 +189,7 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
     \end{align*}
 \end{definition}
 
-\begin{definition}
-    \label{def:mfotl-term-typing-rules}
-    \emph{MFOTL Terms must follow the these typing rules}
+\begin{figure}
     \begin{gather*}
         \prftree[r]{Constant}
             {c \in \Domain}
@@ -188,11 +202,10 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
             {\forall 1 \leq i \leq k. \Gamma \vdash t_i}
             {\Gamma \vdash f\left(t_1,\dots,t_k\right)}            
     \end{gather*}
-\end{definition}
+    \caption{MFOTL Term Typing Rules \label{fig:mfotl-term-typing-rules}}
+\end{figure}
 
-\begin{definition}
-    \label{def:mfotl-typing-rules}
-    A MFOTL formula $\phi$ is \emph{Well Typed} if it follows the following typing rules
+\begin{figure}
     \begin{gather*}
         \prftree[r]{True}
             {}
@@ -232,7 +245,8 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
             {\forall 1 \leq i \leq k. x_i \in Terms} % TODO how should this actually be?
             {\Gamma \vdash \LLet{e\left(x_1, \dots, x_k \right)}{\phi}{\psi}}
     \end{gather*}
-\end{definition}
+    \caption{MFOTL Well-Typed Rules \label{def:mfotl-typing-rules}}
+\end{figure}
 
 \begin{definition}
     \label{def:mfotl-valuation}
@@ -252,17 +266,14 @@ We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet 
             && \text{for all variables } v \in \Variables\\
         &\downarrow_v f\left(t_1,\dots,t_k\right)
             &&:= \hat{f}\left(\downarrow_v t_1, \dots \downarrow_v t_k \right)
-            && \text{for all functions } f \in \Functions \text{ and all terms } t_i \\
+            && \text{for all functions } f \in \Functions \text{ and all terms } t_i
     \end{align*}
 \end{definition}
 
 \begin{definition}
     \label{def:mfotl-satisfaction}
     An MFOTL formula $\phi$ is \emph{satisfied} at some time-point $i$ in a trace $\sigma$ under
-    some valuation $v$ is denoted by
-    \begin{equation*}
-        v,i \vDash_\sigma \phi
-    \end{equation*}
+    some valuation $v$ is denoted by $v,i \vDash_\sigma \phi $.
 \end{definition}
 If it is clear from context the subscript $\sigma$ can be omitted.
 \begin{definition}
@@ -294,8 +305,7 @@ If it is clear from context the subscript $\sigma$ can be omitted.
             &&&
             \text{ and } v, k \vDash  \phi \text{ for all } j < k \leq i \\
         v, i &\vDash  \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
-            &&\text{iff } \dots % TODO:
-            % in the (lex) tax code example aggregation is seemingly used to define "variables" with integer values using CNT and SUM
+            &&\text{iff } TODO \dots % TODO:
         \\
         v, i &\vDash  \LLet{e(x_1, \dots, x_k)}{\phi}{\psi}
             && \text{iff } v, i \vDash_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \vDash \phi \right\rbrace \right]} \psi
@@ -315,16 +325,16 @@ We define the following operators based on the basic operators above as
     \label{def:mfotl-syntactic-sugar}
     \emph{MFOTL Syntactic Sugar}
     \begin{align*}
-        \bot &:= \neg\top \\
+        \bot &:= \neg\top &
         \phi \to \psi &:= \neg \phi \vee \psi \\
-        \phi \vee \psi &:= \neg(\neg\phi \wedge \neg\psi) \\
+        \phi \vee \psi &:= \neg(\neg\phi \wedge \neg\psi) &
         \phi \leftrightarrow \psi
             &:= (\phi \to \psi) \wedge (\psi \to \phi) \\
         \forall x. \phi &:= \neg(\exists x. \neg \phi) \\
-        \Eventually_I \phi &:= \top \UUntil_I \phi && \text{(eventually)}\\
-        \Once_I \phi &:= \top \Since_I \phi && \text{(once)}\\
-        \Always_I \phi &:= \neg \Eventually \neg \phi && \text{(always)} \\
-        \Historically_I \phi &:= \neg \Once_I \neg \phi && \text{(historically)}
+        \Eventually_I \phi &:= \top \UUntil_I \phi \quad \text{(eventually)} &
+        \Once_I \phi &:= \top \Since_I \phi \quad \text{(once)}\\
+        \Always_I \phi &:= \neg \Eventually \neg \phi \quad \text{(always)} &
+        \Historically_I \phi &:= \neg \Once_I \neg \phi \quad \text{(historically)}
     \end{align*}    
 \end{definition}
 
@@ -562,11 +572,8 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
 
 % TODO: insert WhyEnf and Lex/CRE capability lattices
 
-\begin{definition}
-    \label{def:capability-lattice}
-    The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
+\begin{figure}
     
-    % \begin{figure}
     \centering
     \begin{tikzpicture}
         % \node[text depth=0.1cm] (itl) at (1,1) {\texttt{internal}};
@@ -588,9 +595,9 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
         \draw[->] (bot) -- (obs);
         \draw[->] (bot) -- (cau);
     \end{tikzpicture}
-    % \caption{Capability lattice}
-    % \end{figure}
-\end{definition}
+    \caption{The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
+    \label{fig:capability-lattice}}
+\end{figure}
 
 \begin{definition}
     \label{def:cau-events}
@@ -644,9 +651,7 @@ The addition of capabilities leads to a different set of typing rules that
 describe an enforceable subset of MFOTL formulae as introduced by
 Hublet, Lima et al. \cite{whyenf, whyenf-2}.
 
-\begin{definition}
-    \label{def:past-guardedness}
-    \emph{Past-Guardedness} rules
+\begin{figure}
     \begin{gather*}
         % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
         \prftree[r]
@@ -761,11 +766,10 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             {\gamma, (e,1) : E_1,\dots, (e,k):E_k \vdash \phi_2 : \PG^p_{E}(x)}
             {\gamma \vdash \LLet{e(x_1,\dots,x_k)}{\phi_1}{\phi_2}:\PG^p_{E}(x)}
     \end{gather*}
-\end{definition}
+    \caption{Past-Guardedness Rules \label{fig:past-guardedness}}
+\end{figure}
 
-\begin{definition}
-    \label{def:emfotl-typing-rules}
-    \emph{EMFOTL Typing Rules}
+\begin{figure}
     % TODO: maybe only introduce after introducing enforcement
     \begin{gather*}
         % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
@@ -920,11 +924,10 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             {\Gamma, e : \tau_1 \vdash \phi_2 : \tau_2}
             {\Gamma \vdash \LLet{e(\overline{t})}{\phi_1}{\phi_2} : \tau_2}
     \end{gather*}
-\end{definition}
+    \caption{EMFOTL Typing Rules \label{def:emfotl-typing-rules}}
+\end{figure}
 
-\begin{definition}
-    \label{def:mfotl-monotonicity}
-    MFOTL (Anti) Monotonicity Rules
+\begin{figure}
     \begin{gather*}
         \prftree[r]
             %%begin novalidate
@@ -1009,7 +1012,8 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
     \end{gather*}
     Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
-\end{definition}
+    \caption{MFOTL (Anti) Monotonicity Rules \label{def:mfotl-monotonicity}}
+\end{figure}
 
 For enforcement under a condition as in Definition
 \ref{def:enf-sound-policy-under-condtion} we can add one additional
