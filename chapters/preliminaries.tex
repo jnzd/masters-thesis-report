@@ -1142,47 +1142,35 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
 
 \begin{figure}
     % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
-    \[
     \prftree[r]{\textsc{regI}}
         {r : \phi \Rightarrow \psi \in R}
         {\overline{x}=\fv(\phi) \cup \fv(\psi)}
         {\Gamma \vdash^\Phi \Always (\forall \overline{x}.~\phi \rightarrow \psi) : \Cau}
         {\Gamma \vdash^\Phi \comply(r) : \Cau}
-    \]
-    \[
     \prftree[r]{\textsc{regE}}
         {r : \phi \Rightarrow \psi \in R}
         {\overline{x}=\fv(\phi) \cup \fv(\psi)} 
         {\Gamma \vdash^\Phi \Always
             (\forall \overline{x}.~\phi \land \neg \psi \rightarrow \exc(r)) : \Cau}
         { \Gamma \vdash^\Phi \comply(r) : \Cau}
-    \]
-    \[
     \prftree[r]{$\textsc{exc}^\Cau$}
         {r : \phi \Rightarrow \exc(s) \in E}
         {\Gamma \vdash^\Phi \phi : \Cau}
         {\Gamma \vdash^\Phi \exc(r) : \Sup}
         {\Gamma \vdash^\Phi \exc(s) : \Cau}
-    \]
-    \[
     \prftree[r]{$\textsc{exc}^\Sup$}
         {\forall r : \phi \Rightarrow \exc(s) \in E.~
             (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
         {\Gamma \vdash^\Phi \exc(s) : \Sup}
-    \]
-    \[
     \prftree[r]{$\textsc{con}^\Cau$}
         {r : \phi \Rightarrow p \in C}
         {\Gamma \vdash^\Phi \phi : \Cau}
         {\Gamma \vdash^\Phi \exc(r) : \Sup}
         {\Gamma \vdash^\Phi p : \Cau}
-    \]
-    \[
     \prftree[r]{$\textsc{con}^\Sup$}
         {\forall r : \phi \Rightarrow p \in C.~
             (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
         {\Gamma \vdash^\Phi p : \Sup}
-    \]
     \caption{Typing rules for ECRE[MFOTL] policies\label{fig:ecre-typing-rules}}
 \end{figure}
 
