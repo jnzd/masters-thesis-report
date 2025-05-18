@@ -1283,7 +1283,8 @@ then $\phi_C$ is enforceable.
 
 \begin{theorem}
     \label{theo:abstract-enforceability-implies-concrete-enforceability}
-    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
+    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$
+    with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
     $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
     $\phi_C$ is enforceable.
 \end{theorem}
@@ -1320,7 +1321,7 @@ then $\phi_C$ is enforceable.
             $\phi_C$ is causable, if $\phi_A$ is causable.
             The causability of $\phi_C$ under the Ref-Let rule
             follows directly from the typing rules for let-bindings
-            in Definition \ref{def:emfotl-typing-rules}.
+            in Figure \ref{fig:emfotl-typing-rules}.
 
             \item \textbf{Ref-Conj}
 
@@ -1410,172 +1411,374 @@ Hublet et. al \cite{lex}. We then go ahead and proof that whenever a CRE
 specification refines another CRE specification, their compiled MFOTL
 formulas are likewise refinements of each other.
 
-\begin{definition}
-    \label{def:lex-refinement}
-    A specification
-    $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
-    with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-    and CRE-rules $\Phi_C = \left(C_C, R_C, E_C \right)$
-    refines a specification
-    $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
-    with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-    and CRE-rules $\Phi_A = \left(C_A, R_A, E_A \right)$
-    under condition $\Psi = \left(C_C, R_A \setminus R_C, E_C \right)$
-    iff all of the following hold
-    \begin{enumerate}
-        \item 
-        $\Events_A \setminus \kappa_A^{-1} 
-        (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
-        \subseteq \Events_C$
-        and
-        for all
-        $e \in \Events_A \cap \Events_C,
-        \iota_A(e) = \iota_C(e)$
-        and
-        $\kappa_A(e) \refineL \kappa_C(e)$;
-        \item
-        $C_A \subseteq C_C$ and
-        there exists
-        $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
-        all events appearing in $\phi$ are in
-        $\Events_C \setminus \Events_A$
-        and
-        $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
-        \item
-        For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
-        a rule labeled by $s$ exists in
-        $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
-    \end{enumerate}
-
-    % TODO: update definition to properly introduce these rules
-    % TODO: define monotonicity
-    % TODO: make sure everything used here is properly defined
-    %       specifically events(), and comply()
+\begin{figure}
     \begin{gather*}
-        \prftree[r]{refl}
-            {S,\Gamma \refineL_{\mathrm{id}} S,\Gamma}
+        \prftree[r]
+            %%begin novalidate
+            {$\Events^+_\mathsf{mon}$}
+            %%end novalidate
+            {\mathsf{let}_d \not\in \mathsf{dom}~\Gamma}
+            {\Gamma \vdash e(\bar{x}) : \mono{e}^+}
         \quad
-        \prftree[r]{trans}
-            {S_1,\Gamma_1 \refineL_{\pi_1} S_2,\Gamma_2}
-            {S_2,\Gamma_2 \refineL_{\pi_2} S_3,\Gamma_3}
-            {S_1,\Gamma_1 \refineL_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
+        \prftree[r]
+            %%begin novalidate
+            {$\Events^\mathsf{let}_\mathsf{mon}$}
+            %%end novalidate
+            {\mathsf{let}_d \in \mathsf{dom}~\Gamma}
+            {\Gamma(\mathsf{let}_d) = \phi} 
+            {\Gamma \setminus \mathsf{let}_d \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash d(\bar{x}) : \mono{e}^p}
         \\[5pt]
-        \prftree[r]{ref}
-        {
-          \prfStackPremises
-          {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\}
-          \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
-          {\Events' = \Events \setminus \{e\} \cup
-          \{e_1,\dots,e_\ell\} \quad
-          \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
-          {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\}
-          \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
-          {\forall i.~\tau'_i \capleq \tau_i \quad
-          \Gamma' \vdash \phi : \Gamma(e)} 
-          {\pi = \lambda \sigma~D.~D \cup
-          \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \}
-          \setminus \{ e_i(\overline{d}) \mid i, \overline{d}
-          \in \Domain^{\iota(e)_i} \}}
-        }
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
-        \refineL_\pi
-        ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{occ}^p_\mathsf{mon}$}
+            %%end novalidate
+            {e \not \in \events{\phi}}
+            {\Gamma \vdash \phi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\neg^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^{\neg p}}
+            {\Gamma \vdash \neg \phi : \mono{e}^p}
         \\[5pt]
-        %%begin novalidate
-        \prftree[r]{imp$_R$}
-        %%end novalidate
-        {
-          \prfStackPremises
-          {R' = R \cup \{r_1 : \phi_1 \Rightarrow \psi_1, \dots, r_k : \phi_k
-            \Rightarrow \psi_k \} \setminus \{r : \phi \Rightarrow \psi\}}
-          {\Always(\land_{1 \leq i \leq k} (\phi_i \to \psi_i))
-              \Longrightarrow \phi \to \psi}
-          % {\Always(\land_{1 \leq i \leq k} ((\phi_i \to \psi_i)\vee \exc(r_i)))
-          %     \Longrightarrow ((\phi \to \psi) \vee \exc(r))}
-          {\forall i.~\Gamma \vdash \comply(r_i) : \Cau}
-        }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-            \refineL_{\mathrm{id}}
-            ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}
+        \prftree[r]
+            %%begin novalidate
+            {$\wedge^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \wedge \psi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\exists^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \exists x.~ \phi : \mono{e}^p}
         \\[5pt]
-        %%begin novalidate
-        \prftree[r]{imp$_C^+$}
-        %%end novalidate
-        {
-          \prfStackPremises
-          {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k 
-            \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
-          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : 
-            \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
-              \Longrightarrow \lor_{1 \leq i \leq k} \phi_i
-              \to \phi}
-          {\Always (\land_{1 \leq j \leq \ell}
-              ((\psi_j \to \chi_j) \vee \exc(s_j)))
-              \Longrightarrow \lor_{1 \leq i \leq k}
-              (\phi_i \wedge \neg \exc(r_i))
-              \to (\phi \wedge \neg \exc(r))}
-          {(C,R',E) \in \mono{p}}
-          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau 
-            \Longrightarrow \Gamma \vdash_{C',E} p : \tau
-            \forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-        }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-            \refineL_{\mathrm{id}}
-            ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+        \prftree[r]
+            %%begin novalidate
+            {$\Next^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \Next \phi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\Prev^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \Prev \phi : \mono{e}^p}
         \\[5pt]
-        %%begin novalidate
-        \prftree[r]{imp$_C^-$}
-        %%end novalidate
-        {
-          \prfStackPremises
-          {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
-          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
-              \Longrightarrow \phi
-              \to \lor_{1 \leq i \leq k} \phi_i}
-          % {\Always (\land_{1 \leq j \leq \ell}
-          %     ((\psi_j \to \chi_j) \vee \exc(s_j))))
-          %     \Longrightarrow (\phi \wedge \neg \exc(r))
-          %     \to \lor_{1 \leq i \leq k} (\phi_i \wedge \neg \exc(r_i))}
-          {(C,R',E) \in \mono{p}^-}
-          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau \Longrightarrow \Gamma \vdash_{C',E} p : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-        }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+        \prftree[r]
+            %%begin novalidate
+            {$\Since^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \Since \psi : \mono{e}^p}
+        \quad
+        \prftree[r]
+            %%begin novalidate
+            {$\UUntil^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma \vdash \phi : \mono{e}^p}
+            {\Gamma \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \phi \UUntil \psi : \mono{e}^p}
         \\[5pt]
-        %%begin novalidate
-        \prftree[r]{imp$_E^+$}
-        %%end novalidate
-        {
-          \prfStackPremises
-          {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
-          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \to \phi \quad (C,R',E) \in \mono{\exc(s)} }
-          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-        }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
-        \\[5pt]
-        %%begin novalidate
-        \prftree[r]{imp$_E^-$}
-        %%end novalidate
-        {
-          \prfStackPremises
-          {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
-          {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-          {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \to \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
-          {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-        }    
-        {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+        \prftree[r]
+            %%begin novalidate
+            {$\mathsf{let}^p_\mathsf{mon}$}
+            %%end novalidate
+            {\Gamma, \mathsf{let}_d : \phi \vdash \psi : \mono{e}^p}
+            {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
     \end{gather*}
-    
+    Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
+    \caption{MFOTL (Anti) Monotonicity Rules \label{fig:mfotl-monotonicity}}
+\end{figure}
+
+\begin{figure}[t]
+    \begin{gather*}
+        \phi \Updownarrow^+ \psi := \phi \Longrightarrow \psi\qquad
+        \phi \Updownarrow^- \psi := \phi \Longleftarrow \psi \\[5pt]
+        \prftree[r]
+            {\textsc{refl}}
+            {S,\Gamma \leadsto_{\mathrm{id}} S,\Gamma}\quad
+        \prftree[r]
+            {\textsc{trans}}
+            {S_1,\Gamma_1 \leadsto_{\pi_1} S_2,\Gamma_2}
+            {S_2,\Gamma_2 \leadsto_{\pi_2} S_3,\Gamma_3}
+            {S_1,\Gamma_1 \leadsto_{\pi_1 \circ \pi_2} S_3,\Gamma_3}\\[5pt]
+        \prftree[r]
+            {\textsc{ref}}
+            {
+              \prfStackPremises
+              {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\} \quad
+                  \mathsf{events}(\phi) \setminus \Events=\{e_1,\dots,e_\ell\}}
+              {\Events' = \Events \setminus \{e\} \cup \{e_1,\dots,e_\ell\} \quad
+                  \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
+              {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\} \quad
+                  \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
+              {\forall i.~\tau'_i \sqsubseteq \tau_i \quad \Gamma' \vdash \phi : \Gamma(e)
+                  \quad
+                  \nexists r', \phi', \overline{x}'.~r': \phi' \Rightarrow e(\overline{x}') \in C}
+              {\pi = \textsc{\textsf{map}}_{e(x_1,\dots,x_k),\phi,\{e_1,\dots,e_\ell\}}}
+            }
+            {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+            \leadsto_\pi
+            ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}\\[5pt]
+        \prftree[r]
+            {\textsc{imp}_R}
+            {
+                \prfStackPremises
+                {R' = R \cup \{r : \phi' \Rightarrow \psi' \}
+                    \setminus \{r : \phi \Rightarrow \psi\}}
+                {\phi' \to \psi' \Longrightarrow \phi \to \psi \quad
+                \Gamma \vdash^{(C,R',E)} \comply(r) : \Cau}
+            }    
+            {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+            \leadsto_{\mathrm{id}}
+            ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}\\[5pt]
+        \prftree[r]
+        {\textsc{imp}_C}
+            {
+              \prfStackPremises
+              {C' = C \cup \{ r: \phi' \Rightarrow p \}
+                  \setminus \{ r : \phi \Rightarrow p \} \quad
+                R' = R \cup \{ s : \psi \Rightarrow \chi \}}
+              {q \in \{+,-\} \quad
+                  \Always (\psi \to \chi) \Longrightarrow  \phi' \Updownarrow^q \phi}
+              {(C \setminus \{ r:\phi\Rightarrow p\},R',E) : \mono{p}^q \quad
+                \Gamma \vdash^{(C',R,E)} \comply(s) : \Cau}
+              {\forall \tau \in \{\Cau,\Sup\}.~\Gamma
+                  \vdash^{(C,R,E)} p : \tau \Longrightarrow
+                  \Gamma \vdash^{(C',R,E)} p : \tau}
+            }    
+            {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+                \leadsto_{\mathrm{id}}
+                ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}\\[5pt]
+        \prftree[r]
+            {\textsc{imp}_E}
+            {
+                \prfStackPremises
+                {E' = E \cup \{ r : \phi' \Rightarrow \exc(s) \}
+                    \setminus \{ r : \phi \Rightarrow \exc(s) \} \quad
+                    R' = R \cup \{ s : \psi \Rightarrow \chi\}}
+                {q \in \{+,-\} \quad \Always (\psi \to \chi) \Longrightarrow
+                    \phi' \Updownarrow^q \phi}
+                {(C,R',E \setminus \{ r:\phi\Rightarrow \exc(s)\}) : \mono{\exc(s)}^q
+                    \quad
+                    \Gamma \vdash^{(C,R',E')} \comply(s) : \Cau }
+                {\forall \tau \in \{\Cau,\Sup\}.~\Gamma
+                    \vdash^{(C,R,E)} \exc(s) : \tau \Longrightarrow
+                    \Gamma \vdash^{(C,R,E')} \exc(s) : \tau}
+            }
+            {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+                \leadsto_{\mathrm{id}}
+                ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+    \end{gather*}
+    \caption{CRE[MFOTL] refinement rules \label{fig:cre-refinement-rules}}
+\end{figure}
+\begin{figure}[t]
+    \begin{center}
+        \begin{algorithmic}[1]
+            \Function{\textsf{map}$_{e(x_1,\dots,x_k),\phi,E}$}{$\sigma$}
+            \State $\langle(\tau_i, D_i)_{i \in \Nat}\rangle \gets \sigma$
+            \For{$i \in \Nat$}
+            \State $D'_i \gets D_i \cup \{ e(v(x_1),\dots,v(x_k)) \mid
+                v,i \vDash_\sigma \phi  \} $\label{alg:map:add}
+            \State $D'_i \gets D'_i \setminus \{ e(\overline{d}) \mid
+                (d_1,\dots,d_{\iota(e)}) \in \Domain^{\iota(e)}, e \in E \}$
+                \label{alg:map:remove}
+            \EndFor
+            \State \Return $\langle(\tau_i, D'_i)_{i \in \Nat}\rangle$
+            \EndFunction
+        \end{algorithmic}
+    \end{center}
+    \caption{\textsc{\textsf{map}} function used in Figure~\ref{fig:cre-refinement-rules}
+    \label{fig:cre-refinement-map-function}}
+\end{figure}
+
+Hublet et al. \cite{lex} use the rules in Figure \ref{fig:cre-refinement-rules}
+to define refinement for CRE[MFOTL] specifications in the following manner.
+\begin{definition}
+    \label{def:mfotl-refinement}
+    Refinement of EMFOTL specifications is defined by the following rules.
+    EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+    A specification $S_C$ refines a specification $S_A$, written as $S_C \refineL S_A$
+    under a refinement mapping $\pi$
+    iff there exist $\Gamma_C$ and $\Gamma_A$ such that
+    $S_C, \Gamma_C \leadsto_\pi S_A, \Gamma_A$.
 \end{definition}
 
-\begin{definition}
-    \label{def:lex-inconditional-refinement}
-    If we require the following additional condition in Definition \ref{def:lex-refinement}
-    \begin{enumerate}
-        \setcounter{enumi}{3}
-        \item $R_A \subseteq R_C$
-    \end{enumerate}
-    $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
-\end{definition}
+% \begin{definition}
+%     \label{def:lex-refinement}
+%     A specification
+%     $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
+%     with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
+%     and CRE-rules $\Phi_C = \left(C_C, R_C, E_C \right)$
+%     refines a specification
+%     $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
+%     with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
+%     and CRE-rules $\Phi_A = \left(C_A, R_A, E_A \right)$
+%     under condition $\Psi = \left(C_C, R_A \setminus R_C, E_C \right)$
+%     iff all of the following hold
+%     \begin{enumerate}
+%         \item 
+%         $\Events_A \setminus \kappa_A^{-1} 
+%         (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
+%         \subseteq \Events_C$
+%         and
+%         for all
+%         $e \in \Events_A \cap \Events_C,
+%         \iota_A(e) = \iota_C(e)$
+%         and
+%         $\kappa_A(e) \refineL \kappa_C(e)$;
+%         \item
+%         $C_A \subseteq C_C$ and
+%         there exists
+%         $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
+%         all events appearing in $\phi$ are in
+%         $\Events_C \setminus \Events_A$
+%         and
+%         $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
+%         \item
+%         For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
+%         a rule labeled by $s$ exists in
+%         $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
+%     \end{enumerate}
+
+%     % TODO: update definition to properly introduce these rules
+%     % TODO: define monotonicity
+%     % TODO: make sure everything used here is properly defined
+%     %       specifically events(), and comply()
+%     \begin{gather*}
+%         \prftree[r]{refl}
+%             {S,\Gamma \refineL_{\mathrm{id}} S,\Gamma}
+%         \quad
+%         \prftree[r]{trans}
+%             {S_1,\Gamma_1 \refineL_{\pi_1} S_2,\Gamma_2}
+%             {S_2,\Gamma_2 \refineL_{\pi_2} S_3,\Gamma_3}
+%             {S_1,\Gamma_1 \refineL_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
+%         \\[5pt]
+%         \prftree[r]{ref}
+%         {
+%           \prfStackPremises
+%           {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\}
+%           \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
+%           {\Events' = \Events \setminus \{e\} \cup
+%           \{e_1,\dots,e_\ell\} \quad
+%           \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
+%           {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\}
+%           \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
+%           {\forall i.~\tau'_i \capleq \tau_i \quad
+%           \Gamma' \vdash \phi : \Gamma(e)} 
+%           {\pi = \lambda \sigma~D.~D \cup
+%           \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \}
+%           \setminus \{ e_i(\overline{d}) \mid i, \overline{d}
+%           \in \Domain^{\iota(e)_i} \}}
+%         }
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
+%         \refineL_\pi
+%         ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
+%         \\[5pt]
+%         %%begin novalidate
+%         \prftree[r]{imp$_R$}
+%         %%end novalidate
+%         {
+%           \prfStackPremises
+%           {R' = R \cup \{r_1 : \phi_1 \Rightarrow \psi_1, \dots, r_k : \phi_k
+%             \Rightarrow \psi_k \} \setminus \{r : \phi \Rightarrow \psi\}}
+%           {\Always(\land_{1 \leq i \leq k} (\phi_i \to \psi_i))
+%               \Longrightarrow \phi \to \psi}
+%           % {\Always(\land_{1 \leq i \leq k} ((\phi_i \to \psi_i)\vee \exc(r_i)))
+%           %     \Longrightarrow ((\phi \to \psi) \vee \exc(r))}
+%           {\forall i.~\Gamma \vdash \comply(r_i) : \Cau}
+%         }    
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
+%             \refineL_{\mathrm{id}}
+%             ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}
+%         \\[5pt]
+%         %%begin novalidate
+%         \prftree[r]{imp$_C^+$}
+%         %%end novalidate
+%         {
+%           \prfStackPremises
+%           {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k 
+%             \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
+%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : 
+%             \psi_\ell \Rightarrow \chi_\ell \}}
+%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
+%               \Longrightarrow \lor_{1 \leq i \leq k} \phi_i
+%               \to \phi}
+%           {\Always (\land_{1 \leq j \leq \ell}
+%               ((\psi_j \to \chi_j) \vee \exc(s_j)))
+%               \Longrightarrow \lor_{1 \leq i \leq k}
+%               (\phi_i \wedge \neg \exc(r_i))
+%               \to (\phi \wedge \neg \exc(r))}
+%           {(C,R',E) \in \mono{p}}
+%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau 
+%             \Longrightarrow \Gamma \vdash_{C',E} p : \tau
+%             \forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+%         }    
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
+%             \refineL_{\mathrm{id}}
+%             ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+%         \\[5pt]
+%         %%begin novalidate
+%         \prftree[r]{imp$_C^-$}
+%         %%end novalidate
+%         {
+%           \prfStackPremises
+%           {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
+%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
+%               \Longrightarrow \phi
+%               \to \lor_{1 \leq i \leq k} \phi_i}
+%           % {\Always (\land_{1 \leq j \leq \ell}
+%           %     ((\psi_j \to \chi_j) \vee \exc(s_j))))
+%           %     \Longrightarrow (\phi \wedge \neg \exc(r))
+%           %     \to \lor_{1 \leq i \leq k} (\phi_i \wedge \neg \exc(r_i))}
+%           {(C,R',E) \in \mono{p}^-}
+%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau \Longrightarrow \Gamma \vdash_{C',E} p : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+%         }    
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
+%         \\[5pt]
+%         %%begin novalidate
+%         \prftree[r]{imp$_E^+$}
+%         %%end novalidate
+%         {
+%           \prfStackPremises
+%           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
+%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \to \phi \quad (C,R',E) \in \mono{\exc(s)} }
+%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+%         }    
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+%         \\[5pt]
+%         %%begin novalidate
+%         \prftree[r]{imp$_E^-$}
+%         %%end novalidate
+%         {
+%           \prfStackPremises
+%           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
+%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
+%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \to \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
+%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
+%         }    
+%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
+%     \end{gather*}
+    
+% \end{definition}
+
+% \begin{definition}
+%     \label{def:lex-inconditional-refinement}
+%     If we require the following additional condition in Definition \ref{def:lex-refinement}
+%     \begin{enumerate}
+%         \setcounter{enumi}{3}
+%         \item $R_A \subseteq R_C$
+%     \end{enumerate}
+%     $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
+% \end{definition}

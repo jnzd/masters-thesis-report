@@ -13,7 +13,8 @@ Metric First-Order Logic (MFOTL)
 combines first-order predicate logic with temporal operators such as
 $\Next$ ("next"), $\Prev$ ("previous"), $\UUntil$ ("until"), and $\Since$ ("since").
 MFOTL is frequently used as a policy language in
-runtime verification \cite{whyenf, lex}. %TODO: more references and reformulate this introductory part
+runtime verification \cite{whyenf, lex, basin2015monitoring}.
+%TODO: more references and reformulate this introductory part
 Let $\Types$ be a set of base types (e.g. integers, strings, booleans, etc.)
 and $\Variables$ a set of variables.
 
@@ -31,19 +32,24 @@ and $\Variables$ a set of variables.
     and for any $f \in \Functions$, $\iota(f) = (a_1,\dots,a_k,r)$ provides the
     argument types $(a_1,\dots,a_k)$ and the return type $r$ of $f$.
 \end{definition}
+Definition \ref{def:mfotl-signature} closely follows the signature definitions
+of Hublet et. al \cite{lex} (Section 2.2.2) and Hublet et. al \cite{whyenf} (Section 2).
+Compared to the latter our signature also includes the addition of function symbols.
+And different to both, our arity function not only gives the number of arguments, but
+also their types.
 \begin{example}
+    % TOOD: formatting
     \label{ex:signature}
     Let
     \begin{align*}
-        \Domain &= \Nat \cup \{ \texttt{true}, \texttt{false} \} \\
-        \Events &= \{ \mathsf{P}, \mathsf{Q} \} \\
-        \Functions &= \{ \mathsf{isEven}, \mathsf{isOdd}, \min, \max \} \\
-        \iota(\mathsf{P}) &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
-        \iota(\mathsf{Q}) &:= (\Nat) \\
+        \Domain &= \Nat \cup \{ \true, \false \}, 
+        &\Events &= \{ \mathsf{P}, \mathsf{Q} \}, \\
+        \iota(\mathsf{P}) &:= (\Nat, \{\true, \false\}),
+        &\iota(\mathsf{Q}) &:= (\Nat), \\
+        \Functions &= \{ \mathsf{isEven}, \mathsf{isOdd}, \min, \max \},
+        &\iota(\{\min, \max\}) &:= (\Nat, \Nat), \\
         \iota(\{\mathsf{isEven}, \mathsf{isOdd}\})
-            &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
-        \iota(\mathsf{isEven}) &:= (\Nat, \{\texttt{true}, \texttt{false}\}) \\
-        \iota(\{\min, \max\}) &:= (\Nat, \Nat).
+            &:= (\Nat, \{\true, \false\}).
     \end{align*}
     $\Sigma = \left( \Domain, \Events, \Functions, \iota \right)$
     is an MFOTL signature.
@@ -62,7 +68,7 @@ and $\Variables$ a set of variables.
     \label{ex:event}
     Some events over the signature $\Sigma$ from Example \ref{ex:signature} are
     % $\mathsf{P}(1, \mathsf{isOdd}(3))$ or $\mathsf{Q}(\max(0,1))$.
-    $\mathsf{P}(1, \texttt{true})$ or $\mathsf{Q}(1)$.
+    $\mathsf{P}(1, \true)$ or $\mathsf{Q}(1)$.
 \end{example}
 
 \begin{definition}
@@ -80,15 +86,6 @@ and $\Variables$ a set of variables.
     and \emph{progress}
     (if $|\sigma| = \infty$, then $\lim_{i\to\infty} \tau_i = \infty$).
 \end{definition}
-\begin{example}
-    \label{ex:trace}
-    A short (finite) trace example would be
-    \begin{equation*}
-        (0, \{\mathsf{P}(2, \texttt{false}\}),
-        (2, \{ \mathsf{Q}(3), \mathsf{Q}(4), \mathsf{P}(100, \texttt{false}) \}),
-        (10, \emptyset)
-    \end{equation*}
-\end{example}
 
 \begin{definition}
     \label{def:infinite-trace}
@@ -116,8 +113,20 @@ and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:time-point}
-    A \emph{time-point} $1 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
+    A \emph{time-point} $0 \leq i \leq |\sigma|$ is an index in a trace $\sigma$.
 \end{definition}
+
+\begin{example}
+    \label{ex:trace}
+    A finite trace over the signature $\Sigma$ from \ref{ex:signature}
+    with 3 time-points could be
+    \begin{equation*}
+        (0, \{\mathsf{P}(2, \false\}),
+        (2, \{ \mathsf{Q}(3), \mathsf{Q}(4), \mathsf{P}(100, \false) \}),
+        (10, \emptyset).
+    \end{equation*}
+    The three time-points have the timestamps $0$, $2$, and $100$.
+\end{example}
 
 \begin{definition}
     \label{def:empty-trace}
@@ -160,8 +169,6 @@ We say a trace $\sigma$ is compliant with policy $\phi$ if and only if $\sigma \
 In the next part we revisit the specific variant of MFOTL used in Hublet et. al \cite{lex}
 which includes the notable additions of non-recursive let-bindings \cite{zingg2022verified}
 and aggregations \cite{basin2015monitoring} as compared to more standard MFOTL variants.
-We also look at the enforceable fragment of MFOTL (EMFOTL) introduced in Hublet et. al
-\cite{whyenf} and its typing rules.
 
 \begin{definition}
     \label{def:non-empty-intervals}
@@ -245,8 +252,13 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
             {\forall 1 \leq i \leq k. x_i \in Terms} % TODO how should this actually be?
             {\Gamma \vdash \LLet{e\left(x_1, \dots, x_k \right)}{\phi}{\psi}}
     \end{gather*}
-    \caption{MFOTL Well-Typed Rules \label{def:mfotl-typing-rules}}
+    \caption{MFOTL Typing Rules \label{fig:mfotl-typing-rules}}
 \end{figure}
+
+Figure \ref{fig:mfotl-term-typing-rules} defines the rules for when an MFOTL
+term is well-typed.
+And Figure \ref{fig:mfotl-typing-rules} defines when an
+MFOTL formula is well-typed.
 
 \begin{definition}
     \label{def:mfotl-valuation}
@@ -272,10 +284,12 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
 
 \begin{definition}
     \label{def:mfotl-satisfaction}
-    An MFOTL formula $\phi$ is \emph{satisfied} at some time-point $i$ in a trace $\sigma$ under
+    An MFOTL formula $\phi$ is \emph{satisfied} at some time-point $i$ in
+    a trace $\sigma$ under
     some valuation $v$ is denoted by $v,i \vDash_\sigma \phi $.
 \end{definition}
-If it is clear from context the subscript $\sigma$ can be omitted.
+If the trace is obvious from context the subscript $\sigma$ in $\vDash_\sigma$ can be
+omitted.
 \begin{definition}
     \label{def:mfotl-semantics}
     The \emph{Semantics of MFOTL} for a fixed, infinite trace $\sigma$ is defined as followed
@@ -356,22 +370,29 @@ We define the following operators based on the basic operators above as
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Runtime Verification}
 \label{section:runtime-verification}
-Runtime Verification (RV) concerns itself with the behavior of
+Runtime Verification concerns itself with the behavior of
 some System under Scrutiny (SuS) with regards to some policy.
-$\dots$ TODO
+Runtime Verification can be split into two related techniques: 
+Runtime Monitoring and Runtime Enforcement.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Runtime Monitoring}
-\label{subsection:runtime-monitoring}
-Runtime Monitoring is used to detect a policy violation either in an
-online (real-time) or offline fashion. $\dots$ TODO
+\emph{Runtime Monitoring} is used to detect a policy violation either in an
+online (real-time) or offline fashion.
+In Runtime Monitoring a monitor continuously evaluates the current and past
+system state and determines whether or not it complies with some policy.
+For our purposes the system state gets abstracted into a trace of events
+and the policy represents a set of allowed traces.
+Since the monitor never interacts with the system itself, runtime
+monitoring can also be done after a program has finished executing.
+% TODO
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Runtime Enforcement}
-\label{subsection:runtime-enforcement}
-Runtime Enforcement is used to actively cause or prevent certain system behaviors.
+\emph{Runtime Enforcement}
+is used to actively cause or prevent certain system behaviors.
 Due to this interactive nature of runtime enforcement it is inherently online.
-$\dots$ TODO
+If we consider our trace model on a high level, an enforcer can "edit" any
+time-point before it gets fully committed to the trace and additionally
+the enforcer can create its own time-points at any increment of time.
+% TODO
+The following subsection explores an approach for enforcing MFOTL policies.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Proactive Runtime Enforcement using MFOTL}
@@ -421,7 +442,7 @@ $D_\Sup$ are all assumed to be in $\Events_{\Sup}$.
 
 \begin{definition}
     \label{def:enf-r-cmd}
-    A \emph{R-Command} has the form
+    An \emph{R-Command} has the form
     $\RCom\left(D_{\Cau}, D_{\Sup}\right)$.
     This command is a reaction of the enforcer to some set of events $D$,
     that the system sent to the enforcer.
@@ -481,8 +502,6 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
             \end{equation*}
     \end{enumerate}
 \end{definition}
-
-% TODO: insert enforcer soundness conditions
 
 Hublet et al. \cite{whyenf-2} then define an enforced trace algorithmically via
 Algorithm~\ref{alg:loop}.
@@ -647,9 +666,14 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
     $$
 \end{definition}
 
-The addition of capabilities leads to a different set of typing rules that
-describe an enforceable subset of MFOTL formulae as introduced by
-Hublet, Lima et al. \cite{whyenf, whyenf-2}.
+On the basis of capabilities
+Hublet, Lima et al. \cite{whyenf, whyenf-2} introduce a subset of
+MFOTL formulae that is enforceable.
+The typing rules for this subset are shown in Figure \ref{fig:emfotl-typing-rules}.
+These rules rely on the concept of past-guardedness, specifically for the
+suppressability of existential quantifiers.
+TODO: on a high-level describe the meaning of (positive and negative) past-guardedness. % TODO
+The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
 
 \begin{figure}
     \begin{gather*}
@@ -770,7 +794,6 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
 \end{figure}
 
 \begin{figure}
-    % TODO: maybe only introduce after introducing enforcement
     \begin{gather*}
         % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
         \prftree[r]
@@ -924,95 +947,7 @@ Hublet, Lima et al. \cite{whyenf, whyenf-2}.
             {\Gamma, e : \tau_1 \vdash \phi_2 : \tau_2}
             {\Gamma \vdash \LLet{e(\overline{t})}{\phi_1}{\phi_2} : \tau_2}
     \end{gather*}
-    \caption{EMFOTL Typing Rules \label{def:emfotl-typing-rules}}
-\end{figure}
-
-\begin{figure}
-    \begin{gather*}
-        \prftree[r]
-            %%begin novalidate
-            {$\Events^+_\mathsf{mon}$}
-            %%end novalidate
-            {\mathsf{let}_d \not\in \mathsf{dom}~\Gamma}
-            {\Gamma \vdash e(\bar{x}) : \mono{e}^+}
-        \quad
-        \prftree[r]
-            %%begin novalidate
-            {$\Events^\mathsf{let}_\mathsf{mon}$}
-            %%end novalidate
-            {\mathsf{let}_d \in \mathsf{dom}~\Gamma}
-            {\Gamma(\mathsf{let}_d) = \phi} 
-            {\Gamma \setminus \mathsf{let}_d \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash d(\bar{x}) : \mono{e}^p}
-        \\[5pt]
-        \prftree[r]
-            %%begin novalidate
-            {$\mathsf{occ}^p_\mathsf{mon}$}
-            %%end novalidate
-            {e \not \in \events{\phi}}
-            {\Gamma \vdash \phi : \mono{e}^p}
-        \quad
-        \prftree[r]
-            %%begin novalidate
-            {$\neg^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^{\neg p}}
-            {\Gamma \vdash \neg \phi : \mono{e}^p}
-        \\[5pt]
-        \prftree[r]
-            %%begin novalidate
-            {$\wedge^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \psi : \mono{e}^p}
-            {\Gamma \vdash \phi \wedge \psi : \mono{e}^p}
-        \quad
-        \prftree[r]
-            %%begin novalidate
-            {$\exists^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \exists x.~ \phi : \mono{e}^p}
-        \\[5pt]
-        \prftree[r]
-            %%begin novalidate
-            {$\Next^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \Next \phi : \mono{e}^p}
-        \quad
-        \prftree[r]
-            %%begin novalidate
-            {$\Prev^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \Prev \phi : \mono{e}^p}
-        \\[5pt]
-        \prftree[r]
-            %%begin novalidate
-            {$\Since^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \psi : \mono{e}^p}
-            {\Gamma \vdash \phi \Since \psi : \mono{e}^p}
-        \quad
-        \prftree[r]
-            %%begin novalidate
-            {$\UUntil^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma \vdash \phi : \mono{e}^p}
-            {\Gamma \vdash \psi : \mono{e}^p}
-            {\Gamma \vdash \phi \UUntil \psi : \mono{e}^p}
-        \\[5pt]
-        \prftree[r]
-            %%begin novalidate
-            {$\mathsf{let}^p_\mathsf{mon}$}
-            %%end novalidate
-            {\Gamma, \mathsf{let}_d : \phi \vdash \psi : \mono{e}^p}
-            {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
-    \end{gather*}
-    Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
-    \caption{MFOTL (Anti) Monotonicity Rules \label{def:mfotl-monotonicity}}
+    \caption{EMFOTL Typing Rules \label{fig:emfotl-typing-rules}}
 \end{figure}
 
 For enforcement under a condition as in Definition
@@ -1020,6 +955,7 @@ For enforcement under a condition as in Definition
 typing rule to expand the fragment of enforceable MFOTL formulae.
 
 \begin{definition}
+    % TODO: is this needed? or ever referenced?
     \label{def:emfotl-under-condition-additional-typing-rule}
     Additional typing rule when enforcement is done under some condition
     \begin{equation*}
@@ -1045,7 +981,7 @@ a circumstance that is assumed to hold externally.
 % TODO: formulate enforcement under a condition/assumption more clearly
 The "condition"-subscript ($\psi$ in Definition
 \ref{def:emfotl-under-condition-additional-typing-rule}) can propagate through
-the rule in Definition \ref{def:emfotl-typing-rules}.
+the rule in Figure \ref{fig:emfotl-typing-rules}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -1069,7 +1005,7 @@ to an underlying MFOTL formula.
 
 \begin{definition}
     \label{def:cre-mfotl-signature}
-    The \emph{CRE-MFOTL Signature} is 
+    A \emph{CRE-MFOTL Signature} is a quadruple of the following form
     $$
     \Sigma' = \left(
     \left(\Domain_{ty} \right)_{ty \in\Types}, 
@@ -1079,7 +1015,6 @@ to an underlying MFOTL formula.
     \right).
     $$
 \end{definition}
-
 \begin{definition}
     \label{def:set-of-mfotl-formulae}
     The \emph{set of all MFOTL formulae} over the CRE-MFOTL signature
@@ -1159,12 +1094,8 @@ to an underlying MFOTL formula.
     every rule in $C \cup R \cup E$ has a unique label.
 \end{definition}
 
-The following semantics of the CRE meta-logic expand the logic of $\formulae$ if that
-logic is captured by $\gamma \vDash \phi$.
 
-\begin{definition}
-    \label{def:cre-semantics}
-    The \emph{Semantics of the CRE Meta-Logic} are given by the following 3 rules
+\begin{figure}
     \begin{gather*}
         \prftree[r]{CON}
             {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
@@ -1176,8 +1107,12 @@ logic is captured by $\gamma \vDash \phi$.
             {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
             {\gamma \vDash \exc(s)}
     \end{gather*}
-\end{definition}
+    \caption{CRE[MFOTL] Semantics \label{fig:cre-semantics}}
+\end{figure}
 
+Figure \ref{fig:cre-semantics} defines the semantics of the CRE meta logic.
+The semantics expand the logic of $\formulae$ if that
+logic is captured by $\gamma \vDash \phi$.
 These semantics can be expanded to define compliance for an entire CRE-policy.
 
 \begin{definition}
@@ -1202,16 +1137,60 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
     and a capability-mapping $\kappa$.
 \end{definition}
 
+Analogous to EMFOTL, Hublet et al. \cite{lex} define enforceable CRE (ECRE)
+via the typing rules in Figure \ref{fig:ecre-typing-rules}
+
+\begin{figure}
+    \begin{gather*}
+        % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
+        \prftree[r]
+        {\textsc{regI}}
+            {r : \phi \Rightarrow \psi \in R}
+            {\overline{x}=\fv(\phi) \cup \fv(\psi)}
+            {\Gamma \vdash^\Phi \Always (\forall \overline{x}.~\phi \rightarrow \psi) : \Cau}
+            {\Gamma \vdash^\Phi \comply(r) : \Cau} \\
+        \prftree[r]
+        {\textsc{regE}}
+            {r : \phi \Rightarrow \psi \in R}
+            {\overline{x}=\fv(\phi) \cup \fv(\psi)} 
+            {\Gamma \vdash^\Phi \Always
+                (\forall \overline{x}.~\phi \land \neg \psi \rightarrow \exc(r)) : \Cau}
+            { \Gamma \vdash^\Phi \comply(r) : \Cau} \\
+        \prftree[r]
+            {\textsc{exc}^\Cau}
+            {r : \phi \Rightarrow \exc(s) \in E}
+            {\Gamma \vdash^\Phi \phi : \Cau}
+            {\Gamma \vdash^\Phi \exc(r) : \Sup}
+            {\Gamma \vdash^\Phi \exc(s) : \Cau} \\
+        \prftree[r]
+            {\textsc{exc}^\Sup}
+            {\forall r : \phi \Rightarrow \exc(s) \in E.~
+                (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
+            {\Gamma \vdash^\Phi \exc(s) : \Sup} \\
+        \prftree[r]
+            {\textsc{con}^\Cau}
+            {r : \phi \Rightarrow p \in C}
+            {\Gamma \vdash^\Phi \phi : \Cau}
+            {\Gamma \vdash^\Phi \exc(r) : \Sup}
+            {\Gamma \vdash^\Phi p : \Cau}\\
+        \prftree[r]
+            {\textsc{con}^\Sup}
+            {\forall r : \phi \Rightarrow p \in C.~
+                (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
+            {\Gamma \vdash^\Phi p : \Sup}
+    \end{gather*}
+    \caption{Typing rules for ECRE[MFOTL] policies\label{fig:ecre-typing-rules}}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Refinement Mappings}
 \label{section:refinement-mappings}
-In Abadi and Lamport \cite{refinement-mappings} the concept of refinement mappings
-between specifications is explored.
-
-TODO
+Abadi and Lamport \cite{refinement-mappings} explore the concept of refinement mappings
+between different specifications.
+They define sequences \cite{refinement-mappings} (Section 2.1) similar to our
+notion of traces and properties  TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -1338,3 +1317,11 @@ of traces from event systems that refine each other.
     \label{proof:refinemenet-property-fullfillment}
     TODO:
 \end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Legal Background}
+
+
