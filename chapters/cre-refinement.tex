@@ -1530,7 +1530,7 @@ formulas are likewise refinements of each other.
             \leadsto_\pi
             ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}\\[5pt]
         \prftree[r]
-            {\textsc{imp}_R}
+            {$\textsc{imp}_R$}
             {
                 \prfStackPremises
                 {R' = R \cup \{r : \phi' \Rightarrow \psi' \}
@@ -1542,7 +1542,7 @@ formulas are likewise refinements of each other.
             \leadsto_{\mathrm{id}}
             ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}\\[5pt]
         \prftree[r]
-        {\textsc{imp}_C}
+            {$\textsc{imp}_C$}
             {
               \prfStackPremises
               {C' = C \cup \{ r: \phi' \Rightarrow p \}
@@ -1560,7 +1560,7 @@ formulas are likewise refinements of each other.
                 \leadsto_{\mathrm{id}}
                 ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}\\[5pt]
         \prftree[r]
-            {\textsc{imp}_E}
+            {$\textsc{imp}_E$}
             {
                 \prfStackPremises
                 {E' = E \cup \{ r : \phi' \Rightarrow \exc(s) \}
@@ -1604,9 +1604,8 @@ formulas are likewise refinements of each other.
 Hublet et al. \cite{lex} use the rules in Figure \ref{fig:cre-refinement-rules}
 to define refinement for CRE[MFOTL] specifications in the following manner.
 \begin{definition}
-    \label{def:mfotl-refinement}
-    Refinement of EMFOTL specifications is defined by the following rules.
-    EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+    \label{def:cre-refinement}
+    Refinement of CRE specifications is defined by the following rules.
     A specification $S_C$ refines a specification $S_A$, written as $S_C \refineL S_A$
     under a refinement mapping $\pi$
     iff there exist $\Gamma_C$ and $\Gamma_A$ such that
