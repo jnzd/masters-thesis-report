@@ -1237,22 +1237,56 @@ The following lemma is analogous to Lemma 2.2 in Sprenger et al. \cite{igloo}
 \subsection{MFOTL Refinement}
 \label{subsection:refinement-of-mfotl-specifications}
 
-In this section we define refinement for MFOTL formulas and we proof
-that, under our refinement definition,
-if a formula $\phi_C$ refines a causable formula $\phi_A : \Cau$,
-then $\phi_C$ is enforceable.
-
 \begin{definition}
-    \label{def:enforceable-mfotl-specification}
-    An \emph{EMFOTL Specification} is a triple
-    $S = (\phi, \Sigma, \kappa)$ consisting of an EMFOTL formula $\phi$,
+    \label{def:nforceable-mfotl-specification}
+    An \emph{MFOTL Specification} is a triple
+    $S = (\phi, \Sigma, \kappa)$ consisting of an MFOTL formula $\phi$,
     a signature $\Sigma$, and a capability mapping $\kappa$.
 \end{definition}
 
 \begin{definition}
-    \label{def:mfotl-refinement}
-    Refinement of EMFOTL specifications is defined by the following rules.
-    EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+    \label{def:mfotl-specification-enforceability}
+    We say an MFOTL specification $S = (\phi, \Sigma, \kappa)$ is enforceable,
+    if $\phi$ is enforceable with the capabilities $\kappa$.
+\end{definition}
+% TODO: Maybe give a definition for when an MFOTL specification is enforceable.
+In this section we define refinement for MFOTL specifications and we proof
+that, under our refinement definition,
+if an MFOTL specification $S_C$ refines an enforceable Specification $S_A$,
+then $S_C$ is enforceable.
+
+% \begin{definition}
+%     \label{def:mfotl-refinement}
+%     Refinement of EMFOTL specifications is defined by the following rules.
+%     EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+%     \begin{gather*}
+%         \prftree[r]{Ref-Imp}
+%             {\phi_C \implies \phi_A}
+%             {\Gamma \vdash \phi_C : \tau_C}
+%             {\Gamma \vdash \phi_A : \tau_A}
+%             {\tau_C \capgeq \tau_A}
+%             % TODO: do the two contexts actually have to be equal, does it matter
+%             % TODO: also, do the signatures have to be equal and/or is this too restrictive
+%             {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
+%             % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+%         \prftree[r]{Ref-Let}
+%             {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+%             {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+%             {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
+%             {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
+%                 \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+%         \prftree[r]{Ref-Conj}
+%             {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
+%             {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
+%             {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+%         \prftree[r]{Ref-Trans}
+%             {S_C, \Gamma_C \refineL S_B, \Gamma_B}
+%             {S_B, \Gamma_B \refineL S_A, \Gamma_A}
+%             {S_C, \Gamma_C \refineL S_A, \Gamma_A}
+%     \end{gather*}
+% \end{definition}
+
+\begin{figure}
     \begin{gather*}
         \prftree[r]{Ref-Imp}
             {\phi_C \implies \phi_A}
@@ -1261,29 +1295,41 @@ then $\phi_C$ is enforceable.
             {\tau_C \capgeq \tau_A}
             % TODO: do the two contexts actually have to be equal, does it matter
             % TODO: also, do the signatures have to be equal and/or is this too restrictive
-            {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
-            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+            {(\phi_C, \Sigma, \kappa_C), \Gamma \leadsto (\phi_A, \Sigma, \kappa_A), \Gamma} \\
+            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
         \prftree[r]{Ref-Let}
             {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
             {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
             {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
             {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
-                \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+                \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Conj}
-            {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+            {S_C, \Gamma_C \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \leadsto (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \leadsto (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Trans}
-            {S_C, \Gamma_C \refineL S_B, \Gamma_B}
-            {S_B, \Gamma_B \refineL S_A, \Gamma_A}
-            {S_C, \Gamma_C \refineL S_A, \Gamma_A}
+            {S_C, \Gamma_C \leadsto S_B, \Gamma_B}
+            {S_B, \Gamma_B \leadsto S_A, \Gamma_A}
+            {S_C, \Gamma_C \leadsto S_A, \Gamma_A}
     \end{gather*}
-\end{definition}
+    \caption{MFOTL Refinement Rules}
+    \label{fig:mfotl-refinement-rules}
+\end{figure}
 
+
+\begin{definition}
+    \label{def:mfotl-refinement}
+    An MFOTL Specification $S_C$ refines an MFOTL specification $S_A$,
+    written as $S_C \refineL S_A$ iff
+    there exist $\Gamma_C$ and $\Gamma_A$ such that
+    $S_C, \Gamma_C \leadsto S_A, \Gamma_A$ according to the rules in
+    Figure \ref{fig:mfotl-refinement-rules}.
+\end{definition}
 
 \begin{theorem}
     \label{theo:abstract-enforceability-implies-concrete-enforceability}
-    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$
+    % If $S_C, \Gamma_C \refineL S_A, \Gamma_A$
+    If $S_C \refineL S_A$
     with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
     $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
     $\phi_C$ is enforceable.
