@@ -1295,34 +1295,47 @@ then $S_C$ is enforceable.
             {\tau_C \capgeq \tau_A}
             % TODO: do the two contexts actually have to be equal, does it matter
             % TODO: also, do the signatures have to be equal and/or is this too restrictive
-            {(\phi_C, \Sigma, \kappa_C), \Gamma \leadsto (\phi_A, \Sigma, \kappa_A), \Gamma} \\
-            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+            {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
+            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
         \prftree[r]{Ref-Let}
-            {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
-            {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
-            {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
-            {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
-                \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+            % {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+            % {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+            % {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
+            { \prfStackPremises
+                {\mathsf{events}(\phi_C) =\{e_1,\dots,e_\ell\} \quad
+                \Events_C = \Events_A \setminus \{e\} \cup \{e_1,\dots,e_\ell\}}
+                { \iota_C = \iota_A[i.~e_i \mapsto k_i] \setminus \{e\} \quad
+                \kappa_C = \kappa_A[i.~e_i \mapsto \tau_i] \setminus \{e\} }
+                { \Gamma_C = \Gamma_A[i.~e_i \mapsto \tau'_i] \setminus \{e\} \quad
+                \forall i.~\tau'_i \capleq \tau_i }
+                { \Gamma_A \vdash \phi_A : \Cau \quad
+                \Gamma_C \vdash \psi_C : \Gamma_A(e) }
+            }
+            % {(\LLet{e(\bar{t})}{\psi_C}{\phi_A},
+            {\phi_A [ e(\bar{t}) \setminus \psi_C ] ,
+                (\Domain, \Events_C, \Functions, \iota_C), \kappa_C), \Gamma_C
+                \refineL (\phi_A,
+                (\Domain, \Events_A, \Functions, \iota_A), \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Conj}
-            {S_C, \Gamma_C \leadsto (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \leadsto (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \leadsto (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+            {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
+            {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
         \prftree[r]{Ref-Trans}
-            {S_C, \Gamma_C \leadsto S_B, \Gamma_B}
-            {S_B, \Gamma_B \leadsto S_A, \Gamma_A}
-            {S_C, \Gamma_C \leadsto S_A, \Gamma_A}
+            {S_C, \Gamma_C \refineL S_B, \Gamma_B}
+            {S_B, \Gamma_B \refineL S_A, \Gamma_A}
+            {S_C, \Gamma_C \refineL S_A, \Gamma_A}
     \end{gather*}
+    \vspace{-2em}
     \caption{MFOTL Refinement Rules}
     \label{fig:mfotl-refinement-rules}
 \end{figure}
-
 
 \begin{definition}
     \label{def:mfotl-refinement}
     An MFOTL Specification $S_C$ refines an MFOTL specification $S_A$,
     written as $S_C \refineL S_A$ iff
     there exist $\Gamma_C$ and $\Gamma_A$ such that
-    $S_C, \Gamma_C \leadsto S_A, \Gamma_A$ according to the rules in
+    $S_C, \Gamma_C \refineL S_A, \Gamma_A$ according to the rules in
     Figure \ref{fig:mfotl-refinement-rules}.
 \end{definition}
 
@@ -1541,8 +1554,47 @@ formulas are likewise refinements of each other.
             {\Gamma, \mathsf{let}_d : \phi \vdash \psi : \mono{e}^p}
             {\Gamma \vdash \LLet{d(\bar{x})}{\phi}{\psi} : \mono{e}^p}
     \end{gather*}
-    Where $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
-    \caption{MFOTL (Anti) Monotonicity Rules \label{fig:mfotl-monotonicity}}
+    \vspace{-2em}
+    \caption{MFOTL (Anti) Monotonicity Rules (Hublet et al. \cite{lex} (Appendix A))}
+    \label{fig:mfotl-monotonicity}
+\end{figure}
+
+\begin{figure}
+    \begin{gather*}
+    \prftree[r] {$\textsc{con}^q_\mathsf{mon}$}
+        {
+            \prfStackPremises
+            {\exists r : \phi \Rightarrow p \in C}
+            {\forall r : \phi \Rightarrow p \in C.~
+                \Gamma \vdash^\Phi \phi : \mono{e} ^q~
+                \textbf{and}~\Gamma \vdash^\Phi \exc(r) : \mono{e}^{\neg q}}
+        }
+        {\Gamma \vdash^\Phi p(\overline{x}) : \mono{e}^q} \\[5pt]
+    \prftree[r] {$\textsc{exc}^p_\mathsf{mon}$}
+        {\forall r : \phi \Rightarrow \exc(s) \in E.~
+        \Gamma \vdash^\Phi \phi : \mono{e}^p~
+        \textbf{and}~\Gamma \vdash^\Phi \exc(r) : \mono{e}^{\neg p}}
+        {\Gamma \vdash^\Phi \exc(s)(\overline{x}) : \mono{e}^p} \\[5pt]
+    \prftree[r] {$\textsc{reg}^p_\mathsf{mon}$}
+        {r: \phi \Rightarrow \psi \in R}
+        {\Gamma \vdash \phi \to \psi : \mono{e}^p}
+        {\Gamma \vdash \exc(r) : \mono{e}^p}
+        {\Gamma \vdash^\Phi \comply(r) : \mono{e}^p} \\[5pt]
+    \prftree {r: \phi \Rightarrow \psi \in R}
+        {\Gamma \vdash (C,R,E) : \mono{\exc(r)}^+} \quad
+    \prftree {r: \phi \Rightarrow p \in C}
+        {\Gamma \vdash (C,R,E) : \mono{p}^{\neg q}}
+        {\Gamma \vdash (C,R,E) : \mono{\exc(r)}^q} \\[5pt]
+    \prftree {r: \phi \Rightarrow \exc(s) \in E}
+        {\Gamma \vdash (C,R,E) : \mono{\exc(s)}^{\neg p}}
+        {\Gamma \vdash (C,R,E) : \mono{\exc(r)}^p} \\[5pt]
+    \prftree {\forall r: \phi \Rightarrow \psi \in R.~
+        \Gamma \vdash^{(C,R,E)} \comply(r) : \mono{e}^p }
+        {\Gamma \vdash (C,R,E) : \mono{e}^p}
+    \end{gather*}
+    \vspace{-2em}
+    \caption{CRE (Anti) Monotonicity Rules (Hublet et al. \cite{lex} (Appendix A))}
+    \label{fig:cre-monotonicity-rules}
 \end{figure}
 
 \begin{figure}[t]
@@ -1625,6 +1677,7 @@ formulas are likewise refinements of each other.
                 \leadsto_{\mathrm{id}}
                 ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
     \end{gather*}
+    \vspace{-2em}
     \caption{CRE[MFOTL] refinement rules \label{fig:cre-refinement-rules}}
 \end{figure}
 \begin{figure}[t]
@@ -1643,6 +1696,7 @@ formulas are likewise refinements of each other.
             \EndFunction
         \end{algorithmic}
     \end{center}
+    \vspace{-2em}
     \caption{\textsc{\textsf{map}} function used in Figure~\ref{fig:cre-refinement-rules}
     \label{fig:cre-refinement-map-function}}
 \end{figure}
@@ -1657,6 +1711,21 @@ to define refinement for CRE[MFOTL] specifications in the following manner.
     iff there exist $\Gamma_C$ and $\Gamma_A$ such that
     $S_C, \Gamma_C \leadsto_\pi S_A, \Gamma_A$.
 \end{definition}
+The refinement rules in Figure \ref{fig:cre-refinement-rules} depend on the concept of
+monotonic and anti-monotonic predicates.
+Figure \ref{fig:mfotl-monotonicity} shows the monotonicity rules for
+MFOTL predicates, in which $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
+A predicate $p$ appears monotonically (or anti-monotonically) in a
+formula $\phi$, if the addition of an event $p(\bar{x})$ cannot make
+an already compliant (or non-compliant) trace non-compliant (or compliant).
+For example in the formula $\phi := \Always (\neg p(1))$ the
+predicate $p$ does not appear monotonically,
+because the addition of an event at any time $p(1)$ would make a trace that
+was previously compliant with $\phi$, non-compliant with $\phi$,
+on the other hand $p$ appears anti-monotonically in $\phi$.
+It is important to note that a predicate can appear monotonically, anti-monotonically,
+both monotonically and anti-monotonically, or neither monotonically nor
+anti-monotonically in a formula.
 
 % \begin{definition}
 %     \label{def:lex-refinement}

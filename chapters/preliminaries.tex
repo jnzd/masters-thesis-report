@@ -209,6 +209,7 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
             {\forall 1 \leq i \leq k. \Gamma \vdash t_i}
             {\Gamma \vdash f\left(t_1,\dots,t_k\right)}            
     \end{gather*}
+    \vspace{-2em}
     \caption{MFOTL Term Typing Rules \label{fig:mfotl-term-typing-rules}}
 \end{figure}
 
@@ -252,6 +253,7 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
             {\forall 1 \leq i \leq k. x_i \in Terms} % TODO how should this actually be?
             {\Gamma \vdash \LLet{e\left(x_1, \dots, x_k \right)}{\phi}{\psi}}
     \end{gather*}
+    \vspace{-2em}
     \caption{MFOTL Typing Rules \label{fig:mfotl-typing-rules}}
 \end{figure}
 
@@ -417,6 +419,7 @@ The following subsection explores an approach for enforcing MFOTL policies.
             \draw[<-] (7.1,-0.2) to node[above] {time\,$\tau$} (8.1,-0.2);
         \end{tikzpicture}
     \end{center}
+    \vspace{-2em}
     \caption{Proactive real-time first-order enforcement system model}
     \label{fig:system-model}
 \end{figure}
@@ -507,24 +510,29 @@ Hublet et al. \cite{whyenf-2} define an enforced trace algorithmically via
 Algorithm~\ref{alg:loop}.
 
 \begin{definition}
-  For any $\sigma \in \Traces$ and enforcer  $\Enforcer=(\EnfStates,s_0,\mu)$, the
-  \emph{enforced trace} $\Enforcer(\sigma)$ is defined co-recursively in Algorithm~\ref{alg:loop}.
-  \begin{algorithm}[t]
-  \begin{algorithmic}[1]
-    \State $\run(s,\sigma,\sigma',\tau)=$~\Case\;$\sigma'$ \OOf
-    \State $\mid \varepsilon \Rightarrow \varepsilon$
-    \State $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' > \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,\mathsf{tick})$ \IIn{}
-    \State \quad \Case\;$o$ \OOf~$\mid\PCom(D_\Cau) \Rightarrow (\tau,D_\Cau) \cdot \run(s',\sigma\cdot (\tau, D_\Cau),\sigma',\tau+1)$
-    \State \qquad\qquad\quad~$\mid\NCom \Rightarrow \run(s',\sigma,\sigma',\tau+1)$
-    \State  $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' = \tau \Rightarrow$ \Let\;$(o,s') = \mu(\sigma,s,\tau,D); D' = (D \setminus D_\Sup) \cup D_\Cau)$ \IIn
-    \State \quad \Case\;$o$ \OOf ~$\mid \RCom(D_\Cau,D_\Sup) \Rightarrow (\tau, D') \cdot \run(s',\sigma \cdot (\tau, D'),\sigma'',\tau+1)$
-    \State $\Enforcer(\sigma)=\run(s_0,\emptytrace,\sigma,\Ternaryop{\sigma=\emptytrace}{0}{\fts(\sigma)})$
-  \end{algorithmic}
-  \caption{Enforced trace\label{alg:loop}}
-  \vspace{-1ex}
-\end{algorithm}
+    For any $\sigma \in \Traces$ and enforcer  $\Enforcer=(\EnfStates,s_0,\mu)$, the
+    \emph{enforced trace} $\Enforcer(\sigma)$ is defined co-recursively in
+    Algorithm~\ref{alg:loop}.
+    \begin{algorithm}[t]
+        \begin{algorithmic}[1]
+            \State $\run(s,\sigma,\sigma',\tau)=$~\Case\;$\sigma'$ \OOf
+            \State $\mid \varepsilon \Rightarrow \varepsilon$
+            \State $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' > \tau \Rightarrow$
+            \Let\;$(o,s') = \mu(\sigma,s,\tau,\mathsf{tick})$ \IIn{}
+            \State \quad \Case\;$o$ \OOf~$\mid\PCom(D_\Cau) \Rightarrow (\tau,D_\Cau) \cdot
+                \run(s',\sigma\cdot (\tau, D_\Cau),\sigma',\tau+1)$
+            \State \qquad\qquad\quad~$\mid\NCom \Rightarrow \run(s',\sigma,\sigma',\tau+1)$
+            \State  $\mid(\tau', D) \cdot \sigma''$ \When\;$\tau' = \tau \Rightarrow$
+            \Let\;$(o,s') = \mu(\sigma,s,\tau,D); D' = (D \setminus D_\Sup) \cup D_\Cau)$ \IIn
+            \State \quad \Case\;$o$ \OOf ~$\mid \RCom(D_\Cau,D_\Sup)
+                \Rightarrow (\tau, D') \cdot \run(s',\sigma \cdot (\tau, D'),\sigma'',\tau+1)$
+            \State $\Enforcer(\sigma)=
+                \run(s_0,\emptytrace,\sigma,\Ternaryop{\sigma=\emptytrace}{0}{\fts(\sigma)})$
+        \end{algorithmic}
+    \caption{Enforced trace\label{alg:loop}}
+    \vspace{-.6ex}
+    \end{algorithm}
 \end{definition}
-
 \begin{definition}
     \label{def:enf-sound-property}
     An enforcer $\Enforcer$ is \emph{sound} with respect to some property $P$, iff
@@ -614,6 +622,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
         \draw[->] (bot) -- (obs);
         \draw[->] (bot) -- (cau);
     \end{tikzpicture}
+    \vspace{-2em}
     \caption{The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
     \label{fig:capability-lattice}}
 \end{figure}
@@ -790,6 +799,7 @@ The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
             {\gamma, (e,1) : E_1,\dots, (e,k):E_k \vdash \phi_2 : \PG^p_{E}(x)}
             {\gamma \vdash \LLet{e(x_1,\dots,x_k)}{\phi_1}{\phi_2}:\PG^p_{E}(x)}
     \end{gather*}
+    \vspace{-2em}
     \caption{Past-Guardedness Rules \label{fig:past-guardedness}}
 \end{figure}
 
@@ -947,6 +957,7 @@ The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
             {\Gamma, e : \tau_1 \vdash \phi_2 : \tau_2}
             {\Gamma \vdash \LLet{e(\overline{t})}{\phi_1}{\phi_2} : \tau_2}
     \end{gather*}
+    \vspace{-2em}
     \caption{EMFOTL Typing Rules \label{fig:emfotl-typing-rules}}
 \end{figure}
 
@@ -1094,20 +1105,38 @@ to an underlying MFOTL formula.
     every rule in $C \cup R \cup E$ has a unique label.
 \end{definition}
 
-
+% \begin{figure}
+%     \begin{gather*}
+%         \prftree[r]{CON}
+%             {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
+%             {\gamma \vDash p} \\
+%         \prftree[r]{REG}
+%             {r: \phi \Rightarrow \psi \in R}{\gamma \vDash (\phi \to \psi) \vee \exc(r)}
+%             {\gamma \vDash \comply(r)} \\
+%         \prftree[r]{EXC}
+%             {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
+%             {\gamma \vDash \exc(s)}
+%     \end{gather*}
+%     \vspace{-2em}
+%     \caption{CRE[MFOTL] Semantics \label{fig:cre-semantics}}
+% \end{figure}
 \begin{figure}
-    \begin{gather*}
-        \prftree[r]{CON}
-            {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
-            {\gamma \vDash p} \\
-        \prftree[r]{REG}
-            {r: \phi \Rightarrow \psi \in R}{\gamma \vDash (\phi \to \psi) \vee \exc(r)}
-            {\gamma \vDash \comply(r)} \\
-        \prftree[r]{EXC}
-            {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
-            {\gamma \vDash \exc(s)}
-    \end{gather*}
-    \caption{CRE[MFOTL] Semantics \label{fig:cre-semantics}}
+    \begin{align*}
+        [\textsc{con}] &&
+            \gamma &\vDash^\Phi p &&
+            \text{iff } r:\phi \Rightarrow p \in C
+            \text{ and }\gamma \vDash^\Phi \phi \wedge \neg \exc(r) \\
+        [\textsc{reg}] &&
+            \gamma &\vDash^\Phi \comply(r) &&
+            \text{iff } r:\phi \Rightarrow \psi \in R
+            \text{ and }\gamma \vDash^\Phi (\phi \to \psi) \vee \exc(r)\\
+        [\textsc{exc}] &&
+            \gamma &\vDash^\Phi \exc(s) &&
+            \text{iff } r:\phi \Rightarrow \exc(s) \in E
+            \text{ and }\gamma \vDash^\Phi \phi \wedge \neg \exc(r)
+    \end{align*}
+    \vspace{-2em}
+    \caption{Semantics of CRE for a fixed structure\label{fig:cre-semantics}}
 \end{figure}
 
 Figure \ref{fig:cre-semantics} defines the semantics of the CRE meta logic.
@@ -1142,35 +1171,38 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
 
 \begin{figure}
     % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
-    \prftree[r]{\textsc{regI}}
-        {r : \phi \Rightarrow \psi \in R}
-        {\overline{x}=\fv(\phi) \cup \fv(\psi)}
-        {\Gamma \vdash^\Phi \Always (\forall \overline{x}.~\phi \rightarrow \psi) : \Cau}
-        {\Gamma \vdash^\Phi \comply(r) : \Cau}
-    \prftree[r]{\textsc{regE}}
-        {r : \phi \Rightarrow \psi \in R}
-        {\overline{x}=\fv(\phi) \cup \fv(\psi)} 
-        {\Gamma \vdash^\Phi \Always
-            (\forall \overline{x}.~\phi \land \neg \psi \rightarrow \exc(r)) : \Cau}
-        { \Gamma \vdash^\Phi \comply(r) : \Cau}
-    \prftree[r]{$\textsc{exc}^\Cau$}
-        {r : \phi \Rightarrow \exc(s) \in E}
-        {\Gamma \vdash^\Phi \phi : \Cau}
-        {\Gamma \vdash^\Phi \exc(r) : \Sup}
-        {\Gamma \vdash^\Phi \exc(s) : \Cau}
-    \prftree[r]{$\textsc{exc}^\Sup$}
-        {\forall r : \phi \Rightarrow \exc(s) \in E.~
-            (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
-        {\Gamma \vdash^\Phi \exc(s) : \Sup}
-    \prftree[r]{$\textsc{con}^\Cau$}
-        {r : \phi \Rightarrow p \in C}
-        {\Gamma \vdash^\Phi \phi : \Cau}
-        {\Gamma \vdash^\Phi \exc(r) : \Sup}
-        {\Gamma \vdash^\Phi p : \Cau}
-    \prftree[r]{$\textsc{con}^\Sup$}
-        {\forall r : \phi \Rightarrow p \in C.~
-            (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
-        {\Gamma \vdash^\Phi p : \Sup}
+    \begin{gather*}
+        \prftree[r]{\textsc{regI}}
+            {r : \phi \Rightarrow \psi \in R}
+            {\overline{x}=\fv(\phi) \cup \fv(\psi)}
+            {\Gamma \vdash^\Phi \Always (\forall \overline{x}.~\phi \rightarrow \psi) : \Cau}
+            {\Gamma \vdash^\Phi \comply(r) : \Cau} \\
+        \prftree[r]{\textsc{regE}}
+            {r : \phi \Rightarrow \psi \in R}
+            {\overline{x}=\fv(\phi) \cup \fv(\psi)} 
+            {\Gamma \vdash^\Phi \Always
+                (\forall \overline{x}.~\phi \land \neg \psi \rightarrow \exc(r)) : \Cau}
+            { \Gamma \vdash^\Phi \comply(r) : \Cau} \\
+        \prftree[r]{$\textsc{exc}^\Cau$}
+            {r : \phi \Rightarrow \exc(s) \in E}
+            {\Gamma \vdash^\Phi \phi : \Cau}
+            {\Gamma \vdash^\Phi \exc(r) : \Sup}
+            {\Gamma \vdash^\Phi \exc(s) : \Cau} \\
+        \prftree[r]{$\textsc{exc}^\Sup$}
+            {\forall r : \phi \Rightarrow \exc(s) \in E.~
+                (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
+            {\Gamma \vdash^\Phi \exc(s) : \Sup} \\
+        \prftree[r]{$\textsc{con}^\Cau$}
+            {r : \phi \Rightarrow p \in C}
+            {\Gamma \vdash^\Phi \phi : \Cau}
+            {\Gamma \vdash^\Phi \exc(r) : \Sup}
+            {\Gamma \vdash^\Phi p : \Cau} \\
+        \prftree[r]{$\textsc{con}^\Sup$}
+            {\forall r : \phi \Rightarrow p \in C.~
+                (\Gamma \vdash^\Phi \phi : \Sup~\mathbf{or}~\Gamma \vdash^\Phi \exc(r) : \Cau)}
+            {\Gamma \vdash^\Phi p : \Sup}
+    \end{gather*}
+    \vspace{-2em}
     \caption{Typing rules for ECRE[MFOTL] policies\label{fig:ecre-typing-rules}}
 \end{figure}
 
