@@ -1108,12 +1108,26 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
     % \end{itemize}
 \end{proof}
 
+\begin{definition}
+    \label{def:enf-event-system-transparency-property}
+    An enforcement event system
+    $\EventSystem =
+    \left(\Traces_\sys, \Databases \cup \{ \tick, \sskip \}, \RFun, \PFun \right)$
+    is \emph{transparent} with respect to some
+    property $P \subseteq \Traces_{\sys \omega}$ iff
+
+    TODO: when is an enforcement event system transparent? Transparency for an enforcer
+    is defined via the enforced trace, what is the enforced trace in an enforcement event
+    system?
+    % \begin{equation*}
+    %     \EventSystem, \emptytrace_\sys \vDash P.
+    % \end{equation*}    
+\end{definition}
 
 \begin{definition}
-    \label{def:enforcement-event-system-transparency}
-    TODO: when is an enforcement event system transparent?
-
-    (First finish soundness)
+    \label{def:enforcement-event-system-transparency-formula}
+    An enforcement event system $\EventSystem$ is transparent for a formula $\phi$
+    iff it is transparent for the property $\Language(\phi)$.
 \end{definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1696,7 +1710,7 @@ formulas are likewise refinements of each other.
             \EndFunction
         \end{algorithmic}
     \end{center}
-    \vspace{-2em}
+    \vspace{-1.2em}
     \caption{\textsc{\textsf{map}} function used in Figure~\ref{fig:cre-refinement-rules}
     \label{fig:cre-refinement-map-function}}
 \end{figure}
@@ -1726,6 +1740,17 @@ on the other hand $p$ appears anti-monotonically in $\phi$.
 It is important to note that a predicate can appear monotonically, anti-monotonically,
 both monotonically and anti-monotonically, or neither monotonically nor
 anti-monotonically in a formula.
+
+\begin{theorem}
+    \label{theo:cre-refinement-impies-mfotl-refinement}
+    If $(\Domain_C, \Events_C, \Functions_C, \iota_C), (C_C,R_C,E_C), \kappa_C
+    \refineL_\pi
+    (\Domain_A, \Events_A, \Functions_A, \iota_A), (C_A,R_A,E_A), \kappa_A $,
+    for some mapping $\pi$
+    then
+    the compiled MFOTL versions of the two CRE specifications
+    also refine each other.
+\end{theorem}
 
 % \begin{definition}
 %     \label{def:lex-refinement}

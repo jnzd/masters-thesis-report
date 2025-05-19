@@ -242,10 +242,10 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
         \prftree[r]{Since}
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}{I \in \Intervals}
             {\Gamma \vdash \phi \Since_I \psi} \\
-        \prftree[r]{Aggregation} % TODO: what are the typing rules for aggregation?
-            {\Gamma \vdash \phi}{x \in \Variables }{\bar{y} \text{ TODO}}
-                {t \text{ TODO}}{\omega \text{ TODO}}
-            {\Gamma \vdash \Aggreg{x}{\omega}{t}{y_1,\dots,y_k}{\phi}} \\
+        % \prftree[r]{Aggregation} % TODO: what are the typing rules for aggregation?
+        %     {\Gamma \vdash \phi}{x \in \Variables }{\bar{y} \text{ TODO}}
+        %         {t \text{ TODO}}{\omega \text{ TODO}}
+        %     {\Gamma \vdash \Aggreg{x}{\omega}{t}{y_1,\dots,y_k}{\phi}} \\
         \prftree[r]{Let}
             {\Gamma \vdash \phi}
             { \Gamma[\Events \mapsto \Events \cup \left\lbrace e \right\rbrace]
@@ -320,9 +320,9 @@ omitted.
             \text{ with } \tau_i - \tau_j \in I \\
             &&&
             \text{ and } v, k \vDash  \phi \text{ for all } j < k \leq i \\
-        v, i &\vDash  \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
-            &&\text{iff } TODO \dots % TODO:
-        \\
+        % v, i &\vDash  \Aggreg{x}{\omega}{t}{y_1, \dots, y_k}{\phi}
+        %     &&\text{iff } TODO \dots % TODO:
+        % \\
         v, i &\vDash  \LLet{e(x_1, \dots, x_k)}{\phi}{\psi}
             && \text{iff } v, i \vDash_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \vDash \phi \right\rbrace \right]} \psi
     \end{align*}
@@ -419,8 +419,8 @@ The following subsection explores an approach for enforcing MFOTL policies.
             \draw[<-] (7.1,-0.2) to node[above] {time\,$\tau$} (8.1,-0.2);
         \end{tikzpicture}
     \end{center}
-    \vspace{-2em}
-    \caption{Proactive real-time first-order enforcement system model}
+    \vspace{-1.5em}
+    \caption{Proactive real-time first-order enforcement system model (Hublet et al. \cite{whyenf} (Figure 2))}
     \label{fig:system-model}
 \end{figure}
 
@@ -1205,6 +1205,30 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
     \vspace{-2em}
     \caption{Typing rules for ECRE[MFOTL] policies\label{fig:ecre-typing-rules}}
 \end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Compilation of CRE[MFOTL] to MFOTL}
+\label{section:cre-compilation}
+This section recalls the compilation algorithm of CRE[MFOTL] to Lex
+as it is introduced in Hublet et al. \cite{lex} (Section 3.2).
+Hublet et al. \cite{lex} defines the following dependency relation between
+constitutive and exception rules analogous to
+Merigoux et al. \cite{merigoux_catala_2021} (Section 4.1).
+
+\begin{definition}
+    \label{def:cre-dependency-relation}
+    For a CRE[MFOTL] Policy $\Phi := (C,R,E)$ let $r,s \in C \cup E$.
+    $r \triangleright_\Phi s$ (read as "s depends on r")
+    iff either $r:\phi \Rightarrow p \in C$ and $p$ occurs in the
+    left-hand side of the rule $s$, or
+    $r:\phi \Rightarrow \exc(s) \in E$.
+\end{definition}
+
+A policy $(C,R,E)$ is called \emph{acyclic} iff there do not exist two 
+rules $r,s \in C \cup E$ such that $r \triangleright_\Phi s$,
+and $s \triangleright_\Phi r$ and also that there is no single rule $r \in C \cup E$
+that is self-referential (i.e. $r \triangleright_\Phi r$).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
