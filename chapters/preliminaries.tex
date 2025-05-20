@@ -997,11 +997,11 @@ the rule in Figure \ref{fig:emfotl-typing-rules}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The Lex Language}
-\label{section:lex-language}
+\subsection{Constitutive, Regulative, and Exception Rules (CRE[MFOTL])}
+\label{section:cre-meta-logic}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Constitutive, Regulative, and Exception Rules (CRE Meta-Logic)}
+\subsection{Introduction}
 \label{subsection:cre-meta-logic}
 Hublet et. al \cite{lex} introduces a meta-logic based on
 constitutive, regulative, and exception rules (CRE meta-logic).
@@ -1156,8 +1156,8 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
 \end{definition}
 
 \begin{definition}
-    \label{def:lex-specification}
-    A \emph{Lex Specification} 
+    \label{def:cre-specification}
+    A \emph{CRE Specification} 
     $\Specification = \left(\Sigma, \phi, \kappa \right)$
     is a triple consisting of some signature
     $\Sigma = \left(\Domain, \Events, \Functions, \iota \right)$,
@@ -1205,6 +1205,7 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
     \vspace{-2em}
     \caption{Typing rules for ECRE[MFOTL] policies\label{fig:ecre-typing-rules}}
 \end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1229,6 +1230,196 @@ A policy $(C,R,E)$ is called \emph{acyclic} iff there do not exist two
 rules $r,s \in C \cup E$ such that $r \triangleright_\Phi s$,
 and $s \triangleright_\Phi r$ and also that there is no single rule $r \in C \cup E$
 that is self-referential (i.e. $r \triangleright_\Phi r$).
+The compilation of CRE[MFOTL] to MFOTL is defined by Algorithm 
+\ref{alg:compilation} (Hublet et al. \cite{lex} (Algorithm 1)) and
+Algorithm \ref{alg:collect} (Hublet et al. \cite{lex} (Algorithm 2)).
+
+\begin{algorithm}
+  \caption{CRE[MFOTL] to MFOTL compilation\label{alg:compilation}}
+  \begin{algorithmic}[1]
+    \State \IInput $\mathcal{S}=(\Sigma,\Phi,\kappa)$ with $\Sigma = (\Domain, \Events, \Functions, \iota)$ and acyclic CRE[MFOTL] policy $\Phi=(C,R,E)$
+    \State $\Events_E \gets \{ e_s \mid r: \phi \Rightarrow \exc(s) \in E \}$\label{alg:events_e}
+    \State $R' \gets \{ r: \phi \land \neg e_r \Rightarrow \psi \mid r: \phi \Rightarrow \psi \in R, e_r \in \Events_E \} \cup \{ r: \phi \Rightarrow \psi \mid r: \phi \Rightarrow \psi \in R, e_r \notin \Events_E \}$\label{alg:r_prime}
+    \State $C_E \gets \{ r: \phi \Rightarrow e_s \mid r: \phi \Rightarrow \exc(s) \in E \}$\label{alg:c_e}
+    \State $\Events_0 \gets \{ p \mid p \not\in \Events \land e \text{ occurs in } C \cup R \cup E  \} \setminus \{ p \mid r: \phi \Rightarrow p \in C\}$\label{alg:events_0}
+    \State $C_0 \gets \{ z_p: \bot \Rightarrow p \mid p \in \Events_0 \}$\label{alg:c_0}
+    \State $C' \gets C \cup C_E \cup C_0$\label{alg:c_prime_1}
+    \State $C' \gets \{ r: \phi \land \neg e_r \Rightarrow p \mid r: \phi \Rightarrow p \in C', e_r \in \Events_E \} \cup \{ r: \phi \Rightarrow p \mid r: \phi \Rightarrow p \in R, e_r \notin \Events_E \}$\label{alg:c_prime_2}
+    \State $[(\phi_1, p_1),\dots, (\phi_k, p_k)] \gets \textsf{\textsc{collect}}(\textsf{\textsc{topological\_sort}}_{\triangleright_\Phi}(C'))$\label{alg:collected}
+    \State \textbf{for} $r : \phi \Rightarrow \psi \in R'$ \textbf{do} $\overline{x}_r \gets \mathsf{free\_variables}(\phi \rightarrow \psi)$ \textbf{endfor}
+    \State $\phi \gets \LLet{p_1}{\phi_1}{\dots\LLet{p_k}{\phi_k}{\bigwedge_{r: \phi \Rightarrow \psi \in R'}(\Always(\forall \overline{x}_r.~ \phi \to \psi))}}$\label{alg:phi}
+    \State \OOutput $\mathcal{S}'=(\Sigma',\phi,\kappa)$ where $\Sigma' = (\Domain, \Events\setminus \{p_i \mid 1 \leq i \leq k\}, \Functions, \iota)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary function \textsc{\textsf{collect}}\label{alg:collect}}
+  \begin{algorithmic}[1]
+    \Function{\textsf{collect}}{$L$}
+    \State\hspace{-1.25em}$P, L' \gets \emptyset, []$
+    \State\hspace{-1.25em}\textbf{for }$r : \phi \Rightarrow p \in L$\textbf{ do}
+    \State\hspace{-1em}\textbf{if } $p \notin P$ \textbf{ then } $(P, L') \gets (P \cup \{p\}, L' \cdot [(\bigvee_{r: \phi \Rightarrow p \in L} \phi, p)])$ \textbf{ endif}
+    \State\hspace{-1.25em}\textbf{endfor}
+    \State\hspace{-1.25em}\Return $L'$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Lex Programming Language}
+\label{section:lex}
+Hublet et al. \cite{lex} presents the Lex programming language
+based on CRE[MFOTL].
+Lex is designed to formalize legal texts and maintain a high
+readability, especially compared to pure MFOTL.
+It achieves this readability by maintaining the general
+structure of the underlying legal text.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Lex Syntax}
+\label{subsection:lex-syntax}
+
+\begin{figure*}
+    \begin{tabular}{|r|l|l|}
+    \toprule
+    \multirow{9}{*}
+        {\Lex{}}
+            &\kw{law}~$lbl$~[\stringkw{title}]
+                &[$\tau$]~\kw{event}~$e$ \\
+            &\kw{article}~$lbl$~[\stringkw{title}]
+                &\qquad\triplestringkw{<docstring>} \\
+            &\kw{paragraph}~$lbl$\dots
+                &\qquad $x_1$ : $t_1$ \\
+            &\kw{point}~$lbl$\dots
+                &\qquad\dots \\
+            &\dots
+                &\qquad $x_k$ : $t_k$ \\
+            &
+                &$\tau::= \kw{observable}$ \\
+            &\kw{type}~$t_1$~[\kw{is}~$t_2$]
+                &\qquad$\mid\kw{suppressable}$ \\
+            &\qquad\triplestringkw{<docstring>}
+                &\qquad$\mid\kw{causable}~\mid\kw{internal}...$ \\
+    \midrule
+    \multirow{3}{*}
+        {CRE[MFOTL]}
+            &\multirow{3}{*}
+                {n.a.}
+                &$e \in \Events$ \\
+            &
+                &$\iota(e)=(t_1, \dots, t_k)$ \\
+            &
+                &$\kappa(e)=\Obs,\Sup,\Cau...$ \\
+    \bottomrule
+    \end{tabular}
+    \vspace{1em}
+    \begin{tabular}{|l|l|l|}
+    \toprule
+        \kw{rule}~$r$
+            &\kw{rule}~$r$
+            &\kw{rule}~$r$ \\
+        \quad \kw{whenever}
+            &\quad \kw{whenever}
+            &\quad \kw{whenever} \\
+        \qquad $\phi_1$
+            &\qquad $\phi_1$
+            &\qquad $\phi_1$ \\
+        \qquad $\dots$
+            &\qquad $\dots$
+            &\qquad $\dots$ \\
+        \qquad $\phi_k$
+            &\qquad $\phi_k$
+            &\qquad $\phi_k$ \\
+        \quad \kw{constitute}
+            &\quad \kw{oblige}
+            &\quad \kw{except} \\
+        \qquad $p_1$
+            &\qquad $\psi_1$
+            &\qquad $lbl_1$ \\
+        \qquad $\dots$
+            &\qquad $\dots$
+            &\qquad $\dots$ \\
+        \qquad $p_\ell$
+            &\qquad $\psi_\ell$
+            &\qquad $lbl_\ell$ \\
+    \midrule
+        % \multirow{3}{*}
+        $r_1: \bigwedge\limits_{1 \leq i \leq k} \phi_i \Rightarrow p_1 \in C$
+            & $r_1: \bigwedge\limits_{1 \leq i \leq k} \phi_i \Rightarrow \psi_1 \in R$
+            & $r_1: \bigwedge\limits_{1 \leq i \leq k} \phi_i \Rightarrow \exc(s_1) \in E$ \\
+        \dots
+            & \dots
+            & \dots\\
+        $r_k: \bigwedge\limits_{1 \leq i \leq k} \phi_\ell\Rightarrow p_\ell \in C$
+            & $r_k: \bigwedge\limits_{1 \leq i \leq k} \phi_\ell\Rightarrow \psi_\ell \in R$
+            & $r_k: \bigwedge\limits_{1 \leq i \leq k} \phi_\ell\Rightarrow \exc(s_\ell) \in E$\\
+    \bottomrule
+    \end{tabular}
+    \vspace{-1.8em}
+    \caption{Correspondence between the \Lex{} and CRE[MFOTL] syntax
+    \label{fig:lex-and-cre-correspondence}}
+\end{figure*}
+
+Lex has the following main types of statements:
+\begin{itemize}
+    \item \textbf{Section Labels}
+        (keywords: \kw{law}, \kw{title}, \kw{chapter},
+        \kw{sectoin}, \kw{article}, \kw{paragraph},
+        \kw{point}, \kw{subpoint})
+        Section labels are used to represent the structure of
+        the law.
+        Section label statements have the form
+        of a section keyword followed by a mandatory string
+        identifier and an optional, more descriptive, string
+        title (e.g. \kw{article} "1" "Preconditions").
+        Section labels (together with optional rule identifiers)
+        are the analog of rule labels in CRE[MFOTL].
+    \item \textbf{Event Declarations}
+        (keywords: \kw{event}, \kw{predicate})
+        Event declarations declare event names and their arguments
+        along with their types.
+    \item \textbf{Type Declarations}
+        (keyword: \kw{type})
+        Type declarations map a type alias to a base type 
+        (e.g. \kw{type} name \kw{is} string).
+        These type aliases are not represented in CRE[MFOTL].
+    \item \textbf{Function Declarations}
+        (keyword: \kw{function})
+        Function declarations are analogous to event declarations,
+        but they define function names with their arguments and a
+        return type.
+    \item \textbf{Rule Definitions}
+        (keyword: \kw{rule})
+        Rule definitions are the core of the \Lex language.
+        They define the constitutive, regulative, and exception
+        rules like in CRE[MFOTL].
+        \Lex rules are more verbose than those in CRE[MFOTL]
+        and allow for the use of keywords in addition to symbols
+        for temporal/logical operators
+        (e.g. \graykw{ALWAYS} for $\Always$).
+        A CRE[MFOTL] rule like $r: \phi \Rightarrow p \in C$
+        becomse \kw{rule} \kw{whenever} $\phi$ \kw{constitute} $p$ in \Lex.
+        After the \kw{rule} keyword, a rule can optionally
+        be given a string identifier.
+        Exception rules in \Lex make use of section labels and
+        the optional rule identifiers to specify which rule(s)
+        the apply to.
+    \item \textbf{Import Statements}
+        (keyword: \kw{import})
+        Import statements are used to modularly split
+        a \Lex specification into multiple files.
+        "\kw{import} specification" imports the
+        specification in the file "specification.lex".
+\end{itemize}
+
+Figure \ref{fig:lex-and-cre-correspondence}
+(Hublet et al. \cite{lex} (Figure 10))
+shows the correspondence between Lex and CRE[MFOTL].
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
