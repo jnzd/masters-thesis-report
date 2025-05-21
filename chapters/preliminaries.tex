@@ -1547,23 +1547,24 @@ In this section we recall refinement of event systems as defined in Sprenger et.
 \begin{definition}
     \label{def:event-system-refinement}
     Given two event systems
-    $\EventSystem_i = \left( \Statespace, \Eventspace, \Transitionrelation{i}{} \right)$
-    with initial states $\Initialstates$ for $i\in \lbrace1,2\rbrace$.
+    $\EventSystem_i = \left( \Statespace_i, \Eventspace_i, \Transitionrelation{i}{} \right)$
+    with initial states $\Initialstates_i$ for $i\in \lbrace1,2\rbrace$.
     $\left(\EventSystem_2, \Initialstates_2 \right)$ refines
     $\left(\EventSystem_1, \Initialstates_1 \right)$
-    modulo a mediator function $\pi : \Eventspace \to \Eventspace$,
+    modulo a mediator function $\pi : \Eventspace_2 \to \Eventspace_1$,
     written as 
-    $\left(\EventSystem_2, \Initialstates_2 \right) \refineL\phi
+    $\left(\EventSystem_2, \Initialstates_2 \right) \refineL_\pi
     \left(\EventSystem_1, \Initialstates_1 \right)$
     if there exists a simulation relation $R \subseteq \Eventspace \times \Eventspace$
     such that
     \begin{enumerate}
-        \item for all $s_2 \in \Initialstates$ there exists some
-        $s_1 \in \Initialstates$ such that $(s_2, s_1) \in R$, and
-        \item for all $s_1 \in \Statespace, s_2, s_2' \in \Statespace$, and 
-        $e_2 \in \Eventspace$ such that
+        \item for all $s_2 \in \Initialstates_2$ there exists some
+        $s_1 \in \Initialstates_1$ such that $(s_2, s_1) \in R$, and
+        \item for all $s_1 \in \Statespace_1,
+            s_2, s_2' \in \Statespace_2$, and 
+        $e_2 \in \Eventspace_2$ such that
         $s_2 \Transitionrelation{}{e_2} s_2'$ and $(s_2, s_1) \in R$
-        there exists some $s_1' \in \Statespace$ such that
+        there exists some $s_1' \in \Statespace_1$ such that
         $s_1 \Transitionrelation{}{\pi(e_2)} s_1'$.
     \end{enumerate}
 \end{definition}
@@ -1573,8 +1574,8 @@ of traces from event systems that refine each other.
 
 \begin{theorem}
     \label{theo:refinement-traces}
-    $\left(\EventSystem_2, \Initialstates_2 \right) \refineL\phi
-    \left(\EventSystem_1, \Initialstates_1 \right)$
+    $(\EventSystem_2, \Initialstates_2) \refineL_\pi
+    (\EventSystem_1, \Initialstates_1)$
     implies
     $\pi(\EStraces(\EventSystem_2, \Initialstates_2))
     \subseteq \EStraces(\EventSystem_1, \Initialstates_1)$
@@ -1582,7 +1583,73 @@ of traces from event systems that refine each other.
 
 \begin{proof}
     \label{proof:refinement-traces}
-    TODO: 
+    Let $\EventSystem_1 = (\Statespace_1, \Eventspace_1, \Transitionrelation{1}{})$ and
+    $\EventSystem_2 = (\Statespace_2, \Eventspace_2, \Transitionrelation{2}{})$.
+    Let $\Initialstates_1 \subseteq \Statespace_1$ and
+    $\Initialstates_2 \subseteq \Statespace_2$.
+
+    We can prove Theorem \ref{theo:refinement-traces} by
+    structural induction over event system traces.
+    We will show that for every trace
+    $\sigma \in \EStraces(\EventSystem_2, \Initialstates_2)$
+    its projection $\pi(\sigma)$, is in
+    $\EStraces(\EventSystem_1, Initialstates_1)$.
+    \begin{itemize}
+        \item \textbf{Base Case:}
+            $\sigma = \emptytrace \in
+            \EStraces(\EventSystem_2, \Initialstates_2)$.
+            The empty trace is part of any event system,
+            and therefore
+            $\pi(\sigma) = \pi(\emptytrace) = \emptytrace 
+            \in \EStraces(\EventSystem_1, \Initialstates_1)$.
+            And further, for any inital state $s_2 \in \Initialstates_2$ there exists
+            there exists an initial state $s_1 \in \Initialstates_1$ such that
+            $(s_2, s_1) \in R$
+            for which $s_2 \Transitionrelation{2}{\emptytrace} s_2$ and.
+            $s_1 \Transitionrelation{1}{\pi(\emptytrace)} s_1$.
+        \item \textbf{Induction Hypothesis}
+            For any trace
+            $\sigma = \sigma' \cdot e
+            \in \EStraces(\EventSystem_2, \Initialstates_2)$ with
+            $|\sigma| > |\sigma'|$,
+            $\pi(\sigma') \in \EStraces(\EventSystem_1, \Initialstates_1)$.
+            And there exists an initial state $s_2 \in \Initialstates_2$,
+            a state $s_2' \in \Statespace_2$, an initial state
+            $s_1 \in \Initialstates_1$, and a state $s_1' \in \Statespace_1$
+            such that $(s_2, s_1) \in R$, $(s_1', s_2') \in R$,
+            $s_2 \Transitionrelation{2}{\sigma'} s_2'$, and
+            $s_1 \Transitionrelation{1}{\pi(\sigma')} s_1'$.
+        \item \textbf{Inductive Step:}
+            $\sigma \in \EStraces(\EventSystem_2, \Initialstates_2)$.
+            Since we covered the empty trace in the base case,
+            we have $|\sigma| \geq 1$.
+            Thus we can assume that $\sigma = \sigma' \cdot e$ for some
+            $e \in \Eventspace_2$.
+            By the Induction Hypothesis we have that
+            $\pi(\sigma') \in \EStraces(\EventSystem_1, \Initialstates_1)$.
+
+            By the induction hypothesis we have that
+            $\pi(\sigma')$ is a trace of the event system
+            $(\EventSystem_1, \Initialstates_1)$.
+            Also by induction hypthesis we have that there exist
+            $s_2 \in \Initialstates_2$, $s_2' \in \Statespace_2$,
+            $s_1 \in \Initialstates_1$, and $s_1' \in \Statespace_1$
+            such that $(s_2, s_1) \in R$, $(s_1', s_2') \in R$,
+            $s_2 \Transitionrelation{2}{\sigma'} s_2'$, and
+            $s_1 \Transitionrelation{1}{\pi(\sigma')} s_1'$.
+            By definition of $\sigma$ as $\sigma' \cdot e$
+            and the assumption that
+            $\sigma \in \EStraces(\EventSystem_2, \Initialstates_2)$
+            we have that $s_2' \Transitionrelation{2}{e} s_2''$ for some
+            $s_2'' \in \Statespace_2$.
+            By point 2 of Definition \ref{def:event-system-refinement}
+            we have that there exists a state $s_1'' \in \Statespace_1$
+            such that $s_1' \Transitionrelation{1}{\pi(e)} s_1''$.
+            Thus
+            $s_1 \Transitionrelation{1}{\pi(\sigma')} s_1'
+            \Transitionrelation{1}{e} s_2''$ and also
+            $s_1 \Transitionrelation{1}{\pi(\sigma')} s_1''$.
+    \end{itemize}
 \end{proof}
 
 \begin{lemma}
