@@ -1187,7 +1187,7 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
 \label{section:cre-compilation}
 This section recalls the compilation algorithm of CRE[MFOTL] to Lex
 as it is introduced in Hublet et al. \cite[Section 3.2]{lex}.
-Hublet et al. \cite{lex} defines the following dependency relation between
+Hublet et al. \cite{lex} define the following dependency relation between
 constitutive and exception rules analogous to
 Merigoux et al. \cite[Section 4.1]{merigoux_catala_2021}.
 
@@ -1205,10 +1205,11 @@ rules $r,s \in C \cup E$ such that $r \triangleright_\Phi s$,
 and $s \triangleright_\Phi r$ and also that there is no single rule $r \in C \cup E$
 that is self-referential (i.e. $r \triangleright_\Phi r$).
 The compilation of CRE[MFOTL] to MFOTL is defined by Algorithm 
-\ref{alg:compilation} \cite[Algorithm 1]{lex} and Algorithm \ref{alg:collect} \cite[Algorithm 2]{lex}.
+\ref{alg:compilation} and Algorithm \ref{alg:collect}.
 
 \begin{algorithm}
-  \caption{CRE[MFOTL] to MFOTL compilation\label{alg:compilation}}
+  \caption{CRE[MFOTL] to MFOTL compilation
+  \label{alg:compilation}\cite[Algorithm 1]{lex} }
   \begin{algorithmic}[1]
     \State \IInput $\mathcal{S}=(\Sigma,\Phi,\kappa)$ with $\Sigma = (\Domain, \Events, \Functions, \iota)$ and acyclic CRE[MFOTL] policy $\Phi=(C,R,E)$
     \State $\Events_E \gets \{ e_s \mid r: \phi \Rightarrow \exc(s) \in E \}$\label{alg:events_e}
@@ -1226,7 +1227,8 @@ The compilation of CRE[MFOTL] to MFOTL is defined by Algorithm
 \end{algorithm}
 
 \begin{algorithm}
-  \caption{Auxiliary function \textsc{\textsf{collect}}\label{alg:collect}}
+  \caption{Auxiliary function \textsc{\textsf{collect}}
+  \label{alg:collect}\cite[Algorithm 2]{lex}}
   \begin{algorithmic}[1]
     \Function{\textsf{collect}}{$L$}
     \State\hspace{-1.25em}$P, L' \gets \emptyset, []$
@@ -1243,8 +1245,8 @@ The compilation of CRE[MFOTL] to MFOTL is defined by Algorithm
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Lex Programming Language}
 \label{section:lex}
-Hublet et al. \cite{lex} presents the Lex programming language
-based on CRE[MFOTL].
+Hublet et al. \cite{lex} and Degelo \cite{semesterproject}
+developed the Lex programming language based on CRE[MFOTL].
 Lex is designed to formalize legal texts and maintain a high
 readability, especially compared to pure MFOTL.
 It achieves this readability by maintaining the general
@@ -1334,7 +1336,9 @@ structure of the underlying legal text.
     \end{tabular}
     \vspace{-1.8em}
     \caption{Correspondence between the \Lex{} and CRE[MFOTL] syntax
-    \label{fig:lex-and-cre-correspondence}}
+    \label{fig:lex-and-cre-correspondence}
+    \cite[Figure 10]{lex}
+    }
 \end{figure*}
 
 Lex has the following main types of statements:
@@ -1392,7 +1396,6 @@ Lex has the following main types of statements:
 \end{itemize}
 
 Figure \ref{fig:lex-and-cre-correspondence}
-(Hublet et al. \cite{lex} (Figure 10))
 shows the correspondence between Lex and CRE[MFOTL].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
