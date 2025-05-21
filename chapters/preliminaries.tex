@@ -14,61 +14,52 @@ combines first-order predicate logic with temporal operators such as
 $\Next$ ("next"), $\Prev$ ("previous"), $\UUntil$ ("until"), and $\Since$ ("since").
 MFOTL is frequently used as a policy language in
 runtime verification \cite{whyenf, lex, basin2015monitoring}.
-%TODO: more references and reformulate this introductory part
-Let $\Types$ be a set of base types (e.g. integers, strings, booleans, etc.)
-and $\Variables$ a set of variables.
 
 \begin{definition}
     \label{def:mfotl-signature}
     An \emph{MFOTL Signature}
-    $\Sigma = \left( \left(\Domain_{ty}\right)_{ty \in \Types},
-        \Events, \Functions, \iota \right)$
-    is a quadruple consisting of a domain of values such that
-    for every $ty \in \Types$, $\Domain_{ty}$ is the set of values of type $ty$,
-    a set of event names $\Events$, a set of function names $\Functions$,
-    and an arity function $\iota : \Events \cup \Functions \to \Types^*$
-    such that for every $e \in \Events$, $\iota(e) = (p_1,\dots,p_k)$ provides the
-    parameter types of $e$
-    and for any $f \in \Functions$, $\iota(f) = (a_1,\dots,a_k,r)$ provides the
-    argument types $(a_1,\dots,a_k)$ and the return type $r$ of $f$.
+    $\Sigma = (\Domain, \Events, \Functions, \iota)$
+    is a quadruple consisting of
+    a value domain $\Domain$,
+    a set of event names $\Events$,
+    a set of function names $\Functions$,
+    and an arity function $\iota : \Events \cup \Functions \to \Nat$.
 \end{definition}
-Definition \ref{def:mfotl-signature} closely follows the signature definitions
-of Hublet et. al \cite{lex} (Section 2.2.2) and Hublet et. al \cite{whyenf} (Section 2).
-Compared to the latter our signature also includes the addition of function symbols.
-And different to both, our arity function not only gives the number of arguments, but
-also their types.
+Definition \ref{def:mfotl-signature} is the the same signature
+definition as in Hublet et. al \cite[Section 2.2.2]{lex}
+and Hublet et. al \cite[Section 2]{whyenf}.
 \begin{example}
     % TOOD: formatting
     \label{ex:signature}
-    Let
+    For
     \begin{align*}
-        \Domain &= \Nat \cup \{ \true, \false \}, 
-        &\Events &= \{ \mathsf{P}, \mathsf{Q} \}, \\
-        \iota(\mathsf{P}) &:= (\Nat, \{\true, \false\}),
-        &\iota(\mathsf{Q}) &:= (\Nat), \\
-        \Functions &= \{ \mathsf{isEven}, \mathsf{isOdd}, \min, \max \},
-        &\iota(\{\min, \max\}) &:= (\Nat, \Nat), \\
-        \iota(\{\mathsf{isEven}, \mathsf{isOdd}\})
-            &:= (\Nat, \{\true, \false\}).
+        \Domain &= \texttt{strings} \cup \{ \bot, \top \} \cup \Nat, \\
+        \Events &= \{ \mathsf{giveEmailConsent, revokeEmailConsent} \}, \\
+        \Functions &= \{ \mathsf{ageOfUser} \} \\
+        \iota(\mathsf{giveEmailConsent}) &= 2, \\ % arguments: user, purpose
+        \iota(\mathsf{revokeEmailConsent}) &= 2, \\ % arguments: user, purpose
+        \iota(\mathsf{ageOfUser}) &= 1,
     \end{align*}
-    $\Sigma = \left( \Domain, \Events, \Functions, \iota \right)$
+    $\Sigma = (\Domain, \Events, \Functions, \iota)$
     is an MFOTL signature.
 \end{example}
 
 \begin{definition}
     \label{def:event}
     An \emph{Event} is a tuple
-    $\left(e, \left(p_1, \dots, p_k \right) \right)
+    $(e, \left(p_1, \dots, p_k \right) )
     \in \Events \times \Domain^{k}$
-    where $k=\left|\iota\left(e\right)\right|$ and
-    for all $i \in \left[1,k\right]$, $p_i \in \Domain_{\iota\left(e\right)_i}$.
-    We also write $e\left(p_1,\dots,p_k\right)$.
+    where $k=\iota(e)$ and all $p_i \in \Domain$.
 \end{definition}
 \begin{example}
     \label{ex:event}
-    Some events over the signature $\Sigma$ from Example \ref{ex:signature} are
-    % $\mathsf{P}(1, \mathsf{isOdd}(3))$ or $\mathsf{Q}(\max(0,1))$.
-    $\mathsf{P}(1, \true)$ or $\mathsf{Q}(1)$.
+    \begin{align*}
+        &\mathsf{giveEmailConsent}(\text{"Alice"}, \text{"Account Updates"})
+        \text{ and } \\
+        &\mathsf{revokeEmailConsent}(\text{"Bob"}, \text{"Marketing"})
+    \end{align*}
+    are events over the signature $\Sigma$ from Example
+    \ref{ex:signature}.
 \end{example}
 
 \begin{definition}
@@ -118,14 +109,19 @@ also their types.
 
 \begin{example}
     \label{ex:trace}
-    A finite trace over the signature $\Sigma$ from \ref{ex:signature}
-    with 3 time-points could be
-    \begin{equation*}
-        (0, \{\mathsf{P}(2, \false\}),
-        (2, \{ \mathsf{Q}(3), \mathsf{Q}(4), \mathsf{P}(100, \false) \}),
-        (10, \emptyset).
-    \end{equation*}
-    The three time-points have the timestamps $0$, $2$, and $100$.
+    \begin{align*}
+        \sigma =
+        \langle
+        &(0, &&\{\mathsf{giveEmailConsent}(\text{"Alice"}, \text{"Account Updates"})\}), \\
+        &(1, &&\{\mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Marketing"})\}), \\
+        &(2, &&\{\mathsf{revokeEmailConsent}(\text{"Alice"}, \text{"Account Updates"}), \\
+             &&&\mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Account Updates"})\}), \\
+        &(10, &&\emptyset)
+        \rangle
+    \end{align*}
+    $\sigma$ is a finite trace over the signature $\Sigma$ from Example
+    \ref{ex:signature} with 4 time-points.
+    The 4 time-points have the timestamps $0$, $1$, $2$, and $10$.
 \end{example}
 
 \begin{definition}
@@ -145,7 +141,6 @@ also their types.
         \end{cases}
     \end{align*}
 \end{definition}
-
 \begin{definition}
     \label{def:last-time-stamp}
     The function $\lts : \Traces \to \Nat \cup \left\{ \bot \right\}$
@@ -158,6 +153,8 @@ also their types.
         \end{cases}
     \end{align*}
 \end{definition}
+For the trace $\sigma$ in Example \ref{ex:trace} we have
+$\fts(\sigma) = 0$ and $\lts(\sigma) = 10$.
 
 \begin{definition}
     \label{def:property}
@@ -166,21 +163,22 @@ also their types.
 
 A Property can be induced by some policy $\phi$, we denote this policy by $P(\phi)$.
 We say a trace $\sigma$ is compliant with policy $\phi$ if and only if $\sigma \in P(\phi)$.
-In the next part we revisit the specific variant of MFOTL used in Hublet et. al \cite{lex}
-which includes the notable additions of non-recursive let-bindings \cite{zingg2022verified}
-and aggregations \cite{basin2015monitoring} as compared to more standard MFOTL variants.
 
 \begin{definition}
     \label{def:non-empty-intervals}
     The set of \emph{Non-Empty Intervals} over $\Nat$ is denoted by $\Intervals$.
 \end{definition}
-
-We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which introduced
-"let"-bindings and functions.
+Next we introduce the specific MFOTL grammar used 
+which includes the notable additions of non-recursive
+let-bindings \cite{zingg2022verified} and aggregations
+\cite{basin2013monitoring}.
+From here on let $\Variables$ be a set of variables.
+The following grammar definition is the same as in 
+Hublet et al. \cite[Section 2.2]{whyenf-2}.
 
 \begin{definition}
     \label{def:mfotl-grammar}
-    Let $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
+    Let $c \in \Domain$,
     $x \in \Variables$,
     $f \in \Functions$,
     $e \in \Events$,
@@ -200,14 +198,15 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
     \begin{gather*}
         \prftree[r]{Constant}
             {c \in \Domain}
-            {\Gamma \vdash c} \qquad
+            {\Gamma \vdash_{trm} c} \qquad
         \prftree[r]{Variable}
             {v \in \Variables}
-            {\Gamma \vdash v} \\
+            {\Gamma \vdash_{trm} v} \\
         \prftree[r]{Function}
             {f \in \Functions}
-            {\forall 1 \leq i \leq k. \Gamma \vdash t_i}
-            {\Gamma \vdash f\left(t_1,\dots,t_k\right)}            
+            {t_i \in \Domain}
+            {\iota(f) = k}
+            {\Gamma \vdash_{trm} f\left(t_1,\dots,t_k\right)}            
     \end{gather*}
     \vspace{-2em}
     \caption{MFOTL Term Typing Rules \label{fig:mfotl-term-typing-rules}}
@@ -225,7 +224,8 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
             {\Gamma \vdash \phi}{\Gamma \vdash \psi}
             {\Gamma \vdash \phi \wedge \psi} \\
         \prftree[r]{Event}
-            {e \in \Events}{\forall 1 \leq i \leq k . x_i \in (Terms) TODO} % TODO: typing rules for terms
+            {e \in \Events}
+            {\Gamma \vdash_{trm} x_i}
             {\Gamma \vdash e\left(x_1, \dots, x_k\right)} \qquad
         \prftree[r]{Exists}
             {\Gamma \vdash \phi}{x \in \Variables}
@@ -248,9 +248,11 @@ We use the the same MFOTL grammar as in Hublet et al. \cite{whyenf-2} which intr
         %     {\Gamma \vdash \Aggreg{x}{\omega}{t}{y_1,\dots,y_k}{\phi}} \\
         \prftree[r]{Let}
             {\Gamma \vdash \phi}
-            { \Gamma[\Events \mapsto \Events \cup \left\lbrace e \right\rbrace]
+            {\Gamma
+                [\Events \mapsto \Events \cup \lbrace e \rbrace,
+                \iota \mapsto \iota[e \mapsto k]]
                 \vdash \psi}
-            {\forall 1 \leq i \leq k. x_i \in Terms} % TODO how should this actually be?
+            {\Gamma \vdash_{trm} x_i}
             {\Gamma \vdash \LLet{e\left(x_1, \dots, x_k \right)}{\phi}{\psi}}
     \end{gather*}
     \vspace{-2em}
@@ -264,7 +266,7 @@ MFOTL formula is well-typed.
 
 \begin{definition}
     \label{def:mfotl-valuation}
-    A variable \emph{Valuation} $v: \Variables \to \cup_{ty \in \Types} \Domain_{ty}$
+    A variable \emph{Valuation} $v: \Variables \to \Domain$
     assigns a value to a variable.
 \end{definition}
 
@@ -327,7 +329,7 @@ omitted.
             && \text{iff } v, i \vDash_{\sigma \left[ \forall j. D_j \mapsto D_j \cup \left\lbrace e\left(\bar{d}\right) \mid v\left[\bar{x} \mapsto \bar{d}\right], j \vDash \phi \right\rbrace \right]} \psi
     \end{align*}
     
-    Where $c \in \bigcup_{ty \in \Types} \Domain_{ty}$,
+    Where $c \in \Domain$,
     $x \in \Variables$,
     $f \in \Functions$,
     $e \in \Events$,
@@ -420,7 +422,7 @@ The following subsection explores an approach for enforcing MFOTL policies.
         \end{tikzpicture}
     \end{center}
     \vspace{-1.5em}
-    \caption{Proactive real-time first-order enforcement system model (Hublet et al. \cite{whyenf} (Figure 2))}
+    \caption{Proactive real-time first-order enforcement system model \cite[Figure 2]{whyenf}}
     \label{fig:system-model}
 \end{figure}
 
@@ -438,11 +440,11 @@ by causing certain events at some time-stamp $\tau$.
 
 % TODO: elaborate and reformulate enforcement model
 
-Hublet et al. \cite{whyenf} introduces the following three kinds of commands.
 In the following the event names of events in sets denoted by
 $D_\Cau$ are all assumed to be in $\Events_{\Cau}$ and
 $D_\Sup$ are all assumed to be in $\Events_{\Sup}$.
-
+The next three definitions reintroduce the three types of commands
+used by Hublet et al. \cite{whyenf}.
 \begin{definition}
     \label{def:enf-r-cmd}
     An \emph{R-Command} has the form
@@ -505,7 +507,6 @@ This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforc
             \end{equation*}
     \end{enumerate}
 \end{definition}
-
 Hublet et al. \cite{whyenf-2} define an enforced trace algorithmically via
 Algorithm~\ref{alg:loop}.
 
@@ -529,7 +530,7 @@ Algorithm~\ref{alg:loop}.
             \State $\Enforcer(\sigma)=
                 \run(s_0,\emptytrace,\sigma,\Ternaryop{\sigma=\emptytrace}{0}{\fts(\sigma)})$
         \end{algorithmic}
-    \caption{Enforced trace\label{alg:loop}}
+    \caption{Enforced trace\label{alg:loop} \cite[Fig. 2]{whyenf-2}}
     \vspace{-.6ex}
     \end{algorithm}
 \end{definition}
@@ -961,38 +962,38 @@ The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
     \caption{EMFOTL Typing Rules \label{fig:emfotl-typing-rules}}
 \end{figure}
 
-For enforcement under a condition as in Definition
-\ref{def:enf-sound-policy-under-condtion} we can add one additional
-typing rule to expand the fragment of enforceable MFOTL formulae.
+% For enforcement under a condition as in Definition
+% \ref{def:enf-sound-policy-under-condtion} we can add one additional
+% typing rule to expand the fragment of enforceable MFOTL formulae.
 
-\begin{definition}
-    % TODO: is this needed? or ever referenced?
-    \label{def:emfotl-under-condition-additional-typing-rule}
-    Additional typing rule when enforcement is done under some condition
-    \begin{equation*}
-        \prftree[r]
-            % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
-            %%begin novalidate
-            {$\mathsf{C}^\Cau$}
-            %%end novalidate
-            {\psi \to \phi}
-            {\Gamma \vdash_\psi \phi : \Cau}
-    \end{equation*}
-\end{definition}
+% \begin{definition}
+%     % TODO: is this needed? or ever referenced?
+%     \label{def:emfotl-under-condition-additional-typing-rule}
+%     Additional typing rule when enforcement is done under some condition
+%     \begin{equation*}
+%         \prftree[r]
+%             % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
+%             %%begin novalidate
+%             {$\mathsf{C}^\Cau$}
+%             %%end novalidate
+%             {\psi \to \phi}
+%             {\Gamma \vdash_\psi \phi : \Cau}
+%     \end{equation*}
+% \end{definition}
 
-To give some intuition for this rule, we can imagine an MFOTL formula $\phi$
-that is not causable (i.e. enforceable) under the general EMFOTL typing
-rules.
-If we make this formula $\phi$ now a condition (i.e. we assume it to be true),
-it does become "causable" by assumption.
-Now it is important that this is a very different notion of causability since
-it is not the enforcer that can cause a certain event, but rather it is
-a circumstance that is assumed to hold externally.
-% TODO: give a more concrete example
-% TODO: formulate enforcement under a condition/assumption more clearly
-The "condition"-subscript ($\psi$ in Definition
-\ref{def:emfotl-under-condition-additional-typing-rule}) can propagate through
-the rule in Figure \ref{fig:emfotl-typing-rules}.
+% To give some intuition for this rule, we can imagine an MFOTL formula $\phi$
+% that is not causable (i.e. enforceable) under the general EMFOTL typing
+% rules.
+% If we make this formula $\phi$ now a condition (i.e. we assume it to be true),
+% it does become "causable" by assumption.
+% Now it is important that this is a very different notion of causability since
+% it is not the enforcer that can cause a certain event, but rather it is
+% a circumstance that is assumed to hold externally.
+% % TODO: give a more concrete example
+% % TODO: formulate enforcement under a condition/assumption more clearly
+% The "condition"-subscript ($\psi$ in Definition
+% \ref{def:emfotl-under-condition-additional-typing-rule}) can propagate through
+% the rule in Figure \ref{fig:emfotl-typing-rules}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -1003,11 +1004,11 @@ the rule in Figure \ref{fig:emfotl-typing-rules}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Introduction}
 \label{subsection:cre-meta-logic}
-Hublet et. al \cite{lex} introduces a meta-logic based on
+Hublet et. al \cite{lex} introduce a meta-logic based on
 constitutive, regulative, and exception rules (CRE meta-logic).
 The CRE meta-logic underpins the Lex programming language
-and formalizes how a Lex specification would compile
-to an underlying MFOTL formula.
+and formalizes how a Lex specification would compiles
+to an MFOTL formula.
 
 \begin{definition}
     \label{def:cre-rule-labels}
@@ -1016,86 +1017,73 @@ to an underlying MFOTL formula.
 
 \begin{definition}
     \label{def:cre-mfotl-signature}
-    A \emph{CRE-MFOTL Signature} is a quadruple of the following form
+    A \emph{CRE[MFOTL] Signature} is a quadruple of the following form
     $$
-    \Sigma' = \left(
-    \left(\Domain_{ty} \right)_{ty \in\Types}, 
+    \Sigma' = ( \Domain, 
     \Events \cup \Events',
-    \Functions,
-    \iota \cup \iota'
-    \right).
+    \Functions, \iota \cup \iota'
+    ).
     $$
+    Where $\Domain$ is a domain of values,
+    $\Events$ is a set of external event names,
+    $\Events'$ is a set of internal event names,
+    $\Functions$ is a set of function names,
+    $\iota: \Events \cup \Functions \to \Nat$ is an external arity funciton,
+    and $\iota': \Events' \to \Nat$ is an internal arity function.
+    $\Events$ and $\Events'$ are disjoint.
 \end{definition}
+CRE[MFOTL] signatures are very similar to MFOTL signatures, but include
+the addition of internal events.
+While it is useful to distinguish between internal and external events,
+in CRE[MFOTL] and later in Lex, a CRE[MFOTL] signature can still be used
+as an MFOTL signature.
+Therefore the next definition deifnes the set of valid MFOTL
+formulae over a CRE[MFOTL] signature.
 \begin{definition}
     \label{def:set-of-mfotl-formulae}
-    The \emph{set of all MFOTL formulae} over the CRE-MFOTL signature
+    The \emph{set of all MFOTL formulae} over a CRE[MFOTL] signature
     $\Sigma'$ is denoted by $\formulae$.
 \end{definition}
 
-\begin{definition}
-    \label{def:cre-internal-events}
-    The set of \emph{Internal Event Names} $\Events'$ is disjoint from
-    the set of (external) event names $E$, i.e. $\Events' \cap \Events = \emptyset$
-\end{definition}
+Next we recall constitutive, regulative, and exception rules
+\cite[Section 3.1]{lex}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{|r|l|l|}
+        \hline
+        \textbf{Rule Type}
+        & \textbf{Syntax}
+        & \textbf{Meaning} \\ 
+        \hline
+        Constitutive
+            & $r: \phi \Rightarrow e(\bar{x})$
+            & "$\phi$ counts as $e(\bar{x})$"
+            \\
+        \hline
+        Regulative
+            & $r: \phi \Rightarrow \psi$
+            & "if $\phi$ holds, then $\psi$ must hold"
+            \\
+        \hline
+        Exception
+            & $r: \phi \Rightarrow \exc(s)$
+            & "if $\phi$ holds, then rule $s$ shall not apply"
+            \\
+        \hline
+    \end{tabular}
+    \caption{CRE[MFOTL] Rule Types \label{tab:cre-rule-types}}
+\end{table}
 
 \begin{definition}
-    \label{def:cre-internal-arity-function}
-    The \emph{Arity Function} $\iota': \Events' \to \Types^*$
-    assigns every internal event a list of argument types.
+    \label{def:cre-rules}
+    Let $r,s \in \RLabels$, $\phi, \psi \in \formulae$, $e \in \Events'$,
+    $x_1, \dots, x_{\iota'(e)} \in \Domain$,
+    and $\bar{x} = (x_1, \dots, x_{\iota'(e)})$.
+    Table \ref{tab:cre-rule-types} gives an
+    overview over the three rule types, their syntax, and
+    their meaning.
 \end{definition}
-
-\begin{definition}
-    \label{def:cre-internal-predicates}
-    The set of \emph{Internal Predicates} is
-    $$
-    \pred{\Events'}
-    = \left\lbrace e\left(\bar{t}\right) \mid
-    e \in \Events', e\left(\bar{t}\right) \text{ is well-typed} \right\rbrace
-    $$
-\end{definition}
-
-\begin{definition}
-    \label{def:cre-constitutive-rule}
-    For  $r \in \RLabels$, $\phi\in \formulae$,
-    and $p \in \pred{\Events'}$,
-    \begin{equation*}
-        r: \phi \Rightarrow p \qquad \text {"} \phi \text{ counts as } p \text{"}
-    \end{equation*}
-    is a \emph{Constitutive Rule}.
-\end{definition}
-
-\begin{definition}
-    \label{def:cre-regulative-rule}
-    For $r \in \RLabels$ and $\phi, \psi \in \formulae$
-    \begin{equation*}
-        r: \phi \Rightarrow \psi \qquad
-        \text{" if } \phi \text{ holds, then } \psi \text{ must hold"}
-    \end{equation*}
-    is a \emph{Regulative Rule}
-\end{definition}
-
-\begin{definition}
-    \label{def:cre-exeption-rule}
-    For $r,s \in \RLabels$ and $\phi \in \formulae$
-    \begin{equation*}
-        r: \phi \Rightarrow \exc\left(s\right)
-        \qquad
-        \text{"if } \phi \text{ holds, then rule } s \text{ shall not apply"}
-    \end{equation*}
-    is an \emph{Exception Rule}
-\end{definition}
-
-% {\small
-% \begin{tabular}{lllll}
-%     \hline
-%     \textbf{Set} & \textbf{Type} & \multicolumn{2}{l}{\textbf{Syntax of items}} & \textbf{Meaning} \\
-%     \hline
-%     $C$ & Constitutive & $r: \phi \Rightarrow p$ & $r \in \mathcal{R}$, $\phi \in \mathcal{F}$, $p \in \pred{\Events'}$ & $\phi$ counts as $p$ \\
-%     $R$ & Regulative & $r: \phi \Rightarrow \psi$ & $r \in \mathcal{R}$, $\phi,\psi \in \mathcal{F}$ & if $\phi$ holds, then $\psi$ must hold \\
-%     $E$ & Exception & $r: \phi \Rightarrow \exc(s)$ & $r,s \in \mathcal{R}$, $\phi \in \mathcal{F}$ & if $\phi$ holds, then rule $s$ shall not apply \\
-%     \hline
-% \end{tabular}
-% }
 
 \begin{definition}
     \label{def:cre-policy}
@@ -1105,21 +1093,6 @@ to an underlying MFOTL formula.
     every rule in $C \cup R \cup E$ has a unique label.
 \end{definition}
 
-% \begin{figure}
-%     \begin{gather*}
-%         \prftree[r]{CON}
-%             {r: \phi \Rightarrow p \in C}{\Gamma \vDash \phi \wedge \neg \exc(r)}
-%             {\gamma \vDash p} \\
-%         \prftree[r]{REG}
-%             {r: \phi \Rightarrow \psi \in R}{\gamma \vDash (\phi \to \psi) \vee \exc(r)}
-%             {\gamma \vDash \comply(r)} \\
-%         \prftree[r]{EXC}
-%             {r: \phi \Rightarrow \exc(s) \in E}{\gamma \vDash \phi \vee \exc(r)}
-%             {\gamma \vDash \exc(s)}
-%     \end{gather*}
-%     \vspace{-2em}
-%     \caption{CRE[MFOTL] Semantics \label{fig:cre-semantics}}
-% \end{figure}
 \begin{figure}
     \begin{align*}
         [\textsc{con}] &&
@@ -1166,7 +1139,8 @@ These semantics can be expanded to define compliance for an entire CRE-policy.
     and a capability-mapping $\kappa$.
 \end{definition}
 
-Analogous to EMFOTL, Hublet et al. \cite{lex} define enforceable CRE (ECRE)
+Analogous to EMFOTL, Hublet et al. \cite{lex} define enforceable
+CRE (ECRE)
 via the typing rules in Figure \ref{fig:ecre-typing-rules}
 
 \begin{figure}
@@ -1212,10 +1186,10 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
 \subsection{Compilation of CRE[MFOTL] to MFOTL}
 \label{section:cre-compilation}
 This section recalls the compilation algorithm of CRE[MFOTL] to Lex
-as it is introduced in Hublet et al. \cite{lex} (Section 3.2).
+as it is introduced in Hublet et al. \cite[Section 3.2]{lex}.
 Hublet et al. \cite{lex} defines the following dependency relation between
 constitutive and exception rules analogous to
-Merigoux et al. \cite{merigoux_catala_2021} (Section 4.1).
+Merigoux et al. \cite[Section 4.1]{merigoux_catala_2021}.
 
 \begin{definition}
     \label{def:cre-dependency-relation}

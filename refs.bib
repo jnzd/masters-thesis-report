@@ -28,15 +28,16 @@
   year={2024},
   organization={Springer}
 }
-%TODO: can I already cite this?
 @inproceedings{whyenf-2,
-  title={Scaling Up Proactive Enforcement},
-  note={Working Draft},
-  author={TODO},
-  booktitle={},
-  pages={},
-  year={2024},
-  organization={}
+  title = {Scaling {{Up Proactive Enforcement}}},
+  booktitle = {International {{Conference}} on {{Computer Aided Verification}}},
+  author = {Hublet, Fran{\c c}ois and Lima, Leonardo and Basin, David and Krsti{\'c}, Sr{\dj}an and Traytel, Dmitriy},
+  year = {2025},
+  publisher = {Springer},
+  editor    = {Ruzica Piskac and Zvonimir Rakamaric},
+  abstract = {Runtime enforcers receive events from a system and output commands ensuring the system's policy compliance. Proactive enforcers extend traditional (reactive) enforcers by emitting commands at any time, rather only as a response to system actions. However, proactive enforcers have so far lacked support for many useful policy features. This, along with the existing tools' poor performance, hinders their adoption. We present a performance-optimized, proactive enforcement algorithm for a rich policy language: metric first-order temporal logic with function applications, aggregations, and let bindings. We have implemented this algorithm in EnfGuard, the first proactive enforcer tool that supports the above constructs. We evaluated our tool using a novel set of six benchmarks containing both real-world and synthetic policies and logs, demonstrating that it enforces realistic policies out-of-the-box and achieves the necessary performance to be used in real-time systems.},
+  langid = {english},
+  note = {to appear}
 }
 @article{refinement-mappings,
   title={The existence of refinement mappings},
@@ -108,4 +109,13 @@
     month = aug,
     year = {2021},
     pages = {1--29},
+}
+
+@inproceedings{basin2013monitoring,
+  title={Monitoring of temporal first-order properties with aggregations},
+  author={Basin, David and Klaedtke, Felix and Marinovic, Srdjan and Z{\u{a}}linescu, Eugen},
+  booktitle={Runtime Verification: 4th International Conference, RV 2013, Rennes, France, September 24-27, 2013. Proceedings 4},
+  pages={40--58},
+  year={2013},
+  organization={Springer}
 }
