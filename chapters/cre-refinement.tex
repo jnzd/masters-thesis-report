@@ -1248,31 +1248,59 @@ The following lemma is analogous to Lemma 2.2 in Sprenger et al. \cite{igloo}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{MFOTL Refinement}
-\label{subsection:refinement-of-mfotl-specifications}
-
-\begin{definition}
-    \label{def:nforceable-mfotl-specification}
-    An \emph{MFOTL Specification} is a triple
-    $S = (\phi, \Sigma, \kappa)$ consisting of an MFOTL formula $\phi$,
-    a signature $\Sigma$, and a capability mapping $\kappa$.
-\end{definition}
-
-\begin{definition}
-    \label{def:mfotl-specification-enforceability}
-    We say an MFOTL specification $S = (\phi, \Sigma, \kappa)$ is enforceable,
-    if $\phi$ is enforceable with the capabilities $\kappa$.
-\end{definition}
-% TODO: Maybe give a definition for when an MFOTL specification is enforceable.
-In this section we define refinement for MFOTL specifications and we proof
-that, under our refinement definition,
-if an MFOTL specification $S_C$ refines an enforceable Specification $S_A$,
-then $S_C$ is enforceable.
+% \subsection{MFOTL Refinement}
+% \label{subsection:refinement-of-mfotl-specifications}
 
 % \begin{definition}
-%     \label{def:mfotl-refinement}
-%     Refinement of EMFOTL specifications is defined by the following rules.
-%     EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+%     \label{def:nforceable-mfotl-specification}
+%     An \emph{MFOTL Specification} is a triple
+%     $S = (\phi, \Sigma, \kappa)$ consisting of an MFOTL formula $\phi$,
+%     a signature $\Sigma$, and a capability mapping $\kappa$.
+% \end{definition}
+
+% \begin{definition}
+%     \label{def:mfotl-specification-enforceability}
+%     We say an MFOTL specification $S = (\phi, \Sigma, \kappa)$ is enforceable,
+%     if $\phi$ is enforceable with the capabilities $\kappa$.
+% \end{definition}
+% % TODO: Maybe give a definition for when an MFOTL specification is enforceable.
+% In this section we define refinement for MFOTL specifications and we proof
+% that, under our refinement definition,
+% if an MFOTL specification $S_C$ refines an enforceable Specification $S_A$,
+% then $S_C$ is enforceable.
+
+% % \begin{definition}
+% %     \label{def:mfotl-refinement}
+% %     Refinement of EMFOTL specifications is defined by the following rules.
+% %     EMFOTL refinement is defined over tuples of specifications and enforcer contexts.
+% %     \begin{gather*}
+% %         \prftree[r]{Ref-Imp}
+% %             {\phi_C \implies \phi_A}
+% %             {\Gamma \vdash \phi_C : \tau_C}
+% %             {\Gamma \vdash \phi_A : \tau_A}
+% %             {\tau_C \capgeq \tau_A}
+% %             % TODO: do the two contexts actually have to be equal, does it matter
+% %             % TODO: also, do the signatures have to be equal and/or is this too restrictive
+% %             {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
+% %             % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
+% %         \prftree[r]{Ref-Let}
+% %             {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+% %             {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+% %             {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
+% %             {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
+% %                 \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+% %         \prftree[r]{Ref-Conj}
+% %             {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
+% %             {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
+% %             {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+% %         \prftree[r]{Ref-Trans}
+% %             {S_C, \Gamma_C \refineL S_B, \Gamma_B}
+% %             {S_B, \Gamma_B \refineL S_A, \Gamma_A}
+% %             {S_C, \Gamma_C \refineL S_A, \Gamma_A}
+% %     \end{gather*}
+% % \end{definition}
+
+% \begin{figure}
 %     \begin{gather*}
 %         \prftree[r]{Ref-Imp}
 %             {\phi_C \implies \phi_A}
@@ -1284,11 +1312,24 @@ then $S_C$ is enforceable.
 %             {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
 %             % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
 %         \prftree[r]{Ref-Let}
-%             {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
-%             {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
-%             {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
-%             {(\LLet{e(\bar{t})}{\psi_C}{\phi_A}, \Sigma_C, \kappa_C), \Gamma_C
-%                 \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
+%             % {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
+%             % {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
+%             % {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
+%             { \prfStackPremises
+%                 {\mathsf{events}(\phi_C) =\{e_1,\dots,e_\ell\} \quad
+%                 \Events_C = \Events_A \setminus \{e\} \cup \{e_1,\dots,e_\ell\}}
+%                 { \iota_C = \iota_A[i.~e_i \mapsto k_i] \setminus \{e\} \quad
+%                 \kappa_C = \kappa_A[i.~e_i \mapsto \tau_i] \setminus \{e\} }
+%                 { \Gamma_C = \Gamma_A[i.~e_i \mapsto \tau'_i] \setminus \{e\} \quad
+%                 \forall i.~\tau'_i \capleq \tau_i }
+%                 { \Gamma_A \vdash \phi_A : \Cau \quad
+%                 \Gamma_C \vdash \psi_C : \Gamma_A(e) }
+%             }
+%             % {(\LLet{e(\bar{t})}{\psi_C}{\phi_A},
+%             {\phi_A [ e(\bar{t}) \setminus \psi_C ] ,
+%                 (\Domain, \Events_C, \Functions, \iota_C), \kappa_C), \Gamma_C
+%                 \refineL (\phi_A,
+%                 (\Domain, \Events_A, \Functions, \iota_A), \kappa_A), \Gamma_A} \\
 %         \prftree[r]{Ref-Conj}
 %             {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
 %             {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
@@ -1298,181 +1339,140 @@ then $S_C$ is enforceable.
 %             {S_B, \Gamma_B \refineL S_A, \Gamma_A}
 %             {S_C, \Gamma_C \refineL S_A, \Gamma_A}
 %     \end{gather*}
+%     \vspace{-2em}
+%     \caption{MFOTL Refinement Rules}
+%     \label{fig:mfotl-refinement-rules}
+% \end{figure}
+
+% \begin{definition}
+%     \label{def:mfotl-refinement}
+%     An MFOTL Specification $S_C$ refines an MFOTL specification $S_A$,
+%     written as $S_C \refineL S_A$ iff
+%     there exist $\Gamma_C$ and $\Gamma_A$ such that
+%     $S_C, \Gamma_C \refineL S_A, \Gamma_A$ according to the rules in
+%     Figure \ref{fig:mfotl-refinement-rules}.
 % \end{definition}
 
-\begin{figure}
-    \begin{gather*}
-        \prftree[r]{Ref-Imp}
-            {\phi_C \implies \phi_A}
-            {\Gamma \vdash \phi_C : \tau_C}
-            {\Gamma \vdash \phi_A : \tau_A}
-            {\tau_C \capgeq \tau_A}
-            % TODO: do the two contexts actually have to be equal, does it matter
-            % TODO: also, do the signatures have to be equal and/or is this too restrictive
-            {(\phi_C, \Sigma, \kappa_C), \Gamma \refineL (\phi_A, \Sigma, \kappa_A), \Gamma} \\
-            % {(\phi_C, \Sigma_C, \kappa_C), \Gamma \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma} \\
-        \prftree[r]{Ref-Let}
-            % {\Gamma_C \vdash \psi_C : \Gamma_A(e)}
-            % {\forall d \in \Events_C \cap \Events_A .~ \Gamma_C(d) = \Gamma_A(d)}
-            % {\Gamma_A \vdash \phi_A : \Cau} % TODO: is this restriction necessary?
-            { \prfStackPremises
-                {\mathsf{events}(\phi_C) =\{e_1,\dots,e_\ell\} \quad
-                \Events_C = \Events_A \setminus \{e\} \cup \{e_1,\dots,e_\ell\}}
-                { \iota_C = \iota_A[i.~e_i \mapsto k_i] \setminus \{e\} \quad
-                \kappa_C = \kappa_A[i.~e_i \mapsto \tau_i] \setminus \{e\} }
-                { \Gamma_C = \Gamma_A[i.~e_i \mapsto \tau'_i] \setminus \{e\} \quad
-                \forall i.~\tau'_i \capleq \tau_i }
-                { \Gamma_A \vdash \phi_A : \Cau \quad
-                \Gamma_C \vdash \psi_C : \Gamma_A(e) }
-            }
-            % {(\LLet{e(\bar{t})}{\psi_C}{\phi_A},
-            {\phi_A [ e(\bar{t}) \setminus \psi_C ] ,
-                (\Domain, \Events_C, \Functions, \iota_C), \kappa_C), \Gamma_C
-                \refineL (\phi_A,
-                (\Domain, \Events_A, \Functions, \iota_A), \kappa_A), \Gamma_A} \\
-        \prftree[r]{Ref-Conj}
-            {S_C, \Gamma_C \refineL (\phi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \refineL (\psi_A, \Sigma_A, \kappa_A), \Gamma_A}
-            {S_C, \Gamma_C \refineL (\phi_A \wedge \psi_A, \Sigma_A, \kappa_A), \Gamma_A} \\
-        \prftree[r]{Ref-Trans}
-            {S_C, \Gamma_C \refineL S_B, \Gamma_B}
-            {S_B, \Gamma_B \refineL S_A, \Gamma_A}
-            {S_C, \Gamma_C \refineL S_A, \Gamma_A}
-    \end{gather*}
-    \vspace{-2em}
-    \caption{MFOTL Refinement Rules}
-    \label{fig:mfotl-refinement-rules}
-\end{figure}
-
-\begin{definition}
-    \label{def:mfotl-refinement}
-    An MFOTL Specification $S_C$ refines an MFOTL specification $S_A$,
-    written as $S_C \refineL S_A$ iff
-    there exist $\Gamma_C$ and $\Gamma_A$ such that
-    $S_C, \Gamma_C \refineL S_A, \Gamma_A$ according to the rules in
-    Figure \ref{fig:mfotl-refinement-rules}.
-\end{definition}
-
-\begin{theorem}
-    \label{theo:abstract-enforceability-implies-concrete-enforceability}
-    % If $S_C, \Gamma_C \refineL S_A, \Gamma_A$
-    If $S_C \refineL S_A$
-    with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
-    $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
-    $\phi_C$ is enforceable.
-\end{theorem}
-\begin{proof}
-    \label{proof:abstract-enforceability-implies-concrete-enforceability}
-    The proof for Theorem
-    \ref{theo:abstract-enforceability-implies-concrete-enforceability}
-    proceeds by structural induction over derivation trees using
-    the refinement rules for MFOTL specifications.
-    \begin{itemize}
-        \item \textbf{Induction Hypothesis}
+% \begin{theorem}
+%     \label{theo:abstract-enforceability-implies-concrete-enforceability}
+%     % If $S_C, \Gamma_C \refineL S_A, \Gamma_A$
+%     If $S_C \refineL S_A$
+%     with $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
+%     $S_A = (\phi_A, \Sigma_A, \kappa_A)$ and $\phi_A : \Cau$, then
+%     $\phi_C$ is enforceable.
+% \end{theorem}
+% \begin{proof}
+%     \label{proof:abstract-enforceability-implies-concrete-enforceability}
+%     The proof for Theorem
+%     \ref{theo:abstract-enforceability-implies-concrete-enforceability}
+%     proceeds by structural induction over derivation trees using
+%     the refinement rules for MFOTL specifications.
+%     \begin{itemize}
+%         \item \textbf{Induction Hypothesis}
         
-        Theorem
-        \ref{theo:abstract-enforceability-implies-concrete-enforceability}
-        holds for all sub-derivation trees.
+%         Theorem
+%         \ref{theo:abstract-enforceability-implies-concrete-enforceability}
+%         holds for all sub-derivation trees.
         
-        TODO: give a more formal definition for this hypothesis.
+%         TODO: give a more formal definition for this hypothesis.
         
-        \item \textbf{Induction Step}
+%         \item \textbf{Induction Step}
 
-        We make a case distinction on the remaining refinement rules
+%         We make a case distinction on the remaining refinement rules
 
-        \begin{itemize}
-            \item \textbf{Ref-Imp}
-            % Under the Ref-Imp rule, we have that $\phi_C \implies \phi_A$.
-            Under the Ref-Imp rule the two enforcer contexts, are identical and the
-            the capability of $\phi_C$ under that single context $\Gamma$ is at least as
-            powerful as that of $\phi_A$.
-            Thus it follows directly that if $\phi_A$ is causable, then $\phi_C$ is at least
-            causable and in turn enforceable.
+%         \begin{itemize}
+%             \item \textbf{Ref-Imp}
+%             % Under the Ref-Imp rule, we have that $\phi_C \implies \phi_A$.
+%             Under the Ref-Imp rule the two enforcer contexts, are identical and the
+%             the capability of $\phi_C$ under that single context $\Gamma$ is at least as
+%             powerful as that of $\phi_A$.
+%             Thus it follows directly that if $\phi_A$ is causable, then $\phi_C$ is at least
+%             causable and in turn enforceable.
 
-            \item \textbf{Ref-Let}
-            Under the Ref-Let rule it also follows fairly directly that 
-            $\phi_C$ is causable, if $\phi_A$ is causable.
-            The causability of $\phi_C$ under the Ref-Let rule
-            follows directly from the typing rules for let-bindings
-            in Figure \ref{fig:emfotl-typing-rules}.
+%             \item \textbf{Ref-Let}
+%             Under the Ref-Let rule it also follows fairly directly that 
+%             $\phi_C$ is causable, if $\phi_A$ is causable.
+%             The causability of $\phi_C$ under the Ref-Let rule
+%             follows directly from the typing rules for let-bindings
+%             in Figure \ref{fig:emfotl-typing-rules}.
 
-            \item \textbf{Ref-Conj}
+%             \item \textbf{Ref-Conj}
 
-            Under this rule, $\phi_A = \phi_{A1} \wedge \phi_{A2}$.
-            Since $\phi_A$ is causable, each conjunct must be causable individually
-            according to the typing rules of EMFOTL.
-            The induction hypothes can now be implied to either of the
-            two subtrees to arrive at the conclusion that $\phi_C$
-            is causable.
+%             Under this rule, $\phi_A = \phi_{A1} \wedge \phi_{A2}$.
+%             Since $\phi_A$ is causable, each conjunct must be causable individually
+%             according to the typing rules of EMFOTL.
+%             The induction hypothes can now be implied to either of the
+%             two subtrees to arrive at the conclusion that $\phi_C$
+%             is causable.
 
-            TODO: possibly write this more formally
+%             TODO: possibly write this more formally
             
-            \item \textbf{Ref-Trans}
-            By the induction hypothesis the formula in specification $S_B$
-            is causable and by repeated application of the induction
-            hypothesis, also the formula in specification $S_C$
-            must be causable.
+%             \item \textbf{Ref-Trans}
+%             By the induction hypothesis the formula in specification $S_B$
+%             is causable and by repeated application of the induction
+%             hypothesis, also the formula in specification $S_C$
+%             must be causable.
             
-            TODO: possibly write this more formally
+%             TODO: possibly write this more formally
             
-        \end{itemize}
-    \end{itemize}
-\end{proof}
+%         \end{itemize}
+%     \end{itemize}
+% \end{proof}
 
-\begin{theorem}
-    \label{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+% \begin{theorem}
+%     \label{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
     
-    Let $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
-    $S_A = (\phi_A, \Sigma_A, \kappa_A)$.
-    If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ and $\phi_C : \Cau$,
-    then for any sound enforcement event system
-    $\EventSystem_C =
-    (\Traces_{\sys C}, \Databases_C \cup \{ \tick, \sskip \}, \RFun_C, \PFun_C)$
-    that is sound for $\phi_C$,
-    there exist $\MFun$ and
-    $\EventSystem_A = 
-    (\Traces_{\sys A}, \Databases_A \cup \{ \tick, \sskip \}, \RFun_A, \PFun_A)$
-    such that
-    $\EventSystem_C, \emptytrace_\sys \refineL_\MFun
-    \EventSystem_A, \emptytrace_\sys$
-    and $\EventSystem_A$ is sound for $\phi_A$.
-\end{theorem}
+%     Let $S_C = (\phi_C, \Sigma_C, \kappa_C)$ and
+%     $S_A = (\phi_A, \Sigma_A, \kappa_A)$.
+%     If $S_C, \Gamma_C \refineL S_A, \Gamma_A$ and $\phi_C : \Cau$,
+%     then for any sound enforcement event system
+%     $\EventSystem_C =
+%     (\Traces_{\sys C}, \Databases_C \cup \{ \tick, \sskip \}, \RFun_C, \PFun_C)$
+%     that is sound for $\phi_C$,
+%     there exist $\MFun$ and
+%     $\EventSystem_A = 
+%     (\Traces_{\sys A}, \Databases_A \cup \{ \tick, \sskip \}, \RFun_A, \PFun_A)$
+%     such that
+%     $\EventSystem_C, \emptytrace_\sys \refineL_\MFun
+%     \EventSystem_A, \emptytrace_\sys$
+%     and $\EventSystem_A$ is sound for $\phi_A$.
+% \end{theorem}
 
-\begin{proof}
-    \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
-    The proof for Theorem
-    \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
-    proceeds by structural induction over the MFOTL rules in Definition
-    \ref{def:mfotl-refinement}.
+% \begin{proof}
+%     \label{proof:mfotl-refinement-implies-enforcement-event-system-refinement}
+%     The proof for Theorem
+%     \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+%     proceeds by structural induction over the MFOTL rules in Definition
+%     \ref{def:mfotl-refinement}.
 
-    \begin{itemize}
-        \item \textbf{Induction Hypothesis}
+%     \begin{itemize}
+%         \item \textbf{Induction Hypothesis}
 
-        Theorem
-        \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
-        holds for all derivation sub-trees.
+%         Theorem
+%         \ref{theo:mfotl-refinement-implies-enforcement-event-system-refinement}
+%         holds for all derivation sub-trees.
 
-        \item \textbf{Induction Step}
-        \begin{itemize}
-            \item \textbf{Ref-Imp}
-            TODO ... the concrete system should be relatively directly sound
-            for the abstract case
+%         \item \textbf{Induction Step}
+%         \begin{itemize}
+%             \item \textbf{Ref-Imp}
+%             TODO ... the concrete system should be relatively directly sound
+%             for the abstract case
             
-            \item \textbf{Ref-Let}
-            TODO ... specify a $\MFun$ using the newly introduced let binding
-            and describe how the reactive and proactive update
-            functions can be modified under $\MFun$
+%             \item \textbf{Ref-Let}
+%             TODO ... specify a $\MFun$ using the newly introduced let binding
+%             and describe how the reactive and proactive update
+%             functions can be modified under $\MFun$
             
-            \item \textbf{Ref-Conj}
-            TOOD ... apply induction hypothesis,
-            use fix-point iteration for the two enforcers of each conjunct
-            to arrive at new update functions
+%             \item \textbf{Ref-Conj}
+%             TOOD ... apply induction hypothesis,
+%             use fix-point iteration for the two enforcers of each conjunct
+%             to arrive at new update functions
             
-            \item \textbf{Ref-Trans}
-            TODO ... apply induction hypothesis twice
-        \end{itemize}
-    \end{itemize}
-\end{proof}
+%             \item \textbf{Ref-Trans}
+%             TODO ... apply induction hypothesis twice
+%         \end{itemize}
+%     \end{itemize}
+% \end{proof}
 
 
 
