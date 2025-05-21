@@ -622,7 +622,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
         \draw[->] (bot) -- (obs);
         \draw[->] (bot) -- (cau);
     \end{tikzpicture}
-    \vspace{-2em}
+    % \vspace{-2em}
     \caption{The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
     \label{fig:capability-lattice}}
 \end{figure}
@@ -1231,8 +1231,7 @@ rules $r,s \in C \cup E$ such that $r \triangleright_\Phi s$,
 and $s \triangleright_\Phi r$ and also that there is no single rule $r \in C \cup E$
 that is self-referential (i.e. $r \triangleright_\Phi r$).
 The compilation of CRE[MFOTL] to MFOTL is defined by Algorithm 
-\ref{alg:compilation} (Hublet et al. \cite{lex} (Algorithm 1)) and
-Algorithm \ref{alg:collect} (Hublet et al. \cite{lex} (Algorithm 2)).
+\ref{alg:compilation} \cite[Algorithm 1]{lex} and Algorithm \ref{alg:collect} \cite[Algorithm 2]{lex}.
 
 \begin{algorithm}
   \caption{CRE[MFOTL] to MFOTL compilation\label{alg:compilation}}
