@@ -40,13 +40,24 @@ introduced in Chapter \ref{subsection:lex-syntax} are:
 \begin{itemize}
     \item \textbf{Reference to the underlying Lex specification}
         (Keyword: \kw{refine})
-        TODO
+        Any Lex refinement specification will start with a \kw{refine}
+        statement.
+        This statement is simply used to specify the underlying Lex
+        specification that is being refined.
+        Syntactically it works the same way as an \kw{import} statement
+        (e.g. \kw{refine} GDPR).
     \item \textbf{Assumptions}
         TODO
     \item \textbf{Type Refinements}
         TODO
     \item \textbf{Rule Replacement}
-        TODO
+        (Keyword: \kw{replace})
+        Replacement rules are structured and written very similarly to
+        other Lex rules.
+        They consist of two sets of rule references,
+        one for the "old" rules being replaced
+        and one for the "new" rules that are replacing them.
+        They have the form (\kw{rule} \kw{replace} "old rules" \kw{by} "new rules")
 \end{itemize}
 
 

@@ -1368,7 +1368,7 @@ Lex has the following main types of statements:
 \begin{itemize}
     \item \textbf{Section Labels}
         (keywords: \kw{law}, \kw{title}, \kw{chapter},
-        \kw{sectoin}, \kw{article}, \kw{paragraph},
+        \kw{section}, \kw{article}, \kw{paragraph},
         \kw{point}, \kw{subpoint})
         Section labels are used to represent the structure of
         the law.
@@ -1378,6 +1378,8 @@ Lex has the following main types of statements:
         title (e.g. \kw{article} "1" "Preconditions").
         Section labels (together with optional rule identifiers)
         are the analog of rule labels in CRE[MFOTL].
+        Section \ref{subsection:lex-section-labels} will go
+        more in depth on section labels in Lex.
     \item \textbf{Event Declarations}
         (keywords: \kw{event}, \kw{predicate})
         Event declarations declare event names and their arguments
@@ -1420,6 +1422,45 @@ Figure \ref{fig:lex-and-cre-correspondence}
 (Hublet et al. \cite{lex} (Figure 10))
 shows the correspondence between Lex and CRE[MFOTL].
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Lex Section Labels}
+\label{subsection:lex-section-labels}
+The Lex language provides a fixed set of section label keywords:
+\kw{law}, \kw{title}, \kw{chapter}, \kw{section},
+\kw{article}, \kw{paragraph}, \kw{point}, \kw{subpoint}.
+Not every law will have all of these hierarchical levels,
+and besides \kw{law} and \kw{article} they are all optional.
+If a law contains a hierarchical level that does not fit into
+these predifined keywords, custom sub-levels can be defined
+underneath one of the predifined ones
+(e.g. \kw{article}[1] is a level below an article,
+but above a paragraph; This has the consequence that \kw{article}
+is implicitly equivalent to \kw{article}[0]).
+As an example, a law might be the GDPR, which is further divided
+into chapters and chapters then contain individual articles.
+Another example would be the Swiss constitution as a law, which
+is divided into titles.
+While often times sections, titles, articles, etc. will be numbered,
+in Lex they are refered to by strings.
+This is due to the fact that no standard numbering scheme exists,
+sometimes articles will contain letters like Article 1b, and other
+times Roman numerals might be used.
+One interesting aspect of laws across contexts is that
+articles tend to be numbered continuously,
+i.e. in the GDPR one doesn't need to know in which Chapter an
+article is located, to uniquely refer to it.
+
+References to other parts of a Lex specification can
+always be made by stating all levels can always be made
+by giving the full path consisting of all intermediate levels.
+Due to the continuous (and thus unique) numbering of articles,
+for sections below the \kw{article} level, it is not necessary to
+include any levels between law and article.
+Lex will also try to resolve references dynamically,
+e.g. if \kw{article} "2" is used in \kw{article} "1", Lex
+will attempt to resolve this reference inside the same \kw{law}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
