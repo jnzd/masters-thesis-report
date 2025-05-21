@@ -684,6 +684,7 @@ These rules rely on the concept of past-guardedness, specifically for the
 suppressability of existential quantifiers.
 Past-guardedness means that all possible valuations of a variable in
 the past are known.
+the past are known.
 The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
 
 \begin{figure}
@@ -1546,7 +1547,7 @@ In this section we recall refinement of event systems as defined in Sprenger et.
     \end{enumerate}
 \end{definition}
 
-Sprenger et. al \cite{igloo} states the following theorem about the relation
+Sprenger et. al \cite[Theorem 2.1]{igloo} states the following theorem about the relation
 of traces from event systems that refine each other.
 
 \begin{theorem}
@@ -1628,7 +1629,17 @@ of traces from event systems that refine each other.
             $s_1 \Transitionrelation{1}{\pi(\sigma')} s_1''$.
     \end{itemize}
 \end{proof}
+The next definition defines properties over event systems according
+to Sprenger et. al \cite[Section 2.1.1]{igloo}.
+It is analogous to the definition of properties over MFOTL traces.
+\begin{definition}
+    \label{def:event-system-trace-property}
+    A \emph{trace property} $P$ is a set of traces over events $\Events$.
+\end{definition}
+$\EventSystem \vDash P$ denotes that the event system
+$\EStraces(\EventSystem, \Initialstates) \subseteq P$.
 
+Next we recall Sprenger et. al \cite[Lemma 2.2]{igloo}.
 \begin{lemma}
     \label{lem:refinement-property-fullfillment}
     Suppose $\EventSystem_1, \Initialstates_1 \vDash P_1$
@@ -1638,8 +1649,26 @@ of traces from event systems that refine each other.
 \end{lemma}
 
 \begin{proof}
-    \label{proof:refinemenet-property-fullfillment}
-    TODO:
+    $\EventSystem_1, \Initialstates_1 \vDash P_1$
+    is equivalent to 
+    $\EStraces(\EventSystem_1, \Initialstates_1) \subseteq P_1$.
+    Thus
+    \begin{align*}
+        &\pi(\EStraces(\EventSystem_2, \Initialstates_2))
+        \subseteq \EStraces(\EventSystem_1, \Initialstates_1)
+        \subseteq P_1 \\
+        \Rightarrow~
+        &\pi^{-1}(\pi(\EStraces(\EventSystem_2, \Initialstates_2)))
+        \subseteq \pi^{-1}(\EStraces(\EventSystem_1, \Initialstates_1))
+        \subseteq \pi^{-1}(P_1) \\
+        \Rightarrow~
+        &\EStraces(\EventSystem_2, \Initialstates_2)
+        \subseteq \pi^{-1}(\EStraces(\EventSystem_1, \Initialstates_1))
+        \subseteq \pi^{-1}(P_1) \\
+        \Rightarrow~
+        &\EStraces(\EventSystem_2, \Initialstates_2)
+        \subseteq \pi^{-1}(P_1).
+    \end{align*}
 \end{proof}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
