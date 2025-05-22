@@ -123,6 +123,8 @@ and Hublet et. al \cite[Section 2]{whyenf}.
     \ref{ex:signature} with 4 time-points.
     The 4 time-points have the timestamps $0$, $1$, $2$, and $10$.
 \end{example}
+Traces like Example \ref{ex:trace} can be seen as representing
+a system's behavior in a standardized form.
 
 \begin{definition}
     \label{def:empty-trace}
@@ -168,6 +170,13 @@ We say a trace $\sigma$ is compliant with policy $\phi$ if and only if $\sigma \
     \label{def:non-empty-intervals}
     The set of \emph{Non-Empty Intervals} over $\Nat$ is denoted by $\Intervals$.
 \end{definition}
+
+Figure \ref{fig:mfotl-term-typing-rules} defines the rules for when an MFOTL
+term is well-typed.
+And Figure \ref{fig:mfotl-typing-rules} defines when an
+MFOTL formula is well-typed.
+In particular, these two sets of typing rules ensure that
+all events and functions have the correct number of arguments.
 Next we introduce the specific MFOTL grammar used 
 which includes the notable additions of non-recursive
 let-bindings \cite{zingg2022verified} and aggregations
@@ -259,10 +268,6 @@ Hublet et al. \cite[Section 2.2]{whyenf-2}.
     \caption{MFOTL Typing Rules \label{fig:mfotl-typing-rules}}
 \end{figure}
 
-Figure \ref{fig:mfotl-term-typing-rules} defines the rules for when an MFOTL
-term is well-typed.
-And Figure \ref{fig:mfotl-typing-rules} defines when an
-MFOTL formula is well-typed.
 
 \begin{definition}
     \label{def:mfotl-valuation}
@@ -473,7 +478,7 @@ used by Hublet et al. \cite{whyenf}.
     The set of all commands is $\EnfCommands$.
 \end{definition}
 
-This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of an enforcer
+This leads us to Hublet et al.'s \cite{whyenf, whyenf-2} definition of a proactive enforcer.
 \begin{definition}
     \label{def:enforcer-triple}
     An \emph{Enforcer} $\Enforcer$ is a triple
@@ -511,6 +516,7 @@ Hublet et al. \cite{whyenf-2} define an enforced trace algorithmically via
 Algorithm~\ref{alg:loop}.
 
 \begin{definition}
+    \label{def:enforced-trace}
     For any $\sigma \in \Traces$ and enforcer  $\Enforcer=(\EnfStates,s_0,\mu)$, the
     \emph{enforced trace} $\Enforcer(\sigma)$ is defined co-recursively in
     Algorithm~\ref{alg:loop}.
@@ -534,18 +540,21 @@ Algorithm~\ref{alg:loop}.
     \vspace{-.6ex}
     \end{algorithm}
 \end{definition}
+In Definition \ref{def:enforced-trace} the trace $\sigma$ corresponds
+to a system's behavior if it was running completely without an enforcer.
+The enforced trace then represents the systems behavior combined with
+those of the enforcer.
 \begin{definition}
     \label{def:enf-sound-property}
     An enforcer $\Enforcer$ is \emph{sound} with respect to some property $P$, iff
     for any trace $\sigma \in \Traces_\omega$, $\Enforcer(\sigma) \in P$.
 \end{definition}
-
 \begin{definition}
-    \label{def:enf-sound-property-under-condition}
-    An enforcer $\Enforcer$ is \emph{sound} with respect to some property $P$ 
-    \emph{under a condition} $Q \subseteq \Traces_\omega$, iff
-    for any trace $\sigma \in \Q$, $\Enforcer(\sigma) \in P$.
+    \label{def:enf-sound-policy}
+    An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$, iff
+    it is sound for the language $\Language(\phi)$.
 \end{definition}
+Soundness allows us to describe and capture the behavior of an enforcer.
 
 \begin{definition}
     \label{def:enf-transparent-property}
@@ -553,28 +562,14 @@ Algorithm~\ref{alg:loop}.
     with respect to some property $P$ iff for all $\sigma \in P$,
     $\Enforcer(\sigma) = \sigma$.
 \end{definition}
-
-\begin{definition}
-    \label{def:enf-sound-policy}
-    An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$, iff
-    it is sound for the language $\Language(\phi)$.
-\end{definition}
-
-\begin{definition}
-    \label{def:enf-sound-policy-under-condtion}
-    An enforcer $\Enforcer$ is \emph{sound} with respect to some policy $\phi$
-    \emph{under a condition} $\psi$, iff
-    it is sound for the property $\Language(\phi)$ under condition 
-    $\Language(\psi)$.
-\end{definition}
-
 \begin{definition}
     \label{def:enf-transparent-policy}
     An enforcer $\Enforcer = \left( \EnfStates, s_0, \EnfFun \right)$ is transparent
     with respect to some policy $\phi$ iff it is transparent for
     the language $\Language(\phi)$.
 \end{definition}
-
+Transparency means that an enforcer will not alter a trace that is already
+compliant with some policy or property.
 A property or policy is said to be \emph{(transparently) enforceable} if there
 exists a (transparent) sound enforcer for the policy or property.
 
@@ -683,7 +678,6 @@ The typing rules for this subset are shown in Figure \ref{fig:emfotl-typing-rule
 These rules rely on the concept of past-guardedness, specifically for the
 suppressability of existential quantifiers.
 Past-guardedness means that all possible valuations of a variable in
-the past are known.
 the past are known.
 The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
 
@@ -1114,11 +1108,10 @@ Next we recall constitutive, regulative, and exception rules
     \caption{Semantics of CRE for a fixed structure\label{fig:cre-semantics}}
 \end{figure}
 
-Figure \ref{fig:cre-semantics} defines the semantics of the CRE meta logic.
-The semantics expand the logic of $\formulae$ if that
-logic is captured by $\gamma \vDash \phi$.
-These semantics can be expanded to define compliance for an entire CRE-policy.
-
+Figure \ref{fig:cre-semantics} defines the semantics of the CRE[MFOTL] logic.
+The semantics expand the logic of $\formulae$ the CRE[MFOTL] logic
+is captured by $\gamma \vDash \phi$.
+These semantics can be expanded to define compliance for an entire CRE-policy as followed.
 \begin{definition}
     \label{cre-compliance}
     A CRE-policy $\Phi = \left(C,R,R \right)$ is complied with ($\gamma \vDash \Phi$), if

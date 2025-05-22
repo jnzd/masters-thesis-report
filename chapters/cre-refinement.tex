@@ -89,6 +89,9 @@ and $e \in \Databases \cup \{tick\}$. Note that for $k=0$, $e^k = \emptytrace_\s
     \end{align*}
     gives the number of ticks in a system sequence.
 \end{definition}
+The $\tick$ function is useful to determine a timestamp in a
+system trace, since they are only implicit and not
+explicit like in MFOTL traces.
 
 \begin{definition}
     \label{def:trim-system-traces}
@@ -409,7 +412,7 @@ which may be greater than the last time stamp at which a database was logged
         \\
         \label{eq:domain-infinite-mfotl-traces'}
         &\forall \sigma \in \Traces_\omega .~
-        ( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
+        ( \tau \leq \fts(\sigma) )
         \to 
         \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma,
         \\
@@ -594,6 +597,36 @@ we remove all $\sskip$ events before doing the trace conversion.
 With the isomorphism between MFOTL traces as defined in prior work and
 Section \ref{chapter:preliminaries} and trimmed system traces we can
 define MFOTL semantics for infinite system traces as followed.
+
+\begin{example}
+    \label{ex:system-trace}
+    If we recall the MFOTL trace $\sigma$ from
+    Example \ref{ex:trace}, we can now convert it into
+    a system trace $\sigma_\sys := \cConv(\sigma)$.
+    \begin{align*}
+        \sigma_\sys = \langle
+             & \{\mathsf{giveEmailConsent}(\text{"Alice"}, \text{"Account Updates"})\},
+             \tick, \\ 
+             & \{\mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Marketing"})\},
+             \tick, \\
+             &  \{\mathsf{revokeEmailConsent}(\text{"Alice"}, \text{"Account Updates"}), \\
+             &\quad \mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Account Updates"})\}, \\
+             & \tick, \tick, \tick, \tick, \tick, \tick, \tick, \tick, \emptyset \\
+        \rangle \\
+        % \sigma =
+        % \langle
+        % &(0, &&
+        % \{\mathsf{giveEmailConsent}(\text{"Alice"}, \text{"Account Updates"})\}),
+        % \\
+        % &(1, &&
+        % \{\mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Marketing"})\}), \\
+        % &(2,
+        % &&\{\mathsf{revokeEmailConsent}(\text{"Alice"}, \text{"Account Updates"}), \\
+        %      &&&\mathsf{giveEmailConsent}(\text{"Bob"}, \text{"Account Updates"})\}), \\
+        % &(10, &&\emptyset)
+        % \rangle
+    \end{align*}
+\end{example}
 
 \begin{definition}
     \label{def:mfotl-semantics-for-system-traces}
