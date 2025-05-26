@@ -49,6 +49,16 @@ refines an enforceable Lex specification B, then B is enforceable.
 We introduce a different trace definition as in Definition \ref{def:trace}
 and we will show that this new definition is at least as expressive as
 the old one.
+This definition will help us to look at runtime enforcement
+as an event system in Subsection
+\ref{subsection:runtime-enforcement-event-system} that
+works with traces in this new model.
+By showing that the two trace definitions are isomorphic,
+we will be able to show that the two
+runtime enforcement models are also equivalent.
+This will tie together the refinement of Lex specifications
+and in turn of CRE[MFOTL] with the refinement
+definition of Sprenger et al. \cite{igloo}.
 
 \begin{definition}
     \label{def:system-sequence}
@@ -71,9 +81,11 @@ and $e \in \Databases \cup \{tick\}$. Note that for $k=0$, $e^k = \emptytrace_\s
 \begin{definition}
     \label{def:num-ticks}
     The function
+    \vspace{-1em}
     \begin{equation*}
         \numTicks : \SeqSys \to \Nat \cup \{ \infty \}
     \end{equation*}
+    \vspace{-2em}
     \begin{align*}
         \numTicks(\sigma_\sys) =
         \begin{cases}
@@ -96,9 +108,11 @@ explicit like in MFOTL traces.
 \begin{definition}
     \label{def:trim-system-traces}
     The function
+    \vspace{-1em}
     \begin{equation*}
         \trim: \SeqSys \to \SeqSys
     \end{equation*}
+    \vspace{-2em}
     \begin{align*}
         \trim(\sigma_\sys) :=
         \begin{cases}
@@ -128,12 +142,19 @@ $\trim(A) := \{ \trim(\sigma) \mid \sigma \in A \}$.
     $\numTicks(\trim(\sigma_\sys)) = \infty $).
 \end{definition}
 
+The distinction between system sequences and system
+traces is made, such that for infinite traces, it
+is guaranteed that at any point in the trace, there
+will eventually follow a database event.
+
 \begin{definition}
     \label{def:num-db}
     The function
+    \vspace{-1em}
     \begin{equation*}
         \numDBs : \Traces_\sys \to \Nat \cup \{ \infty \}
     \end{equation*}
+    \vspace{-2em}
     \begin{align*}
         \numDBs(\sigma_\sys) =
         \begin{cases}
@@ -161,12 +182,8 @@ $\Traces_\sys =
 \Traces_{\sys f} \cup \Traces_{\sys \omega}$
 to denote the sets of finite system traces, infinite system traces,
 and all system traces respectively.
-Whenever it is clear that the system traces are meant and not the
-MFOTL traces as in Section \ref{section:mfotl}, we omit the
-subscript "$\sys$".
-We also use $\emptytrace_\sys$ to denote an empty system
-trace and will omit the subscript if the meaning is clear from
-context.
+$\emptytrace_\sys$ denotes an empty system
+trace.
 
 \begin{lemma}
     \label{lem:trimmed-infinite-system-traces}
@@ -180,7 +197,16 @@ be an infinite number of databases in the trace.
 Lemma \ref{lem:trimmed-infinite-system-traces} can be rewritten as
 $\Traces_{\sys \omega} = \trim(\Traces_{\sys \omega})$.
 
+Next we define conversion functions between trimmed
+system traces and MFOTL traces.
+And then we will show that the conversion functions
+together define an isomorphism between
+MFOTL traces and trimmed system traces.
+The limitation on trimmed system traces is necessary,
+because MFOTL traces do not capture any timepoints at
+which no database is logged.
 \begin{definition}
+    \vspace{-1em}
     \label{def:cconv'}
     The \emph{Finite Extended System Trace Converter Function} converts system
     traces starting at some timestamp to MFOTL traces.
@@ -189,6 +215,7 @@ $\Traces_{\sys \omega} = \trim(\Traces_{\sys \omega})$.
         \Nat \times \Traces_\sys
         \to \Traces
     \end{align*}
+    \vspace{-2em}
     \begin{align*}
         % \label{eq:cconv'}        
         \cConv'(\tau, \sigma_\sys) :=
@@ -207,103 +234,107 @@ $\Traces_{\sys \omega} = \trim(\Traces_{\sys \omega})$.
     \label{def:cconv}
     The \emph{System Trace Converter Function} converts system
     traces starting at timestamp $0$ to MFOTL traces.
+    \vspace{-1em}
     \begin{equation*}
         \cConv: \Traces_\sys \to \Traces
     \end{equation*}
+    \vspace{-2em}
     \begin{align*}
         % \label{eq:cconv}
         \cConv(\sigma_\sys) := \cConv'(0, \sigma_\sys).
     \end{align*}
 \end{definition}
 
-\begin{lemma}
-    \label{lem:cconv'-splitting}
-    For all $\sigma_\sys, \sigma_\sys' \in \Traces_\sys$
-    and $\tau \in \Nat$,
-    \begin{equation*}
-        \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
-        = \cConv'(\tau, \sigma_\sys) \cdot
-        \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
-    \end{equation*}
-\end{lemma}
+% \begin{lemma}
+%     \label{lem:cconv'-splitting}
+%     For all $\sigma_\sys, \sigma_\sys' \in \Traces_\sys$
+%     and $\tau \in \Nat$,
+%     \begin{equation*}
+%         \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+%         = \cConv'(\tau, \sigma_\sys) \cdot
+%         \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
+%     \end{equation*}
+% \end{lemma}
 
-\begin{proof}
-    \label{proof:cconv'-splitting}
-    Let $\sigma_\sys' \in \Traces_\sys$ and $\tau \in \Nat$.
-    The proof for Lemma \ref{lem:cconv'-splitting} proceeds
-    by structural induction over system traces $\sigma_\sys \in \Traces_\sys$.
-    \begin{itemize}
-        \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
-        \begin{align*}
-            \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
-            &=  \cConv'(\tau, \emptytrace_\sys \cdot \sigma_\sys') \\
-            &=  \cConv'(\tau, \sigma_\sys') \\
-            &=  \emptytrace \cdot \cConv'(\tau + 0, \sigma_\sys') \\
-            &\stackrel{\ref{def:num-ticks}}{=} 
-                \emptytrace \cdot
-                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
-            &\stackrel{\ref{def:cconv'}}{=} 
-                \cConv'(0, \emptytrace_\sys) \cdot
-                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
-            &= \cConv'(0, \sigma_\sys) \cdot
-                \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys')
-        \end{align*}
-        \item \textbf{Induction Hypothesis}
+% \begin{proof}
+%     \label{proof:cconv'-splitting}
+%     Let $\sigma_\sys' \in \Traces_\sys$ and $\tau \in \Nat$.
+%     The proof for Lemma \ref{lem:cconv'-splitting} proceeds
+%     by structural induction over system traces $\sigma_\sys \in \Traces_\sys$.
+%     \begin{itemize}
+%         \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+%         \begin{align*}
+%             \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+%             &=  \cConv'(\tau, \emptytrace_\sys \cdot \sigma_\sys') \\
+%             &=  \cConv'(\tau, \sigma_\sys') \\
+%             &=  \emptytrace \cdot \cConv'(\tau + 0, \sigma_\sys') \\
+%             &\stackrel{\ref{def:num-ticks}}{=} 
+%                 \emptytrace \cdot
+%                 \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
+%             &\stackrel{\ref{def:cconv'}}{=} 
+%                 \cConv'(0, \emptytrace_\sys) \cdot
+%                 \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys') \\
+%             &= \cConv'(0, \sigma_\sys) \cdot
+%                 \cConv'(\tau + \numTicks(\emptytrace_\sys), \sigma_\sys')
+%         \end{align*}
+%         \item \textbf{Induction Hypothesis}
 
-        For any true suffix $\sigma_\sys''$ of $\sigma_\sys$ 
-        (i.e. $|\sigma_\sys''| < |\sigma_\sys|$)
-        $$
-        \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys')
-        = \cConv'(\tau, \sigma_\sys'') \cdot
-        \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys').
-        $$
+%         For any true suffix $\sigma_\sys''$ of $\sigma_\sys$ 
+%         (i.e. $|\sigma_\sys''| < |\sigma_\sys|$)
+%         $$
+%         \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys')
+%         = \cConv'(\tau, \sigma_\sys'') \cdot
+%         \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys').
+%         $$
 
-        \item \textbf{Induction Step}
+%         \item \textbf{Induction Step}
 
-        We make a case distinction based on whether $\sigma_\sys$
-        starts with $\sskip$, $\tick$, or $D \in \Databases$.
-        \begin{itemize}
-            \item $\sigma_\sys = \sskip \cdot \sigma_\sys''$
-            \begin{align*}
-                \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
-                &=  \cConv'(\tau, \sskip \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
-                &\stackrel{\sskip}{=} 
-                    \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys') \\
-                &\stackrel{IH}{=} \cConv'(\tau, \sigma_\sys'') \cdot
-                    \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys') \\
-                &\stackrel{\sskip}{=} \cConv'(\tau, \sskip \cdot \sigma_\sys'') 
-                \cdot
-                \cConv(\tau + \numTicks(\sskip \cdot \sigma_\sys''), \sigma_\sys') \\
-                &= \cConv'(\tau, \sigma_\sys) 
-                \cdot \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
-            \end{align*}
-            \item $\sigma_\sys' = \tick \cdot \sigma_\sys''$
-            \begin{align*}
-                \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
-                &=  \cConv'(\tau, \tick \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
-            \end{align*}
-                TODO ...
-            \item $\sigma_\sys' = D \cdot \sigma_\sys''$
+%         We make a case distinction based on whether $\sigma_\sys$
+%         starts with a $\tick$ or a database $D \in \Databases$.
+%         \begin{itemize}
+%             % \item $\sigma_\sys = \sskip \cdot \sigma_\sys''$
+%             % \begin{align*}
+%             %     \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+%             %     &=  \cConv'(\tau, \sskip \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
+%             %     &\stackrel{\sskip}{=} 
+%             %         \cConv'(\tau, \sigma_\sys'' \cdot \sigma_\sys') \\
+%             %     &\stackrel{IH}{=} \cConv'(\tau, \sigma_\sys'') \cdot
+%             %         \cConv(\tau + \numTicks(\sigma_\sys''), \sigma_\sys') \\
+%             %     &\stackrel{\sskip}{=} \cConv'(\tau, \sskip \cdot \sigma_\sys'') 
+%             %     \cdot
+%             %     \cConv(\tau + \numTicks(\sskip \cdot \sigma_\sys''), \sigma_\sys') \\
+%             %     &= \cConv'(\tau, \sigma_\sys) 
+%             %     \cdot \cConv(\tau + \numTicks(\sigma_\sys), \sigma_\sys')
+%             % \end{align*}
+%             \item $\sigma_\sys' = \tick \cdot \sigma_\sys''$
+%             \begin{align*}
+%                 \cConv'(\tau, \sigma_\sys \cdot \sigma_\sys')
+%                 &=  \cConv'(\tau, \tick \cdot \sigma_\sys'' \cdot \sigma_\sys') \\
+%             \end{align*}
+%                 TODO ...
+%             \item $\sigma_\sys' = D \cdot \sigma_\sys''$
 
-            TOOD...
+%             TOOD...
 
-            \begin{equation*}
-                .
-            \end{equation*}
-        \end{itemize}
+%             \begin{equation*}
+%                 .
+%             \end{equation*}
+%         \end{itemize}
         
-    \end{itemize}
-\end{proof}
+%     \end{itemize}
+% \end{proof}
 
 \begin{definition}
     \label{def:dconv'}
-    The extended \emph{MFOTL Trace Converter Function} converts MFOTL
+    The extended \emph{MFOTL Trace Converter Function}
+    converts MFOTL
     traces starting at some timestamp to system traces.
+    \vspace{-1em}
     \begin{align*}
         \dConv':
         \Nat \times \Traces \to \trim(\Traces_\sys)
     \end{align*}
-
+    \vspace{-2em}
     \begin{align*}
         \label{eq:dconv'}
         \dConv'(\tau, \sigma) :=
@@ -321,9 +352,11 @@ $\Traces_{\sys \omega} = \trim(\Traces_{\sys \omega})$.
     \label{def:dconv}
     The \emph{MFOTL Trace Converter Function} converts MFOTL
     traces starting at timestamp $0$ to system traces.
+    \vspace{-1em}
     \begin{equation*}
         \dConv: \Traces \to \trim(\Traces_\sys)
     \end{equation*}
+    \vspace{-2em}
     \begin{equation*}
         \label{eq:dconv}
         \dConv(\sigma) := \dConv'(0, \sigma).
@@ -378,69 +411,58 @@ which may be greater than the last time stamp at which a database was logged
 \begin{proof}
     \label{proof:trace-equivalence}
     The proof for Theorem \ref{theo:trace-equivalence}
-    proceeds by splitting it into four different properties.
-    First we show
+    proceeds by splitting it into two properties, one
+    for each direction.
+    We want to show the two following equations.
     \begin{align}
-        \label{eq:domain-finite-mfotl-traces}
-        &\forall \sigma \in \Traces_f .~
+        \label{eq:domain-mfotl-traces}
+        &\forall \sigma \in \Traces .~
         &\sigma
-        &=\dConv(\cConv(\sigma)),
-        \\
-        \label{eq:domain-infinite-mfotl-traces}
-        &\forall \sigma \in \Traces_\omega .~
-        &\sigma
-        &=\dConv(\cConv(\sigma)),
-        \\
-        \label{eq:domain-finite-system-traces}
-        &\forall \sigma_\sys \in \trim(\Traces_{\sys f}) .~
+        &=\dConv(\cConv(\sigma)), \\
+        \label{eq:domain-system-traces}
+        &\forall \sigma_\sys \in \trim(\Traces_{\sys}) .~
         &\sigma_\sys 
         &=\cConv(\dConv(\sigma_\sys)),
-        \\
-        \label{eq:domain-infinite-system-traces}
-        &\forall \sigma_\sys \in \trim(\Traces_{\sys \omega}) .~
-        &\sigma_\sys 
-        &=\cConv(\dConv(\sigma_\sys)).
     \end{align}
-    The proofs for each part actually depend on more general properties
-    over the functions $\cConv$ and $\dConv'$ for all $\tau \in \Nat$
+    Since $\cConv$ and $\dConv$ are defined with
+    $\cConv'$ and $\dConv'$ respectively,
+    the proof will proceed by showing the following
+    two, more general, properties
+    for all $\tau \in \Nat$.
     \begin{align}
-        \label{eq:domain-finite-mfotl-traces'}
-        &\forall \sigma \in \Traces_f .~
+        \label{eq:domain-mfotl-traces'}
+        &\forall \sigma \in \Traces .~
         ( \sigma = \emptytrace \vee  \tau \leq \fts(\sigma) )
         \to 
-        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma,
-        \\
-        \label{eq:domain-infinite-mfotl-traces'}
-        &\forall \sigma \in \Traces_\omega .~
-        ( \tau \leq \fts(\sigma) )
-        \to 
-        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma,
-        \\
-        \label{eq:domain-finite-system-traces'}
-        &\forall \sigma_\sys \in \trim(\Traces_{\sys f}) .~
+        \cConv'(\tau, \dConv'(\tau, \sigma)) = \sigma, \\
+        \label{eq:domain-system-traces'}
+        &\forall \sigma_\sys \in \trim(\Traces_{\sys}) .~
         \dConv'(\tau, \cConv'(\tau, \sigma_\sys)) = \sigma_\sys,
-        \\
-        \label{eq:domain-infinite-system-traces'}
-        &\forall \sigma_\sys \in \trim(\Traces_{\sys \omega}) .~
-        \dConv'(\tau, \cConv'(\tau, \sigma_\sys)) = \sigma_\sys.
     \end{align}
-    When fixing $\tau=0$ in the four equations above, the preconditions
-    all evaluate to "true" and the occurrences of $\cConv'$ and $\dConv'$
-    can be replaced with $\cConv$ and $\dConv$ respectively and thus
-    Equation \ref{eq:domain-finite-mfotl-traces'} implies
-    Equation \ref{eq:domain-finite-mfotl-traces},
-    Equation \ref{eq:domain-infinite-mfotl-traces'} implies
-    Equation \ref{eq:domain-infinite-mfotl-traces},
-    Equation \ref{eq:domain-finite-system-traces'} implies
-    Equation \ref{eq:domain-finite-system-traces}, and
-    Equation \ref{eq:domain-infinite-system-traces'} implies
-    Equation \ref{eq:domain-infinite-system-traces}.
+    When fixing $\tau=0$ in these two equations respectively,
+    the precondition in Equation \ref{eq:domain-mfotl-traces'}
+    evaluates to true, and the two equations become
+    equivalent to Equation \ref{eq:domain-mfotl-traces}
+    and Equation \ref{eq:domain-system-traces'}.
+    Thus Equation \ref{eq:domain-mfotl-traces'} implies
+    Equation \ref{eq:domain-mfotl-traces} and
+    Equation \ref{eq:domain-system-traces'} implies
+    Equation \ref{eq:domain-system-traces}.
+
+    For each direction we will first show that they
+    hold for finite traces and then make the argument
+    they also hold for infinite traces.
 
     \begin{enumerate}
-        \item \textbf{Finite MFOTL Traces}
-            (Equations \ref{eq:domain-finite-mfotl-traces} and
-            \ref{eq:domain-finite-mfotl-traces'})
+        \item \textbf{MFOTL Traces}
+            (Equations \ref{eq:domain-mfotl-traces} and
+            \ref{eq:domain-mfotl-traces'})
         
+        As stated above, we begin by showing Equation
+        \ref{eq:domain-mfotl-traces'} for finite traces
+        $\sigma \in \Traces_f$.
+        In a second step we will then make the argument why it
+        also holds for infinite MFOTL traces.
         We proof this by structural induction over traces $\sigma \in \Traces_f$
         for all $\tau \in \Nat$ where either $\tau \leq \fts(\sigma)$ or
         $\sigma = \emptytrace$.
@@ -449,9 +471,11 @@ which may be greater than the last time stamp at which a database was logged
         $\sigma = \emptytrace$ (and some $\tau \in \Nat$)
         \begin{align*}
             \cConv'(\tau, \dConv'(\tau, \sigma))
-            &= \cConv'(\tau, \dConv(\tau, \emptytrace)) \\
-            &= \cConv'(\tau, \emptytrace_\sys) \\
-            &= \emptytrace = \sigma
+            = \cConv'(\tau, \dConv(\tau, \emptytrace))
+            \stackrel{\ref{def:dconv'}}{=}
+                \cConv'(\tau, \emptytrace_\sys)
+            \stackrel{\ref{def:cconv'}}{=}
+                \emptytrace = \sigma
         \end{align*}
         \textbf{Induction Hypothesis:} 
         For every true suffix $\sigma'$ of a trace $\sigma \in \Traces_f$
@@ -479,47 +503,62 @@ which may be greater than the last time stamp at which a database was logged
                 \cConv'(\tau, \tick^k \cdot D \cdot \dConv'(\tau + k, \sigma')) \\
             &\stackrel{\ref{def:cconv'}}{=}
                 (\tau+k, D) \cdot \cConv'(\tau+k, \dConv'(\tau+k, \sigma')) \\
-            &\stackrel{\text{IH}}{=} \left(\tau+k, D \right) \cdot \sigma' \\
-            &= \sigma
+            &\stackrel{\text{IH}}{=} \left(\tau+k, D \right) \cdot \sigma'
+            = \sigma
         \end{align*}
-    
-        We have now shown \ref{eq:domain-finite-mfotl-traces} 
-        which does imply \ref{eq:domain-finite-mfotl-traces'}.
-        
-        \item \textbf{Infinite MFOTL Traces}
-            (Equations \ref{eq:domain-infinite-mfotl-traces} and 
-            \ref{eq:domain-infinite-mfotl-traces'})
-            
-        We have already shown that the property holds for arbitrarily
-        long finite prefixes of any infinite trace.
-        
 
+        Finally we show how this extends to infinite traces.
+        Let $\sigma \in \Traces_\omega$ be an infinite MFOTL
+        trace.
+        And let $\sigma_{..i}$ be the finite prefix with the
+        first $i$ time points of $\sigma$.
+        With the finite case, we have shown that
+        for any $i \in \Nat$, $\sigma \in \Traces_\omega$,
+        and $\tau \leq \fts(\sigma_{..i})$
+        (in the infinite case, a first timestamp always exists)
+        $ \sigma_{..i} =
+            \cConv'(\tau, \dConv'(\tau, \sigma_{..i}))$.
+        Then in the limit
         \begin{equation*}
-            TODO
+            \sigma =
+            \lim_{i \to \infty}
+            \sigma_{..i} = 
+            \lim_{i \to \infty}
+            \cConv'(\tau, \dConv'(\tau, \sigma_{..i})) =
+            \cConv'(\tau, \dConv'(\tau, \sigma)).
         \end{equation*}
+    
+        We have now shown \ref{eq:domain-mfotl-traces} 
+        for both finite and infinite traces,
+        which directly implies \ref{eq:domain-mfotl-traces'}.
         
-        \item \textbf{Finite System Traces}
-            (Equations \ref{eq:domain-finite-system-traces} and 
-            \ref{eq:domain-finite-system-traces'})
+        \item \textbf{System Traces}
+            (Equations \ref{eq:domain-system-traces} and 
+            \ref{eq:domain-system-traces'})
+        For this direction we first prove that Equation
+        \ref{eq:domain-system-traces'} holds for finite
+        system traces $\sigma_\sys \in \trim(\Traces_{\sys f})$.
+        And in a second step will show that it also holds
+        for infinite system traces $\sigma_\sys \in \trim(\Traces_{\sys \omega})$.
+        We recall that whether or not a system trace
+        is finite or infinite depends on the number of
+        database events in the trace.
 
-        This proof proceeds by structural induction over finite and trimmed system traces
-        $\sigma_\sys \in \trim(\Traces_{\sys f})$ for all $\tau \in \Nat$
-        .
-        % where either
-        % $\sigma_\sys = \emptytrace_\sys$ or $\tau \leq \fts_\sys(\sigma_\sys)$.
+        This first part of the proof proceeds
+        by structural induction over finite and trimmed system traces
+        $\sigma_\sys \in \trim(\Traces_{\sys f})$ for all $\tau \in \Nat$ .
             \begin{enumerate}
-                \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
-
+                \item
+                \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
                 \begin{align*}
                     \dConv'(\tau, \cConv'(\tau, \sigma_\sys))
-                    &=  \dConv'(\tau, \cConv'(\tau, \emptytrace_\sys)) \\
-                    &\stackrel{\ref{def:cconv'}}{=}
-                        \dConv'(\tau, \emptytrace) \\
-                    &\stackrel{\ref{def:dconv'}}{=}
-                        \emptytrace_\sys \\
-                    &= \sigma_\sys
+                    =  \dConv'(\tau, \cConv'(\tau, \emptytrace_\sys))
+                    \stackrel{\ref{def:cconv'}}{=}
+                        \dConv'(\tau, \emptytrace)
+                    \stackrel{\ref{def:dconv'}}{=}
+                        \emptytrace_\sys
+                    = \sigma_\sys
                 \end{align*}
-
                 \item \textbf{Induction Hypothesis}
                 For every true suffix $\sigma_\sys'$ of a trimmed system trace
                 $\sigma_\sys \in \trim(\Traces_{\sys f})$
@@ -527,9 +566,6 @@ which may be greater than the last time stamp at which a database was logged
                 $\sigma_\sys = \sigma_\sys'' \cdot \sigma_\sys'$ and
                 $\sigma_\sys'' \neq \emptytrace$,
                 and for every timestamp $\tau \in \Nat$
-                % which is less than the first timestamp
-                % ($\tau \leq \fts(\sigma_\sys')$)
-                % in $\sigma'$, unless $\sigma' = \emptytrace$
                 it holds that
                 \begin{equation*}
                     \sigma_\sys'
@@ -538,13 +574,11 @@ which may be greater than the last time stamp at which a database was logged
 
                 \item \textbf{Induction Step}
 
-                Let $\sigma_\sys \in \trim(\Traces_\sys)$,
-                with $\sigma_\sys \neq \emptytrace_\sys$
-                .
-                % and $\tau \leq \fts_\sys(\sigma_\sys)$.
+                Let $\sigma_\sys \in \trim(\Traces_{\sys f})$,
+                with $\sigma_\sys \neq \emptytrace_\sys$ .
                 Then $\sigma_\sys = \tick^k \cdot D \cdot \sigma_\sys'$
                 for some $k \geq 0$, $D \in \Databases$,
-                and a suffix $\sigma_\sys' \in \trim(\Traces_\sys)$.
+                and a suffix $\sigma_\sys' \in \trim(\Traces_{\sys f})$.
                 \begin{align*}
                     \dConv'(\tau, \cConv'(\tau, \sigma_\sys)) &=
                     \dConv'(\tau, \cConv'(\tau, \tick^k \cdot D \cdot \sigma_\sys')) \\
@@ -554,29 +588,44 @@ which may be greater than the last time stamp at which a database was logged
                         \tick^k \cdot D \cdot
                         \dConv'(\tau+k, \cConv'(\tau+k, \sigma_\sys')) \\
                     &\stackrel{IH}{=}
-                        \tick^k \cdot D \cdot \sigma_\sys' \\
-                    &= \sigma_\sys
+                        \tick^k \cdot D \cdot \sigma_\sys'
+                    = \sigma_\sys
                 \end{align*}
+
+                Finally we show how this extends to infinite system
+                traces.
+                Let $\sigma_\sys \in \trim(\Traces_{\sys \omega})$ be an
+                infinite system trace.
+                And let $\sigma_{\sys ..i}$ be the finite prefix
+                of $\sigma_\sys$ ending with the $i$-th
+                database event.
+                By this definition
+                $\sigma_{\sys ..i}$ is in $\trim(\Traces_{\sys f})$.
+                With the finite case, we have shown that
+                for any $i \in \Nat$, $\sigma_\sys \in \trim(\Traces_{\sys \omega})$,
+                and $\tau \in \Nat$
+                $ \sigma_{\sys ..i} =
+                    \dConv'(\tau, \cConv'(\tau, \sigma_{\sys ..i}))$.
+                Then in the limit
+                \begin{equation*}
+                    \sigma_\sys =
+                    \lim_{i \to \infty}
+                    \sigma_{\sys ..i} =
+                    \lim_{i \to \infty}
+                    \dConv'(\tau, \cConv'(\tau, \sigma_{\sys ..i})) =
+                    \dConv'(\tau, \cConv'(\tau, \sigma_\sys)).
+                \end{equation*}
                 
             \end{enumerate}
-
-        
-        \item \textbf{Infinite System Traces}
-            (Equations \ref{eq:domain-infinite-system-traces} and 
-            \ref{eq:domain-infinite-system-traces'})
-            
-        \begin{equation*}
-            TODO
-        \end{equation*}
         
     \end{enumerate}
 
 \end{proof}
 Intuitively $\cConv$ and $\cConv'$ count the clock ticks and store them
 explicitly as integer timestamps.
-We believe that it is clear which definition is used based on the context.
-At times we may use the function $\cConv$ to make it more explicit.
-For both definitions, a property is a subset of all possible traces.
+% We believe that it is clear which definition is used based on the context.
+% At times we may use the function $\cConv$ to make it more explicit.
+For both trace definitions, a property is a subset of all possible traces.
 For conversion of properties we use $\cConv$ with arguments being sets of
 traces in which case $\cConv$ simply gets mapped on each element of the set.
 As in Sprenger et. al \cite{igloo} and Abadi and Lamport \cite{refinement-mappings}
@@ -638,8 +687,6 @@ define MFOTL semantics for infinite system traces as followed.
         v, i \vDash_{\cConv(\sigma_\sys)} \phi.
     \end{equation*}
 \end{definition}
-We omit the subscript of a trace, if it is clear from context
-what trace is meant.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Runtime Enforcement as an Event System}
@@ -647,7 +694,7 @@ what trace is meant.
 
 
 We use a slightly different model of an enforcer as that of
-Hublet et al. \cite{whyenf} described in subsection
+Hublet et al. \cite{whyenf} described in Subsection
 \ref{subsection:proactive-runtime-enforcement}.
 We take a less declarative approach that considers the enforcer as 
 a function. And then we use this function to describe an event system.
@@ -681,7 +728,7 @@ update functions, one for the proactive and one for the reactive case
        \PFun :
        \Traces_{\sys f}
        \to
-       \Databases_\Cau \cup \left\{ \sskip \right\}
+       \Databases_\Cau \cup \{ \sskip \}
     $$
     indicates whether or not some events must be caused (inserted)
     before a clock tick happens.
@@ -910,16 +957,16 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
     proceeds by structural induction over finite system traces
     $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$.
     \begin{itemize}
-        \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+        \item
+        \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
         \begin{align*}
             \cConv(\sigma_\sys)
             = \cConv(\emptytrace_\sys) 
-            = \emptytrace
+            \stackrel{\ref{def:cconv}}{=} \emptytrace
             = \Enforcer(\emptytrace)
         \end{align*}
         
         \item \textbf{Induction Hypothesis}
-
         For all true prefixes $\sigma_\sys'$ of
         $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
         ($|\sigma_\sys| < |\sigma_\sys|$)
@@ -933,11 +980,13 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
         \begin{itemize}
             \item $\sigma_\sys = \sigma_\sys' \cdot \sskip$
             \begin{align*}
-                \cConv(\sigma_\sys) &= \cConv(\sigma_\sys' \cdot \sskip) \\
-                &\stackrel{\sskip}{=} \cConv(\sigma_\sys') \\
-                &\stackrel{IH}{=} \Enforcer(\sigma')
+                \cConv(\sigma_\sys)
+                = \cConv(\sigma_\sys' \cdot \sskip)
+                \stackrel{\sskip}{=} \cConv(\sigma_\sys')
+                \stackrel{IH}{=} \Enforcer(\sigma')
             \end{align*}
-            \item $\sigma_\sys = \sigma_\sys' \cdot \RFun(\sigma_\sys', D)$
+            \item
+            $\sigma_\sys = \sigma_\sys' \cdot \RFun(\sigma_\sys', D)$
             \begin{align*}
                 \cConv(\sigma_\sys)
                 &= \cConv(\sigma_\sys' \cdot \RFun(\sigma_\sys', D)) \\
@@ -957,7 +1006,7 @@ iff $\EStraces_\omega(\EventSystem, \emptytrace_\sys) \subseteq P$.
                     (\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
                 &=
                     \Enforcer(\sigma' \cdot
-                    (\numTicks(\sigma_\sys'),  D)))
+                    (\numTicks(\sigma_\sys'), D))
             \end{align*}
             The final step follows from the definition of the
             reactive update function $\RFun$ by means of the enforcer
@@ -1774,183 +1823,4 @@ It is important to note that a predicate can appear monotonically, anti-monotoni
 both monotonically and anti-monotonically, or neither monotonically nor
 anti-monotonically in a formula.
 
-\begin{theorem}
-    \label{theo:cre-refinement-impies-mfotl-refinement}
-    If $(\Domain_C, \Events_C, \Functions_C, \iota_C), (C_C,R_C,E_C), \kappa_C
-    \refineL_\pi
-    (\Domain_A, \Events_A, \Functions_A, \iota_A), (C_A,R_A,E_A), \kappa_A $,
-    for some mapping $\pi$
-    then
-    the compiled MFOTL versions of the two CRE specifications
-    also refine each other.
-\end{theorem}
 
-% \begin{definition}
-%     \label{def:lex-refinement}
-%     A specification
-%     $S_C = \left( \Sigma_C, \Phi_C, \kappa_C \right)$
-%     with signature $\Sigma_C = \left( \Domain, \Events_C, \Functions, \iota_C \right)$
-%     and CRE-rules $\Phi_C = \left(C_C, R_C, E_C \right)$
-%     refines a specification
-%     $S_A = \left( \Sigma_A, \Phi_A, \kappa_A \right)$
-%     with signature $\Sigma_A = \left( \Domain, \Events_A, \Functions, \iota_A \right)$
-%     and CRE-rules $\Phi_A = \left(C_A, R_A, E_A \right)$
-%     under condition $\Psi = \left(C_C, R_A \setminus R_C, E_C \right)$
-%     iff all of the following hold
-%     \begin{enumerate}
-%         \item 
-%         $\Events_A \setminus \kappa_A^{-1} 
-%         (\lbrace\texttt{suppressable},\texttt{observable},\bot\rbrace)
-%         \subseteq \Events_C$
-%         and
-%         for all
-%         $e \in \Events_A \cap \Events_C,
-%         \iota_A(e) = \iota_C(e)$
-%         and
-%         $\kappa_A(e) \refineL \kappa_C(e)$;
-%         \item
-%         $C_A \subseteq C_C$ and
-%         there exists
-%         $\Gamma$ such that for all $r:\phi \Rightarrow e(\overline{t}) \in C_C \setminus C_A$,
-%         all events appearing in $\phi$ are in
-%         $\Events_C \setminus \Events_A$
-%         and
-%         $\Gamma \vdash e(\overline{t}) : \kappa_A(e)$;
-%         \item
-%         For all $r: \phi \Rightarrow \exc(s) \in E_A$ such that
-%         a rule labeled by $s$ exists in
-%         $\mathcal{S}_C$, $r: \phi \Rightarrow \exc(s) \in E_C$.
-%     \end{enumerate}
-
-%     % TODO: update definition to properly introduce these rules
-%     % TODO: define monotonicity
-%     % TODO: make sure everything used here is properly defined
-%     %       specifically events(), and comply()
-%     \begin{gather*}
-%         \prftree[r]{refl}
-%             {S,\Gamma \refineL_{\mathrm{id}} S,\Gamma}
-%         \quad
-%         \prftree[r]{trans}
-%             {S_1,\Gamma_1 \refineL_{\pi_1} S_2,\Gamma_2}
-%             {S_2,\Gamma_2 \refineL_{\pi_2} S_3,\Gamma_3}
-%             {S_1,\Gamma_1 \refineL_{\pi_1 \circ \pi_2} S_3,\Gamma_3}
-%         \\[5pt]
-%         \prftree[r]{ref}
-%         {
-%           \prfStackPremises
-%           {C' = C \cup \{r : \phi \Rightarrow e(x_1,\dots,x_k)\}
-%           \quad \mathsf{events}(\phi)=\{e_1,\dots,e_\ell\}}
-%           {\Events' = \Events \setminus \{e\} \cup
-%           \{e_1,\dots,e_\ell\} \quad
-%           \iota' = \iota[i.~e_i \mapsto k_i] \setminus \{e\}}
-%           {\kappa' = \kappa[i.~e_i \mapsto \tau_i] \setminus \{e\}
-%           \quad \Gamma' = \Gamma[i.~e_i \mapsto \tau'_i] \setminus \{e\} }
-%           {\forall i.~\tau'_i \capleq \tau_i \quad
-%           \Gamma' \vdash \phi : \Gamma(e)} 
-%           {\pi = \lambda \sigma~D.~D \cup
-%           \{ e(v(x_1),\dots,v(x_k)) \mid v,|\sigma| \vDash_\sigma \phi  \}
-%           \setminus \{ e_i(\overline{d}) \mid i, \overline{d}
-%           \in \Domain^{\iota(e)_i} \}}
-%         }
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma
-%         \refineL_\pi
-%         ((\Domain,\Events',\Functions,\iota'),(C',R,E),\kappa'),\Gamma'}
-%         \\[5pt]
-%         %%begin novalidate
-%         \prftree[r]{imp$_R$}
-%         %%end novalidate
-%         {
-%           \prfStackPremises
-%           {R' = R \cup \{r_1 : \phi_1 \Rightarrow \psi_1, \dots, r_k : \phi_k
-%             \Rightarrow \psi_k \} \setminus \{r : \phi \Rightarrow \psi\}}
-%           {\Always(\land_{1 \leq i \leq k} (\phi_i \to \psi_i))
-%               \Longrightarrow \phi \to \psi}
-%           % {\Always(\land_{1 \leq i \leq k} ((\phi_i \to \psi_i)\vee \exc(r_i)))
-%           %     \Longrightarrow ((\phi \to \psi) \vee \exc(r))}
-%           {\forall i.~\Gamma \vdash \comply(r_i) : \Cau}
-%         }    
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-%             \refineL_{\mathrm{id}}
-%             ((\Domain,\Events,\Functions,\iota),(C,R',E),\kappa),\Gamma}
-%         \\[5pt]
-%         %%begin novalidate
-%         \prftree[r]{imp$_C^+$}
-%         %%end novalidate
-%         {
-%           \prfStackPremises
-%           {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k 
-%             \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
-%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : 
-%             \psi_\ell \Rightarrow \chi_\ell \}}
-%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
-%               \Longrightarrow \lor_{1 \leq i \leq k} \phi_i
-%               \to \phi}
-%           {\Always (\land_{1 \leq j \leq \ell}
-%               ((\psi_j \to \chi_j) \vee \exc(s_j)))
-%               \Longrightarrow \lor_{1 \leq i \leq k}
-%               (\phi_i \wedge \neg \exc(r_i))
-%               \to (\phi \wedge \neg \exc(r))}
-%           {(C,R',E) \in \mono{p}}
-%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau 
-%             \Longrightarrow \Gamma \vdash_{C',E} p : \tau
-%             \forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-%         }    
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma 
-%             \refineL_{\mathrm{id}}
-%             ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
-%         \\[5pt]
-%         %%begin novalidate
-%         \prftree[r]{imp$_C^-$}
-%         %%end novalidate
-%         {
-%           \prfStackPremises
-%           {C' = C \cup \{ r_1 : \phi_1 \Rightarrow p, \dots, r_k : \phi_k \Rightarrow p \} \setminus \{ r : \phi \Rightarrow p \}}
-%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j))
-%               \Longrightarrow \phi
-%               \to \lor_{1 \leq i \leq k} \phi_i}
-%           % {\Always (\land_{1 \leq j \leq \ell}
-%           %     ((\psi_j \to \chi_j) \vee \exc(s_j))))
-%           %     \Longrightarrow (\phi \wedge \neg \exc(r))
-%           %     \to \lor_{1 \leq i \leq k} (\phi_i \wedge \neg \exc(r_i))}
-%           {(C,R',E) \in \mono{p}^-}
-%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} p : \tau \Longrightarrow \Gamma \vdash_{C',E} p : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-%         }    
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C',R',E),\kappa),\Gamma}
-%         \\[5pt]
-%         %%begin novalidate
-%         \prftree[r]{imp$_E^+$}
-%         %%end novalidate
-%         {
-%           \prfStackPremises
-%           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
-%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\lor_{1 \leq i \leq k} \phi_i \to \phi \quad (C,R',E) \in \mono{\exc(s)} }
-%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-%         }    
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
-%         \\[5pt]
-%         %%begin novalidate
-%         \prftree[r]{imp$_E^-$}
-%         %%end novalidate
-%         {
-%           \prfStackPremises
-%           {E' = E \cup \{ r_1 : \phi_1 \Rightarrow \exc(s), \dots, r_k : \phi_k \Rightarrow \exc(s) \} \setminus \{ r : \phi \Rightarrow \exc(s) \}}
-%           {R' = R \cup \{ s_1 : \psi_1 \Rightarrow \chi_1, \dots, s_\ell : \psi_\ell \Rightarrow \chi_\ell \}}
-%           {\Always (\land_{1 \leq j \leq \ell} (\psi_j \to \chi_j)) \Longrightarrow\phi \to \lor_{1 \leq i \leq k} \phi_i \quad (C,R',E) \in \mono{\exc(s)}^-}
-%           {\forall \tau \in \{\Cau,\Sup\}.~\Gamma \vdash_{C,E} \exc(s) : \tau \Longrightarrow \Gamma \vdash_{C,E'} \exc(s) : \tau\quad\forall j.~\Gamma \vdash \comply(s_j) : \Cau}
-%         }    
-%         {((\Domain,\Events,\Functions,\iota),(C,R,E),\kappa),\Gamma \refineL_{\mathrm{id}} ((\Domain,\Events,\Functions,\iota),(C,R',E'),\kappa),\Gamma}
-%     \end{gather*}
-    
-% \end{definition}
-
-% \begin{definition}
-%     \label{def:lex-inconditional-refinement}
-%     If we require the following additional condition in Definition \ref{def:lex-refinement}
-%     \begin{enumerate}
-%         \setcounter{enumi}{3}
-%         \item $R_A \subseteq R_C$
-%     \end{enumerate}
-%     $S_C$ is an \emph{Incoditional Refinement} of $S_A$.
-% \end{definition}
