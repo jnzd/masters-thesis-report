@@ -34,11 +34,15 @@ and Hublet et. al \cite[Section 2]{whyenf}.
     For
     \begin{align*}
         \Domain &= \texttt{strings} \cup \{ \bot, \top \} \cup \Nat, \\
-        \Events &= \{ \mathsf{giveEmailConsent, revokeEmailConsent} \}, \\
+        \Events &= \{ \mathsf{giveEmailConsent},
+                      \mathsf{revokeEmailConsent},
+                      \mathsf{sednEmail}
+                      \}, \\
         \Functions &= \{ \mathsf{ageOfUser} \} \\
         \iota(\mathsf{giveEmailConsent}) &= 2, \\ % arguments: user, purpose
         \iota(\mathsf{revokeEmailConsent}) &= 2, \\ % arguments: user, purpose
-        \iota(\mathsf{ageOfUser}) &= 1,
+        \iota(\mathsf{sendEmail}) &= 2, \\ % arguments: user, purpose
+        \iota(\mathsf{ageOfUser}) &= 1
     \end{align*}
     $\Sigma = (\Domain, \Events, \Functions, \iota)$
     is an MFOTL signature.
@@ -373,6 +377,32 @@ We define the following operators based on the basic operators above as
     $$
 \end{definition}
 
+\begin{example}
+    \label{ex:mfotl-formula}
+    An example of an MFOTL formula over the signature $\Sigma$ from Example
+    \ref{ex:signature} is
+    \begin{align*}
+        \phi := 
+        &\Always_{[0,\infty)}(
+            \mathsf{sendEmail}(\mathsf{user}, \text{"marketing"}) 
+            \to \\
+            & \quad ( \Once_{[0,\infty)} 
+                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
+                \wedge \\
+                & \quad
+                (\neg
+                \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
+                & \qquad
+                \Since_{[0,\infty)}
+                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
+            )
+        )
+    \end{align*}
+\end{example}
+In words, this policy states that whenever an email is sent
+to a user for marketing purposes, the user must have previously
+given consent for receiving marketing emails and must not have revoked
+this consent since then.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -584,8 +614,9 @@ Capabilities are an integral part of the proactive enforcement
 approach introduced by Hublet et. al \cite{whyenf}.
 Under this approach an enforcer can have different capabilities, or ways of interacting
 with events emitted by a given system under scrutiny (SuS).
-In Hublet et. al the set of capabilities consists of observable, suppressable, causable,
-and suppressable-causable.
+In Hublet et. al the set of capabilities consists of observable ($\Obs$),
+suppressable ($\Sup$), causable ($\Cau$),
+and suppressable-causable ($\Cau \Sup$).
 Hublet et. al \cite{lex} expands this expands this system of capabilities, specifically it
 makes the existence of events that may not (always) be externally visible explicit.
 Under both notions a capability function $\kappa : \Events \to \Capabilities$ is used
@@ -600,13 +631,13 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
     \centering
     \begin{tikzpicture}
         % \node[text depth=0.1cm] (itl) at (1,1) {\texttt{internal}};
-        \node[text depth=0.1cm] (cau_sup) at (1,0) {\texttt{causable suppressable}};
+        \node[text depth=0.1cm] (cau_sup) at (1,0) {$\Cau \Sup$};
         
-        \node[text depth=0.1cm] (cau_obs) at (-1,-1) {\texttt{causable observable}};
-        \node[text depth=0.1cm] (sup) at (3,-1) {\texttt{suppressable}};
+        \node[text depth=0.1cm] (cau_obs) at (-1,-1) {$\Cau \Obs$};
+        \node[text depth=0.1cm] (sup) at (3,-1) {$\Sup$};
         
-        \node[text depth=0.1cm] (obs) at (1,-2) {\texttt{observable}};
-        \node[text depth=0.1cm] (cau) at (-3,-2) {\texttt{causable}};
+        \node[text depth=0.1cm] (obs) at (1,-2) {$\Obs$};
+        \node[text depth=0.1cm] (cau) at (-3,-2) {$\Cau$};
         
         \node[text depth=0.1cm] (bot) at (-1,-3) {$\bot$};
         % \draw[->, dashed] (cau_sup) -- (itl);
@@ -619,7 +650,7 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
         \draw[->] (bot) -- (cau);
     \end{tikzpicture}
     % \vspace{-2em}
-    \caption{The \emph{Capability Lattice} $\left( \Capabilities, \capleq \right)$
+    \caption{The \emph{Capability Lattice} $(\Capabilities, \capleq)$
     \label{fig:capability-lattice}}
 \end{figure}
 
@@ -628,10 +659,10 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
     The subset of \emph{Causable Events}
     $$
     \Events_{\Cau} =
-    \left\lbrace e \mid \texttt{causable} \capleq \kappa(e) \right\rbrace
+    \left\lbrace e \mid \Cau \capleq \kappa(e) \right\rbrace
     $$
     consists of all event names which can be caused by the enforcer,
-    i.e. which have a capability of at least $\texttt{causable}$.
+    i.e. which have a capability of at least $\Cau$.
 \end{definition}
 
 \begin{definition}
@@ -639,10 +670,10 @@ Also in both contexts, capabilities form a (semi)-lattice $(\Capabilities, \capl
     The subset of \emph{Suppressable Events}
     $$
     \Events_{\Sup} =
-    \left\lbrace e \mid \texttt{suppressable} \capleq \kappa(e) \right\rbrace
+    \left\lbrace e \mid \Sup \capleq \kappa(e) \right\rbrace
     $$
     consists of all event names which can be suppressed by the enforcer, 
-    i.e. which have a capability of at least $\texttt{suppressable}$.
+    i.e. which have a capability of at least $\Sup$.
 \end{definition}
 
 \begin{definition}
@@ -680,6 +711,17 @@ suppressability of existential quantifiers.
 Past-guardedness means that all possible valuations of a variable in
 the past are known.
 The rules for past-guardedness are shown in Figure \ref{fig:past-guardedness}.
+
+The signature $\Sigma$ of Example \ref{ex:signature} could be extended
+with the following capabilities:
+\begin{align*}
+    &\kappa(\mathsf{sendEmail}) &= \Cau \Sup \\
+    &\kappa(\mathsf{giveEmailConsent}) &= \Obs \\
+    &\kappa(\mathsf{revokeEmailConsent}) &= \Obs.
+\end{align*}
+These capabilities capture, that an enforcer can both send and
+prevent the sending of emails, but it cannot change the
+consent given or revoked by a user.
 
 \begin{figure}
     \begin{gather*}
@@ -1035,6 +1077,31 @@ in CRE[MFOTL] and later in Lex, a CRE[MFOTL] signature can still be used
 as an MFOTL signature.
 Therefore the next definition deifnes the set of valid MFOTL
 formulae over a CRE[MFOTL] signature.
+
+% \begin{example}
+%     \label{ex:cre-signature}
+%     The MFOTL signature $\Sigma$ of Example \ref{ex:signature} can be
+%     extended to a CRE[MFOTL] signature $\Sigma'$ by adding the following
+%     internal event
+%     \begin{align*}
+%         \Events' = \{ &\mathsf{userPressedConsentButton}, \\
+%                       & \mathsf{userPressedRevokeButton}, \\
+%                       & \mathsf{userGaveConsentByEail}, \\
+%                       & \mathsf{userRevokedConsentByEmail}
+%                    \}
+%     \end{align*}
+%     and extending the arity function $\iota'$ to
+%     \begin{align*}
+%         \iota'(\mathsf{userPressedConsentButton}) &= 2 \\
+%         \iota'(\mathsf{userPressedRevokeButton}) &= 2 \\
+%         \iota'(\mathsf{userGaveConsentByEail}) &= 2 \\
+%         \iota'(\mathsf{userRevokedConsentByEmail}) &= 2.
+%     \end{align*}
+%     Then $\Sigma' = (\Domain, \Events \cup \Events', \Functions, \iota \cup \iota')$    
+%     is a CRE[MFOTL] signature, where $\Domain, \Events, \Functions, \iota$
+%     are the same as in Example \ref{ex:signature}.
+% \end{example}
+
 \begin{definition}
     \label{def:set-of-mfotl-formulae}
     The \emph{set of all MFOTL formulae} over a CRE[MFOTL] signature
@@ -1137,6 +1204,31 @@ These semantics can be expanded to define compliance for an entire CRE-policy as
 Analogous to EMFOTL, Hublet et al. \cite{lex} define enforceable
 CRE (ECRE)
 via the typing rules in Figure \ref{fig:ecre-typing-rules}
+
+\begin{example}
+    \label{ex:cre-policy}
+    The MFOTL policy $\Phi$ of Example \ref{ex:mfotl-formula}
+    could be captured in the following CRE[MFOTL] policy:
+
+    \begin{align*}
+        C &= \{
+            r :
+            &&\mathsf{sendEmail}(\mathsf{user}, \text{"marketing"})
+            \Rightarrow \\
+            &&&(\Once_{[0,\infty)} 
+                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"}) \\
+                &&&\quad \wedge
+                ((\neg
+                \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
+                &&& \qquad \Since_{[0,\infty)}
+                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})))
+        \} \\
+        R &= \emptyset \\
+        E &= \emptyset
+    \end{align*}
+    $\Phi := (C,R,E)$ is a CRE[MFOTL] policy consisting of a single
+    regulative rule $r$.
+\end{example}
 
 \begin{figure}
     % https://tex.stackexchange.com/a/517660/282429 to suppress syntax errors caused by $-signs inside of gather environments in overleaf
@@ -1352,15 +1444,16 @@ Lex has the following main types of statements:
         are the analog of rule labels in CRE[MFOTL].
         Section \ref{subsection:lex-section-labels} will go
         more in depth on section labels in Lex.
+    \item \textbf{Type Declarations}
+        (keyword: \kw{type})
+        Type declarations map a type alias to a base type 
+        (e.g. \kw{type} user \kw{is} string,
+        \kw{type} age \kw{is} int).
+        These type aliases are not represented in CRE[MFOTL].
     \item \textbf{Event Declarations}
         (keywords: \kw{event}, \kw{predicate})
         Event declarations declare event names and their arguments
         along with their types.
-    \item \textbf{Type Declarations}
-        (keyword: \kw{type})
-        Type declarations map a type alias to a base type 
-        (e.g. \kw{type} name \kw{is} string).
-        These type aliases are not represented in CRE[MFOTL].
     \item \textbf{Function Declarations}
         (keyword: \kw{function})
         Function declarations are analogous to event declarations,
@@ -1432,6 +1525,210 @@ include any levels between law and article.
 Lex will also try to resolve references dynamically,
 e.g. if \kw{article} "2" is used in \kw{article} "1", Lex
 will attempt to resolve this reference inside the same \kw{law}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Lex - E-Mail Marketing Exmaple}
+\label{subsection:lex-email-marketing-example}
+
+This subsection will showcase the Lex language
+on a hands on example.
+Chapter \ref{chapter:methodology} will continue
+this example to showcase how a Lex specification
+can be refined.
+The example is based on the 2002 ePrivacy Directive
+of the European Union. % TODO: add some kind of source/link
+Specifically we focus on Article 13 of the ePrivacy Directive.
+This article regulates the use of electronic communication,
+automated calls, fax, and e-mail for marketing purposes.
+
+\begin{figure}
+    % \hspace{-5mm}
+    \begin{minipage}{\columnwidth}
+    \begin{quote}
+        \small \itshape
+        Art. 13 ePrivacy Directive . \textbf{Unsolicited communications}
+
+        \begin{enumerate}[1.]
+            \item
+            The use of automated calling systems without human
+            intervention (automatic calling machines), facsimile machines
+            (fax) or electronic mail for the purposes of direct marketing
+            may only be allowed in respect of subscribers who have given
+            their prior consent.
+            \item
+            Notwithstanding paragraph 1, where a natural or legal
+            person obtains from its customers their electronic contact
+            details for electronic mail, in the context of the sale of a
+            product or a service, in accordance with Directive 95/46/EC,
+            the same natural or legal person may use these electronic
+            contact details for direct marketing of its own similar products
+            or services provided that customers clearly and distinctly are
+            given the opportunity to object, free of charge and in an easy
+            manner, to such use of electronic contact details when they are
+            collected and on the occasion of each message in case the
+            customer has not initially refused such use.
+            \item
+            Member States shall take appropriate measures to ensure
+            that [...] unsolicited communications for purposes
+            of direct marketing, in cases other than those referred to in
+            paragraphs 1 and 2, are not allowed [...]
+            \item
+            In any event, [...] disguising or concealing the
+            identity of the sender [...] shall be prohibited. 
+            \item
+            Paragraphs 1 and 3 shall apply to subscribers who are
+            natural persons. Member States shall also ensure,
+            [...] that the legitimate interests of subscribers
+            other than natural persons with regard to
+            unsolicited communications are sufficiently protected.
+        \end{enumerate}
+    \end{quote}
+    \end{minipage}
+    % \hspace{10mm}
+    \caption{Text of Article 13 of the ePrivacy Directive~\cite{EPD2002}
+    \label{fig:eprivacy-directive-article-13}}
+    \vspace{-1em}
+\end{figure}
+
+\lstset{language=Lex, style=mystyle}
+
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}
+law "EPD" "ePrivacy Directive"
+
+type person
+type purpose is string
+type productCategory is string
+
+internal event automatedCommunication
+    s: person
+    r: person
+    p: purpose
+    c: productCategory
+
+causable suppressable event automatedCall
+    r: person 
+    s: person
+    p: purpose
+    c: productCategory
+
+causable suppressable event fax
+    r: person 
+    s: person
+    p: purpose
+    c: productCategory
+
+causable suppressable event email
+    r: person 
+    s: person
+    p: purpose
+    c: productCategory
+
+observable event obtainedEmailForCategory
+    r: person
+    s: person
+    c: productCategory
+
+observable event marketingConsent
+    r: person
+    s: person
+
+observable event objectToSimilarEmailMarketing
+    r: person
+    s: person
+    c: productCategory
+
+\end{lstlisting}
+\end{minipage}
+\hspace{10pt}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}[firstnumber=35]
+rule "call communication"
+    whenever
+        automatedCall(s, r, p, c)
+    constitute
+        automatedCommunication(s, r, p, c)
+
+rule "fax communication"
+    whenever
+        fax(s, r, p, c)
+    constitute
+        automatedCommunication(s, r, p, c)
+
+rule "email communication"
+    whenever
+        email(s, r, p, c)
+    constitute
+        automatedCommunication(s, r, p, c)
+
+article "13" "Unsolicited communications"
+paragraph "1"
+
+rule
+    whenever
+        automatedCommunication(s, r, "marketing", c)
+    oblige
+        marketingConsent(r, s)
+    enforceable suppressing automatedCommunication
+
+paragraph "2"
+
+rule
+    whenever
+        obtainedEmailForCategory(r, s, c)
+        NOT objectToSimilarEmailMarketing(r, s, c)
+    except
+        article "13" paragraph "1"
+
+\end{lstlisting}
+\end{minipage}
+\caption{\Lex{} formalization of Article 15(1) and 15(2) of the ePrivacy Directive \label{fig:lex-article-13} from Figure~\ref{fig:eprivacy-directive-article-13}}
+\end{figure*}
+
+Figure \ref{fig:lex-article-13} shows one way that
+Article 13 could be formalized in Lex.
+It defines three data types, \texttt{person}, \texttt{purpose}, and
+\texttt{productCategory} to represent the involved parties,
+\texttt{person} to represent both legal and natural persons,
+\texttt{purpose} to represent the purpose of the communication,
+and \texttt{productCategory} to represent the category of the product
+or service.
+
+Next it specifies one internal event for automated communication
+and three causable and suppressable events for the
+three different types of automated communication
+(automated calls, faxes, and e-mails), mentionend in
+the directive.
+Via three constitutive rules, these concrete
+events do then constitute the internal event
+\texttt{automatedCommunication}.
+
+And from there the article itself gets defined.
+It requires some interpretation to determine
+which parts can and should be formalized.
+Paragraphs 3 and 5 are directed at member states
+and do not state concrete rules.
+Paragraph 4 on the other hand does state
+a concrete rule ("one shall not disguise one's identity"),
+however it can be a reasonable assumption to leave this
+honesty requirement to the system itself and enforce
+it with an enforcer.
+
+Therefore we are left with paragraphs 1 and 2.
+Paragraph 1 contains a simple obligation that
+a person, likely a business, can only send
+marketing communication to a user, if the user
+gave consent for receiving such communication.
+And paragraph 2 states an exception to paragraph 1,
+where the business does not need explicit consent,
+as long as the contact information was obtained for
+a similar product or service, the user has not
+objected to receiving such communication, and
+the marketing for a product or service belonging
+to the sender.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %

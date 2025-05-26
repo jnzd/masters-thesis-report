@@ -140,3 +140,39 @@
 \newcommand{\bluekw}[1]{{\color{blue}\texttt{\upshape #1}}}
 \newcommand{\graykw}[1]{{\color{codegreen}\texttt{\bfseries\upshape #1}}}
 \newcommand{\kw}[1]{{\color{magenta}\texttt{\bfseries\upshape #1}}}
+
+
+\lstdefinelanguage{Lex}{
+  keywords={law, article, paragraph, point, rule, whenever, oblige, constitute, except, refine, observable, suppressable, hide, event, internal, predicate, type, is, transparently, enforceable, suppressing, refinement, function, assume, fulfilled, by, replace, strengthen, true, false},
+  keywordstyle=\color{magenta}\bfseries,
+  ndkeywords={ONCE, NOT, SINCE, OR, AND, EXISTS},
+  ndkeywordstyle=\color{codegreen}\bfseries,
+  identifierstyle=\color{blue},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{mystyle}{
+  %backgroundcolor=\color{backcolour},   
+  commentstyle=\color{codegreen},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\scriptsize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  numbers=left,                    
+  numbersep=5pt,                  
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  tabsize=2
+}
+
+
