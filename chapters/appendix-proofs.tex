@@ -1,354 +1,217 @@
 \chapter{Additional Proofs}
-% \section{System Traces}
-% \subsection{Lemma \ref{lem:mfotl-prefix-plus-suffix}}
-% \begin{proof}
-%     \label{proof:mfotl-prefix-plus-suffix}
-%     The proof for Lemma \ref{lem:mfotl-prefix-plus-suffix}
-%     starts with a case distinction based on
-%     the length of $\sigma$ and $i$.
-%     \begin{itemize}
-%         \item $i \geq | \sigma |$
+\section{Proof for Lemma \ref{lem:cconv'-splitting}}
+\label{appendix:section:proof-splitting-lemma}
 
-%         \begin{align*}
-%             \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
-%             &\stackrel{\ref{def:prefix-mfotl-trace}}{=} \sigma \cdot \suffix(i+1, \sigma)
-%             \\
-%             &\stackrel{\ref{def:suffix-mfotl-trace}}{=} \sigma \cdot \emptytrace
-%             \\
-%             &= \sigma
-%         \end{align*}
+\begin{proof}
+    \label{proof:cconv'-splitting}
+    Let $\sigma_\sys \in \Traces_\sys$ and $\tau \in \Nat$.
+    The proof for Lemma \ref{lem:cconv'-splitting} proceeds
+    by structural induction over system traces
+    $\sigma_\sys \in \Traces_\sys$.
+    \begin{itemize}
+        \item \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+        \begin{align*}
+            \cConv'(\tau, \sigma_\sys \cdot D)
+            &=  \cConv'(\tau, \emptytrace_\sys \cdot D) \\
+            &=  \cConv'(\tau, D) \\
+            &=  \emptytrace \cdot \cConv'(\tau + 0, D) \\
+            &\stackrel{\ref{def:num-ticks}}{=} 
+                \emptytrace \cdot
+                \cConv'(\tau + \numTicks(\emptytrace_\sys), D) \\
+            &\stackrel{\ref{def:cconv'}}{=} 
+                \cConv'(0, \emptytrace_\sys) \cdot
+                \cConv'(\tau + \numTicks(\emptytrace_\sys), D) \\
+            &= \cConv'(0, \sigma_\sys) \cdot
+                \cConv'(\tau + \numTicks(\sigma_\sys), D)
+        \end{align*}
+        \item \textbf{Induction Hypothesis}
 
-%         \item $i < | \sigma |$
+        For any true suffix $\sigma_\sys'$ of $\sigma_\sys$ 
+        (i.e. $|\sigma_\sys'| < |\sigma_\sys|$)
+        $$
+        \cConv'(\tau, \sigma_\sys' \cdot D)
+        = \cConv'(\tau, \sigma_\sys') \cdot
+        \cConv(\tau + \numTicks(\sigma_\sys'), D).
+        $$
 
-%         This case can be proofed by induction over $i \in \Nat$ for any $\sigma$ where
-%         $i < |\sigma|$.
-%         Specifically we proof
-%         \begin{equation*}
-%             \forall \sigma \in \Traces ~ \forall i < |\sigma| .~
-%             \prefix(i,\sigma) \cdot \suffix(i+1, \sigma) = \sigma
-%         \end{equation*}
+        \item \textbf{Induction Step}
 
-%         \begin{itemize}
-%             \item \textbf{Base Case} $i=0$
-%             \begin{align*}
-%                 \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
-%                 & =  \prefix(0, \sigma) \cdot \suffix(0, \sigma)
-%                 \\
-%                 &\stackrel{\ref{def:prefix-mfotl-trace}}{=}
-%                     \emptytrace \cdot \suffix(1, \sigma)
-%                 \\
-%                 &\stackrel{\ref{def:suffix-mfotl-trace}}{=} \emptytrace \cdot \sigma
-%                 \\
-%                 &= \sigma
-%             \end{align*}
-
-%             \item \textbf{Induction Hypothesis (IH)}
-%             \begin{equation*}
-%                 \forall \sigma \in \Traces ~ \forall 0 < i < |\sigma| .~
-%                 \prefix(i-1,\sigma) \cdot \suffix(i, \sigma) = \sigma
-%             \end{equation*}
-
-%             \item \textbf{Induction Step} $0 < i < |\sigma|$
-
-%             Since $\sigma$ cannot be empty, we can assume that
-%             $\sigma = (\tau, D) \cdot \sigma'$.
-%             \begin{align*}
-%                 \prefix(i, \sigma) \cdot \suffix(i+1, \sigma)
-%                 &\stackrel{\ref{def:prefix-mfotl-trace}}{=}
-%                     (\tau, D) \cdot \prefix(i-1, \sigma') \cdot \suffix(i, \sigma')
-%                 \\
-%                 &\stackrel{\text{IH}}{=}
-%                     (\tau, D) \cdot \sigma'
-%                 \\
-%                 &= \sigma
-%             \end{align*}
-%         \end{itemize}
-%     \end{itemize}
-% \end{proof}
-
-% \subsection{Lemma \ref{lem:last-timestamp-of-trimmed-system-trace}}
-% \begin{proof}
-%     \label{proof:last-timestamp-of-trimmed-system-trace}
-%     To prove Lemma \ref{lem:last-timestamp-of-trimmed-system-trace}
-%     we first note that any trimmed system trace ends in a database.
-
-%     \begin{equation*}
-%         TODO
-%     \end{equation*}
-    
-% \end{proof}
-
-
-% \subsection{Lemma \ref{lem:system-trace-prefix-suffix-fts-lts}}
-
-% \begin{proof}
-%     \label{proof:lemma-system-trace-prefix-suffix-fts-lts}
-%     The proof for Lemma \ref{lem:system-trace-prefix-suffix-fts-lts}
-%     proceeds as followed
-%         Since $\numDBs(\sigma_\sys) > i$, there exist
-%         $k_1, \dots, k_i > 0$ and $D_1, \dots, D_i \in \Databases$
-%         such that
-%         $$\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \ldots \cdot
-%         \tick^{k_i} \cdot D_i \cdot \sigma_\sys'.$$
-%         \begin{align*}
-%             &\lts_\sys(\prefix_\sys(i, \sigma_\sys)) \\
-%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-%                 \lts_\sys(\tick^{k_1} \cdot D \cdot
-%                 \prefix_\sys(i, \ldots \cdot \tick^{k_i}
-%                 \cdot D_i \cdot \sigma_\sys')) \\
-%             &\vdots \\
-%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-%                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
-%                 \cdot \prefix_\sys(0, \sigma_\sys')) \\
-%             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-%                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
-%                 \cdot \emptytrace_\sys) \\
-%             &=  \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i) \\
-%             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
-%                 k_1 + \lts_\sys(\ldots \cdot \tick^{k_i} \cdot D_i) \\
-%             &\vdots \\
-%             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
-%                 k_1 + \dots + k_i \\
-% % 
-%             &\leq \Sigma_{n=1}^{i+1} k_n \\
-%             &\stackrel{\ref{def:first-time-stamp-system-trace}}=
-%                 \fts_\sys(\tick^{\Sigma_{n=1}^{i+1} k_n}
-%                 \cdot D_{i+1} \cdot \sigma_\sys') \\
-%             &= \fts_\sys(\tick^{\Sigma_{n=1}^i k_n} \cdot
-%                 \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys') \\
-%             &\stackrel{\ref{def:suffix-system-trace}}{=}
-%                 \fts_\sys(\tick^{\Sigma_{n=1}^i k_n} \cdot
-%                 \suffix_\sys(0, \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
-%             & \vdots \\
-%             &\stackrel{\ref{def:suffix-system-trace}}{=}
-%                 \fts_\sys(\tick^{k_1} \cdot \suffix_\sys(i-1,
-%                 \ldots \cdot \tick^{k_i} \cdot D_i \cdot
-%                 \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
-%             &\stackrel{\ref{def:suffix-system-trace}}{=}
-%             \fts_\sys(\suffix_\sys(i, \sigma_\sys))
-%             \\ &\text{TODO: finish and fix this proof}
-%         \end{align*}
-% %     proceeds by induction over $i > 0$.
-% %     \begin{itemize}
-% %         \item \textbf{Base Case} $i=1$
-
-% %         We recall that $\numDBs(\sigma_\sys) > 1$.
-% %         Therefore, there exist $k_1, k_2 \geq 0$ and $D_1, D_2 \in \Databases$
-% %         such that
-% %         $\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \tick^{k_2}
-% %         \cdot D_2 \cdot \sigma_\sys'$.
-% %         \begin{align*}
-% %             \lts_\sys(\prefix_\sys(i, \sigma_\sys))
-% %             &= \lts_\sys(\prefix_\sys(1, \sigma_\sys)) \\
-% %             &\stackrel{\ref{def:prefix-system-trace}}{=}
-% %                 \lts_\sys(\tick^{k_1} \cdot D \cdot
-% %                 \prefix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys'))) \\
-% %             &\stackrel{\ref{def:prefix-system-trace}}{=}
-% %                 \lts_\sys(\tick^{k_1} \cdot D \cdot \emptytrace_\sys) \\
-% %             &= \lts_\sys(\tick^{k_1} \cdot D) \\
-% %             &= k_1 \\
-% %             &\leq k_1 + k_2 \\
-% %             &\stackrel{\ref{def:first-time-stamp-system-trace}}=
-% %                 \fts_\sys(\tick^{k_1 + k_2} \cdot D_2 \cdot \sigma_\sys') \\
-% %             &= \fts_\sys(\tick^{k_1} \cdot \tick^{k_2} \cdot D_2 \cdot \sigma_\sys') \\
-% %             &\stackrel{\ref{def:suffix-system-trace}}{=}
-% %                 \fts_\sys(\tick^{k_1} \cdot
-% %                 \suffix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys')) \\
-% %             &\stackrel{\ref{def:suffix-system-trace}}{=}
-% %                 \fts_\sys(\suffix_\sys(1, \sigma_\sys)) \\
-% %             &= \fts_\sys(\suffix_\sys(i, \sigma_\sys))
-% %         \end{align*}
-
-% %         \item \textbf{Induction Hypothesis}
-
-% %         For all $i > 1$ and $\sigma_\sys \in \Traces_\sys$, if
-% %         $\numDBs(\sigma_\sys) > i$
-% %         \begin{equation*}
-% %             \lts_\sys(\prefix_\sys(i, \sigma_\sys)) \leq \fts_\sys(i, \sigma_\sys))
-% %         \end{equation*}
+        We make a case distinction based on $\sigma_\sys$.
+        Without loss of generality we can assume that there
+        are no $\sskip$ events in $\sigma_\sys$.
+        \begin{itemize}
+            \item $\sigma_\sys = \tick^k$
+            \begin{align*}
+                \cConv'(\tau, \sigma_\sys \cdot D)
+                &= \cConv'(\tau, \tick^k \cdot D) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    (\tau + k, D) \\
+                &= \emptytrace \cdot
+                    (\tau + k, D) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    \cConv(\tau, \emptytrace_\sys) \cdot
+                    (\tau + k, D) \\
+                &= \cConv(\tau, \tick^k) \cdot
+                    (\tau + k, D) \\
+                &= \cConv(\tau, \sigma_\sys) \cdot
+                    (\tau + k, D) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    \cConv(\tau, \sigma_\sys) \cdot
+                    \cConv'(\tau+k, D) \\
+                &= \cConv(\tau, \sigma_\sys) \cdot
+                    \cConv'(\tau+ \numTicks(\sigma_\sys), D)
+            \end{align*}
+            \item $\sigma_\sys = \tick^k \cdot D' \cdot \sigma_\sys'$
+            \begin{align*}
+                \cConv'(\tau, \sigma_\sys \cdot D)
+                &= \cConv'(\tau, \tick^k \cdot D' \cdot \sigma_\sys' \cdot D) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    (\tau+k, D') \cdot
+                    \cConv'(\tau+k, \sigma_\sys' \cdot D) \\
+                &\stackrel{IH}{=}
+                    (\tau+k, D') \cdot
+                    \cConv'(\tau+k, \sigma_\sys') \cdot
+                    \cConv'(\tau+k+\numTicks(\sigma_\sys'), D) \\
+                &= (\tau+k, D') \cdot
+                    \cConv'(\tau+k, \sigma_\sys') \cdot
+                    \cConv'(\tau+\numTicks(\sigma_\sys), D) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    \cConv'(\tau, \tick^k \cdot D' \cdot \sigma_\sys') \cdot
+                    \cConv'(\tau+\numTicks(\sigma_\sys), D) \\
+                &= \cConv'(\tau, \sigma_\sys) \cdot
+                    \cConv'(\tau+\numTicks(\sigma_\sys), D)
+            \end{align*}
+        \end{itemize}
         
-% %         \item \textbf{Induction Step} $i+1$
-        
-% %         Since $\numDBs(\sigma_\sys) > i$, there exist
-% %         $k_1, \dots, k_i, k_{i+1} > 0$ and $D_1, \dots, D_i, D_{i+1} \in \Databases$
-% %         such that
-% %         $$\sigma_\sys = \tick^{k_1} \cdot D_1 \cdot \ldots \cdot \tick^{k_i} \cdot D_i
-% %         \cdot \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys'.$$
-% %         \begin{align*}
-% %             &\lts_\sys(\prefix_\sys(i+1, \sigma_\sys)) \\
-% %             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-% %                 \lts_\sys(\tick^{k_1} \cdot D \cdot
-% %                 \prefix_\sys(i, \ldots \cdots \tick^{k_i}
-% %                 \cdot D_i \cdot \tick^{k_{i+1}} \cdot D_{i+1} \cdot \sigma_\sys')) \\
-% %             &\vdots \\
-% %             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-% %                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
-% %                 \cdot \prefix_\sys(0, \tick^{k_{i+1}}
-% %                 \cdot D_{i+1} \cdot \sigma_\sys')) \\
-% %             &\stackrel{\ref{def:prefix-system-trace}}{=} 
-% %                 \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i
-% %                 \cdot \emptytrace_\sys) \\
-% %             &=  \lts_\sys(\tick^{k_1} \cdot D \cdot \ldots \cdot \tick^{k_i} \cdot D_i) \\
-% %             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=}
-% %                 k_1 + \lts_\sys(\ldots \cdot \tick^{k_i} \cdot D_i) \\
-% %             &\vdots \\
-% %             &\stackrel{\ref{def:last-time-stamp-system-trace}}{=} \Sigma_{n=1}^i k_i \\
-% % % 
-% %             &\leq \Sigma_{n=1}^{i+1} k_i \\
-% %             &\stackrel{\ref{def:first-time-stamp-system-trace}}=
-% %                 \fts_\sys(\tick^{k_1 + k_2} \cdot D_2 \cdot \sigma_\sys') \\
-% %             &= \fts_\sys(\tick^{k_1} \cdot \tick^{k_2} \cdot D_2 \cdot \sigma_\sys') \\
-% %             &\stackrel{\ref{def:suffix-system-trace}}{=}
-% %                 \fts_\sys(\tick^{k_1} \cdot
-% %                 \suffix_\sys(0, \tick^{k_2} \cdot D_2 \cdot \sigma_\sys')) \\
-% %             &\stackrel{\ref{def:suffix-system-trace}}{=}
-% %                 \fts_\sys(\suffix_\sys(1, \sigma_\sys)) \\
-% %             &= \fts_\sys(\suffix_\sys(i, \sigma_\sys))
-% %         \end{align*}
-        
-% %     \end{itemize}
-% \end{proof}
+    \end{itemize}
+\end{proof}
 
-% \subsection{Lemma \ref{lem:system-trace-merge-prefix-and-suffix}}
-% \begin{proof}
-%     \label{proof:system-trace-merge-prefix-and-suffix}
-%     To proof Lemma \ref{lem:system-trace-merge-prefix-and-suffix}
-%     we make a case distinction on $i$ and the length of
-%     $\sigma_\sys$ (i.e. the number of databases in $\sigma_\sys$).
-%     Let $\sigma_\sys \in \trim(\Traces_\sys)$ and $i \in \Nat$.
+\section{Proof for Lemma \ref{lem:enf-es-trace-correspondance}}
+\label{appendix:section:proof-enf-es-trace-correspondance}
 
-%     \begin{enumerate}
-%         \item $i \geq \numDBs(\sigma_\sys)$
-%         \begin{align*}
-%             \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
-%             & \stackrel{\ref{def:suffix-system-trace}}{=}
-%             \merge(\prefix_\sys(i, \sigma_\sys), \emptytrace_\sys)
-%             \\
-%             & \stackrel{\ref{def:prefix-system-trace}}{=}
-%             \merge(\sigma_\sys, \emptytrace_\sys)
-%             \\
-%             & \stackrel{\ref{def:system-trace-merge}}{=}
-%             \sigma_\sys
-%         \end{align*}
+\begin{proof}
+    \label{proof:enforcement-event-system-traces-corresponding-enforced-trace}
+    The proof for Lemma
+    \ref{lem:enf-es-trace-correspondance}
+    proceeds by structural induction over finite system traces
+    $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$.
+    Later we will make the argument why the property extends to inifinite
+    system traces too.
+    Without loss of generality we can assume that
+    $\sigma_\sys \in \trim(\Traces_{\sys})$,
+    because the conversion function $\cConv$ removes
+    implicitly trims system traces.
+    Let $\Enforcer = (\EnfStates, s_0, \mu)$ be an enforcer.
+    \begin{itemize}
+        \item
+        \textbf{Base Case} $\sigma_\sys = \emptytrace_\sys$
+        \begin{align*}
+            \cConv(\sigma_\sys)
+            = \cConv(\emptytrace_\sys) 
+            \stackrel{\ref{def:cconv}}{=} \emptytrace
+            = \Enforcer(\emptytrace)
+        \end{align*}
+        The final equality follows from Algorithm \ref{alg:loop}
+        which defines, that enforcing the empty trace returns
+        the empty trace.        
+        \item \textbf{Induction Hypothesis}
+        For all true prefixes $\sigma_\sys'$ of
+        $\sigma_\sys \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+        (i.e. $|\sigma_\sys'| < |\sigma_\sys|$)
+        there exists a trace $\sigma' \in \Traces$ such that
+        $\cConv(\sigma_\sys') = \Enforcer(\sigma')$.
 
-%         \item $i < \numDBs(\sigma_\sys)$
+        \item \textbf{Induction Step}
 
-%         We prove this case by induction on $i$ for an arbitrary system trace
-%         $\sigma \in \trim(\Traces_\sys)$ with $i < \numDBs(\sigma_\sys)$
-%         \begin{enumerate}
-%             \item \textbf{Base Case} $i=0$
-%             \begin{align*}
-%                 & \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
-%                 \\
-%                 &= \merge(\prefix_\sys(0, \sigma_\sys), \suffix_\sys(1, \sigma_\sys))
-%                 \\
-%                 & \stackrel{\ref{def:suffix-system-trace}}{=}
-%                 \merge(\prefix_\sys(0, \sigma_\sys), \sigma_\sys)
-%                 \\
-%                 & \stackrel{\ref{def:prefix-system-trace}}{=}
-%                 \merge(\emptytrace_\sys, \sigma_\sys)
-%                 \\
-%                 & \stackrel{\ref{def:system-trace-merge}}{=}
-%                 \sigma_\sys
-%             \end{align*}
+        We make a case distinction based on the two possible transitions
+        of enforcement event systems from Definition
+        \ref{def:enf-transition-relation}.
+        The update functions $\RFun$ and $\PFun$ are defined
+        as in Definition \ref{def:induced-event-system}.
+        \begin{itemize}
+            \item
+            $\sigma_\sys = \sigma_\sys' \cdot \RFun(\sigma_\sys', D)$
+            \begin{align*}
+                \cConv(\sigma_\sys)
+                &= \cConv(\sigma_\sys' \cdot \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv'(0, \sigma_\sys' \cdot \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{lem:cconv'-splitting}}{=}
+                    \cConv'(0, \sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv(\sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{IH}{=}
+                    \Enforcer(\sigma') \cdot
+                    \cConv'(\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &\stackrel{\ref{def:cconv'}, \ref{def:reactive-update-function}}{=}
+                    \Enforcer(\sigma') \cdot
+                    (\numTicks(\sigma_\sys'), \RFun(\sigma_\sys', D)) \\
+                &=
+                    \Enforcer(\sigma' \cdot
+                    (\numTicks(\sigma_\sys'), D))
+            \end{align*}
+            The final step follows from the definition of the
+            reactive update function $\RFun$ by means of the enforcer
+            update function $\mu$ and how $\mu$ is used by
+            in lines 6 and 7 of Algorithm \ref{alg:loop}
+            to issue an $\RCom$-command.
 
-%             \item \textbf{Induction Hypothesis}
-%             \begin{align*}
-%                 &\forall \sigma_\sys \in \Traces_\sys ~
-%                 \forall 0 < i < \numDBs(\sigma_\sys) .~
-%                 \\
-%                 &\sigma_\sys =
-%                 \merge(\prefix_\sys(i-1, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
-%             \end{align*}
-
-%             \item \textbf{Induction Step} $0 < i < \numDBs(\sigma_\sys)$
-
-%             Since $\numDBs(\sigma_\sys) > 0$, we can assume that
-%             $\sigma_\sys
-%             = \tick^k \cdot D \cdot \sigma_\sys'$
-%             for some $k \in \Nat$.
-
-%             \begin{align*}
-%                 & \merge(\prefix_\sys(i, \sigma_\sys), \suffix_\sys(i, \sigma_\sys))
-%                 \\
-%                 & =
-%                 \merge(
-%                     \prefix_\sys(i,
-%                         \tick^k \cdot D \cdot \sigma_\sys'
-%                     ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, \sigma_\sys))
-%                 \\
-%                 & =
-%                 \merge(
-%                     \prefix_\sys(i,
-%                         \tick^k \cdot D \cdot \sigma_\sys'
-%                     ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i,
-%                         \tick^k \cdot D \cdot \sigma_\sys'
-%                     ))
-%                 \\
-%                 & \begin{cases}
-%                 & \stackrel{\ref{def:prefix-system-trace}}{=}
-%                 \merge(
-%                     \tick \cdot \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, \tick^k \cdot D \cdot \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\ref{def:suffix-system-trace}}{=}
-%                 \merge(
-%                     \tick \cdot \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \tick \cdot \suffix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\ref{def:system-trace-merge}}{=}
-%                 \tick \cdot \merge(
-%                     \prefix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, \tick^{k-1} \cdot D \cdot \sigma_\sys' ))
-%                 \end{cases}
-%                 \\
-%                 & \qquad \vdots
-%                 \\
-%                 & \stackrel{\ref{def:system-trace-merge}}{=}
-%                 \tick^k \cdot
-%                 \merge(
-%                     \prefix_\sys(i, D \cdot \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, D \cdot \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\ref{def:prefix-system-trace}}{=}
-%                 \tick^k \cdot
-%                 \merge(
-%                     D \cdot \prefix_\sys(i-1, \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, D \cdot \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\ref{def:system-trace-merge}}{=}
-%                 \tick^k \cdot
-%                 D \cdot \merge(
-%                     \prefix_\sys(i-1, \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i, D \cdot \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\ref{def:suffix-system-trace}}{=}
-%                 \tick^k \cdot
-%                 D \cdot \merge(
-%                     \prefix_\sys(i-1, \sigma_\sys' ),
-%                     % \\ & \qquad
-%                     \suffix_\sys(i-1, \sigma_\sys' ))
-%                 \\
-%                 & \stackrel{\text{IH}}{=}
-%                 \tick^k \cdot
-%                 D \cdot \sigma_\sys'
-%                 \\
-%                 &= \sigma_\sys
-%                 \\ &\text{TODO: check proof with new merge function definition}
-%             \end{align*}
-            
-%         \end{enumerate}
-%     \end{enumerate}
-% \end{proof}
-
+            \item $\sigma_\sys = \sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick$
+            \begin{align*}
+                \cConv(\sigma_\sys)
+                &= \cConv(\sigma_\sys' \cdot \PFun(\sigma_\sys') \cdot \tick) \\
+                &\stackrel{\ref{def:cconv'}}{=}
+                    \cConv(\sigma_\sys' \cdot \PFun(\sigma_\sys')) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv'(0, \sigma_\sys' \cdot \PFun(\sigma_\sys')) \\
+                &\stackrel{\ref{lem:cconv'-splitting}, \sskip}{=}
+                    \cConv'(0, \sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys'))) \\
+                &\stackrel{\ref{def:cconv}}{=}
+                    \cConv(\sigma_\sys') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys'))) \\
+                &\stackrel{IH}{=}
+                    \Enforcer(\sigma') \cdot
+                    \cConv'(\numTicks(\sigma_\sys',
+                    \PFun(\sigma_\sys'))) \\
+                &= \begin{cases}
+                    \Enforcer(\sigma')
+                        &\text{if } \PFun(\sigma_\sys')  = \sskip \\
+                    \Enforcer(\sigma' \cdot (\numTicks(\sigma_\sys'), D))
+                        &\text{if } \PFun(\sigma_\sys') = D
+                \end{cases}
+            \end{align*}
+            Similarly to the reactive case above, the final step follows
+            from how the proactive update function $\PFun$ is defined
+            by the enforcer update function $\EnfFun$ and
+            how $\EnfFun$ is used by the enforcement algorithm to
+            issue $\PCom$ and $\NCom$ commands.
+        \end{itemize}
+    \end{itemize}
+    Finally, the finite case shows that there
+    cannot exist an infinite system trace for which Lemma
+    \ref{lem:enf-es-trace-correspondance}
+    does not hold.
+    For any infinite trace
+    $\sigma_\sys \in \EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    we have shown that for all finite prefixes
+    $\sigma_{\sys |\dots i}$
+    with an arbitrary $i \in \Nat$,
+    there exists an MFOTL
+    trace $\sigma_f \in \Traces_f$ such that
+    $\cConv(\sigma_{\sys |\dots i}) = \Enforcer(\sigma_f)$.
+    If, for some infinite trace
+    $\sigma_\sys \in \EStraces_\omega(\EventSystem(\Enforcer), \emptytrace_\sys)$,
+    there would not exist a trace $\sigma_\omega \in \Traces_\omega$
+    such that $\cConv(\sigma_\sys) = \Enforcer(\sigma_\omega)$,
+    then there would exist some finite prefix
+    $\sigma_{\sys |\dots i} \in \EStraces_f(\EventSystem(\Enforcer), \emptytrace_\sys)$
+    such that there also does not exist a trace
+    $\sigma_f \in \Traces_f$ such that
+    $\cConv(\sigma_{\sys |\dots i}) = \Enforcer(\sigma_f)$.
+\end{proof}
 
