@@ -1967,4 +1967,33 @@ Next we recall Sprenger et. al \cite[Lemma 2.2]{igloo}.
 
 \section{Legal Background}
 
+A Lex specification represents a formalization of a legal text.
+Any formalization always includes some level of interpretation.
+Writing a Lex specification requires to make decisions on
+which legal concepts are represented as an event, how general
+should events be, which aspects of the law fit into which kind
+of CRE rule, etc.
+Only by carefully auditing and reviewing a Lex specification
+is there a high certainty
+that a given specification correctly captures the essence of
+the law.
+Because the task of writing such a formalization is inherently
+difficult, the ability to reuse an existing specification
+and adapt it with minimal changes to different use cases
+is highly desirable.
+This thesis provides one method of achieving this reusability
+by ways of refinement.
+
+The refinement process arguably includes even more interpretation
+than the initial formalization.
+With knowledge about a given system, some aspects of an
+initial specification might become redundant and others might
+need to be clarified based on how a system implements certain
+things.
+For example, in our ePrivacy Directive example on
+unsolicited communications, if we know a system never
+makes calls or uses a fax, rules on limiting the use
+of calls and fax become unnecessary.
+
+
 

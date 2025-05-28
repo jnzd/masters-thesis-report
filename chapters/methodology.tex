@@ -1,34 +1,19 @@
 \chapter{Methodology}
 \label{chapter:methodology}
 
-% TODO: remove in the end
-\begin{itemize}
-    \item Define abstract events from concrete events
-    \item Obligations
-    \begin{itemize}
-        \item new obligations
-        \item make existing obligations stronger
-    \end{itemize}
-    \item Constitutive rules
-    \begin{itemize}
-        \item how could strengthening constiutive rules work?
-    \end{itemize}
-    \item Set stronger capabilities
-    \item Declare that certain obligations are always full filled
-    \item declare that certain events never occur
-    \begin{itemize}
-        \item \texttt{let e(...) = False}
-    \end{itemize}
-\end{itemize}
-%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 \section{Introduction}
 \label{section:methodology-introduction}
 
 This chapter explores the changes and additions
 to the Lex language to include CRE[MFOTL]
-refinement from chapter \ref{chapter:refinement-of-cre-enforcement}.
+refinement from Chapter \ref{chapter:refinement-of-cre-enforcement}.
+With refinement in Lex, an existing and possibly fairly abstract
+legal formalization can be refined to more closely match
+a concrete system.
+First we introduce the new language features introduced
+for refinement and then we explore those features in more
+detail by refining the EU ePrivacy Directive example
+in Lex.
 
 \section{Refinement of Lex Specifications}
 \label{section:methodology-refinement-of-lex-specifications}
@@ -45,11 +30,47 @@ introduced in Chapter \ref{subsection:lex-syntax} are:
         This statement is simply used to specify the underlying Lex
         specification that is being refined.
         Syntactically it works the same way as an \kw{import} statement
-        (e.g. \kw{refine} GDPR).
+        (e.g. \kw{refine} edp).
+    \item \textbf{Refine Rules}
+        (Keyword: \kw{refine})
+        Refine rules are special constitutive rules.
+        Instead of the keyeword \kw{constitute} they use the keyword
+        \kw{refine} and while constitutive rules always
+        define an internal event, refine rules
+        re-define an event that was is a concrete event
+        in the original Lex specification.
+        For example on consent for something
+        could be given in two different ways,
+        one by sending an emain and two by clicking
+        a button on a website.
+        The following example shows how this can be expressed as a
+        refine rule.
+        \begin{align*}
+            &\kw{rule} \\
+            &\quad \kw{whenever} \\
+            &\qquad \texttt{consentByEmail(u,s)}~\kw{OR}~\texttt{consentByButton(u,s)} \\            
+            &\quad \kw{refine} \\
+            &\qquad \texttt{consent(u,s)}
+        \end{align*}
+
     \item \textbf{Assumptions}
-        TODO
-    \item \textbf{Type Refinements}
-        TODO
+        (Keyword: \kw{assume})
+        Assumptions in Lex refinement are a special case of
+        refinement (or constitutive) rules.
+        "\kw{assume} \bluekw{true} \texttt{objectToSimilarEmailMarketing(u, s, c)}"
+        means that we assume that every user \texttt{u} has objected
+        to receiving marketing emails
+        from the sender \texttt{s} about products or services in
+        category \texttt{c}.
+        And this assumption could also be
+        written as
+        \begin{align*}
+            &\kw{rule} \\
+            &\quad \kw{whenever} \\
+            &\qquad \bluekw{true} \\
+            &\quad \kw{refine} \\ 
+            &\qquad \texttt{objectToSimilarEmailMarketing(u, s, c)}
+        \end{align*}
     \item \textbf{Rule Replacement}
         (Keyword: \kw{replace})
         Replacement rules are structured and written very similarly to
@@ -57,16 +78,99 @@ introduced in Chapter \ref{subsection:lex-syntax} are:
         They consist of two sets of rule references,
         one for the "old" rules being replaced
         and one for the "new" rules that are replacing them.
-        They have the form (\kw{rule} \kw{replace} "old rules" \kw{by} "new rules")
+        They have the form
+        "\kw{replace} (\kw{strengthen} | \kw{weaken}) [old rules] \kw{by} [new rules]"
+        Rule replacement is the Lex equivalent to the
+        implication (IMP) rules from CRE[MFOTL] in Figure
+        \ref{fig:cre-refinement-rules}.
+        Lex refinement allows for one obligation to be replaced
+        by a set of obligations.
+        It allows for one constitutive rule to be replaced by
+        a set of constitutive rules as long as they constitute
+        exactly the same event (including the same parameters).
+        It allows for replacing an exception with a set of exceptions
+        as long as their rule lables reference exactly the same rules.
+        The \kw{strengthen} and \kw{weaken} keywords
+        are used to indicate whether the new rules are supposed to
+        be stronger or weaker than the old rules and
+        are used during type checking to determine in
+        which direction an implication must hold.
+        Obligations can only be strengthened.
+    \item \textbf{Type Refinements}
+        (Structure: \kw {refine} \kw{type} "abstract type" \kw{is} "concrete type")
+        Type refinements are used
+        to specify concrete data types for types that
+        might have been left abstract in the original
+        Lex specification.
+        For example, it might be unknown and not necessary
+        to know in a legal formalization whether
+        a person is represented as a string or integer
+        identifier, but in the refinement specification
+        we do know which data type is used by the target system.
 \end{itemize}
 
 
 \section{Refinement of the EU ePrivacy Directive in Lex}
 \label{section:lex-pretix-refinement}
 
-\subsection{Pretix}
 
 \subsection{Refinement of a Lex Specification}
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}
+refine epd
+
+refine type person is string
+
+observable event userGivesConsent
+    """ person {s} gives consent to receive automated marketing communication from person {r} """
+    r: person
+    s: person
+
+observable event userWithdrawsConsent
+    """ person {s} withdraws consent to receive automated marketing communication from person {r} """
+    r: person
+    s: person
+
+rule "refine marketing consent"
+    whenever
+        (NOT userWithdrawsConsent(r, s)) SINCE userGivesConsent(r, s)
+    refine
+        marketingConsent(r, s)
+
+assume true objectToSimilarEmailMarketing
+\end{lstlisting}
+\end{minipage}
+\hspace{10pt}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}[firstnumber=35]
+
+\end{lstlisting}
+\end{minipage}
+\caption{Lex Refinement of Figure
+\ref{fig:lex-article-13} \label{fig:rex-article-13}}
+\end{figure*}
+
+Figure \ref{fig:rex-article-13} shows one possible refinement
+of the Lex specification from Figure \ref{fig:lex-article-13}.
+Here the event for prior prior consent gets refined to mean
+by two events for giving and withdrawing consent.
+Further we might want to be more privacy conscious
+and always opt users out of receiving
+marketing emails that would be exempt from requireing prior 
+consent by the similarity clause in Article 13(2).
+This is done by the assumption that every user has objected
+to receiving such marketing emails.
+
+
+\subsection{Pretix}
+Pretix is an open source event ticketing system.
+It offers products for ticket sales, wait lists,
+on location ticket sales, and ticket scanning.
+We are interested in the pre-event ticket sales part.
+We evaluated a refined Lex formalization of the emaail marketing
+regulations in the EU ePrivacy Directive on the Pretix
+platform.
 
 \subsection{Evaluation}
 
