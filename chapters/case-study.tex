@@ -1,0 +1,66 @@
+\chapter{Case Study}
+\label{chapter:case-study}
+
+\section{Refinement of the EU ePrivacy Directive in Lex}
+\label{section:lex-pretix-refinement}
+
+
+\subsection{Refinement of a Lex Specification}
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}
+refine epd
+
+refine type person is string
+
+observable event userGivesConsent
+    """ person {s} gives consent to receive automated marketing communication from person {r} """
+    r: person
+    s: person
+
+observable event userWithdrawsConsent
+    """ person {s} withdraws consent to receive automated marketing communication from person {r} """
+    r: person
+    s: person
+
+rule "refine marketing consent"
+    whenever
+        (NOT userWithdrawsConsent(r, s)) SINCE userGivesConsent(r, s)
+    refine
+        marketingConsent(r, s)
+
+assume true objectToSimilarEmailMarketing
+\end{lstlisting}
+\end{minipage}
+\hspace{10pt}
+\begin{minipage}{0.48\textwidth}
+\begin{lstlisting}[firstnumber=35]
+
+\end{lstlisting}
+\end{minipage}
+\caption{Lex Refinement of Figure
+\ref{fig:lex-article-13} \label{fig:rex-article-13}}
+\end{figure*}
+
+Figure \ref{fig:rex-article-13} shows one possible refinement
+of the Lex specification from Figure \ref{fig:lex-article-13}.
+Here the event for prior prior consent gets refined to mean
+by two events for giving and withdrawing consent.
+Further we might want to be more privacy conscious
+and always opt users out of receiving
+marketing emails that would be exempt from requireing prior 
+consent by the similarity clause in Article 13(2).
+This is done by the assumption that every user has objected
+to receiving such marketing emails.
+
+
+\subsection{Pretix}
+Pretix is an open source event ticketing system.
+It offers products for ticket sales, wait lists,
+on location ticket sales, and ticket scanning.
+We are interested in the pre-event ticket sales part.
+We evaluated a refined Lex formalization of the emaail marketing
+regulations in the EU ePrivacy Directive on the Pretix
+platform.
+
+

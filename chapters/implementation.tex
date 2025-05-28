@@ -1,3 +1,112 @@
 \chapter{Implementation}
 \label{chapter:implementation}
 
+\section{Introduction}
+\label{section:implementation-introduction}
+
+This chapter explores the changes and additions
+to the Lex language to include CRE[MFOTL]
+refinement from Chapter \ref{chapter:refinement-of-cre-enforcement}.
+With refinement in Lex, an existing and possibly fairly abstract
+legal formalization can be refined to more closely match
+a concrete system.
+First we introduce the new language features introduced
+for refinement and then we explore those features in more
+detail by refining the EU ePrivacy Directive example
+in Lex.
+
+\section{Refinement of Lex Specifications}
+\label{section:methodology-refinement-of-lex-specifications}
+
+Refinement introduces a number of new statements in Lex.
+Lex refinement files use the file extension \texttt{.rex}.
+The refinement specific statements that complement the statements
+introduced in Chapter \ref{subsection:lex-syntax} are:
+\begin{itemize}
+    \item \textbf{Reference to the underlying Lex specification}
+        (Keyword: \kw{refine})
+        Any Lex refinement specification will start with a \kw{refine}
+        statement.
+        This statement is simply used to specify the underlying Lex
+        specification that is being refined.
+        Syntactically it works the same way as an \kw{import} statement
+        (e.g. \kw{refine} edp).
+    \item \textbf{Refine Rules}
+        (Keyword: \kw{refine})
+        Refine rules are special constitutive rules.
+        Instead of the keyeword \kw{constitute} they use the keyword
+        \kw{refine} and while constitutive rules always
+        define an internal event, refine rules
+        re-define an event that was is a concrete event
+        in the original Lex specification.
+        For example on consent for something
+        could be given in two different ways,
+        one by sending an emain and two by clicking
+        a button on a website.
+        The following example shows how this can be expressed as a
+        refine rule.
+        \begin{align*}
+            &\kw{rule} \\
+            &\quad \kw{whenever} \\
+            &\qquad \texttt{consentByEmail(u,s)}~\kw{OR}~\texttt{consentByButton(u,s)} \\            
+            &\quad \kw{refine} \\
+            &\qquad \texttt{consent(u,s)}
+        \end{align*}
+
+    \item \textbf{Assumptions}
+        (Keyword: \kw{assume})
+        Assumptions in Lex refinement are a special case of
+        refinement (or constitutive) rules.
+        "\kw{assume} \bluekw{true} \texttt{objectToSimilarEmailMarketing(u, s, c)}"
+        means that we assume that every user \texttt{u} has objected
+        to receiving marketing emails
+        from the sender \texttt{s} about products or services in
+        category \texttt{c}.
+        And this assumption could also be
+        written as
+        \begin{align*}
+            &\kw{rule} \\
+            &\quad \kw{whenever} \\
+            &\qquad \bluekw{true} \\
+            &\quad \kw{refine} \\ 
+            &\qquad \texttt{objectToSimilarEmailMarketing(u, s, c)}
+        \end{align*}
+    \item \textbf{Rule Replacement}
+        (Keyword: \kw{replace})
+        Replacement rules are structured and written very similarly to
+        other Lex rules.
+        They consist of two sets of rule references,
+        one for the "old" rules being replaced
+        and one for the "new" rules that are replacing them.
+        They have the form
+        "\kw{replace} (\kw{strengthen} | \kw{weaken}) [old rules] \kw{by} [new rules]"
+        Rule replacement is the Lex equivalent to the
+        implication (IMP) rules from CRE[MFOTL] in Figure
+        \ref{fig:cre-refinement-rules}.
+        Lex refinement allows for one obligation to be replaced
+        by a set of obligations.
+        It allows for one constitutive rule to be replaced by
+        a set of constitutive rules as long as they constitute
+        exactly the same event (including the same parameters).
+        It allows for replacing an exception with a set of exceptions
+        as long as their rule lables reference exactly the same rules.
+        The \kw{strengthen} and \kw{weaken} keywords
+        are used to indicate whether the new rules are supposed to
+        be stronger or weaker than the old rules and
+        are used during type checking to determine in
+        which direction an implication must hold.
+        Obligations can only be strengthened.
+    \item \textbf{Type Refinements}
+        (Structure: \kw {refine} \kw{type} "abstract type" \kw{is} "concrete type")
+        Type refinements are used
+        to specify concrete data types for types that
+        might have been left abstract in the original
+        Lex specification.
+        For example, it might be unknown and not necessary
+        to know in a legal formalization whether
+        a person is represented as a string or integer
+        identifier, but in the refinement specification
+        we do know which data type is used by the target system.
+\end{itemize}
+
+
