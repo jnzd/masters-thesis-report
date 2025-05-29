@@ -102,9 +102,25 @@ We evaluated a refined Lex formalization of the email marketing
 regulations in the EU ePrivacy Directive on the Pretix
 platform.
 
+Instrlib \cite{instrlib} is a python library for instrumenting Python
+programs for enforcement with the EnfGuard \cite{whyenf} enforcer.
+It has been designed to facilitate especially seamless instrumentation
+of Django applications.
+Instrlib takes over the interaction between EnfGuard and an
+instrumented program.
+During this thesis, while working on the case-study, we extended
+the logger in Instrlib with a cache.
+The cache has an adjustable timeout value, and serves the purpose that
+when the same event gets queried multiple times in quick
+succession, its corresponding values do not have to be recomputed
+every time, since they are unlikely to have changed.
+In some cases this can considerably reduce the delay that
+enforcement introduces.
+
 For this, we modified Pretix and instrumented this version of it
-with the Instrlib library \cite{instrlib}
-\footnote{Instrlib+Pretix case study\\ \url{https://gitlab.inf.ethz.ch/skrstic/proactive-enforcement-library/-/tree/refinement}}
+with Instrlib
+\footnote{Instrlib+Pretix case study\\
+        \url{https://gitlab.inf.ethz.ch/skrstic/proactive-enforcement-library/-/tree/refinement}}
 \footnote{Instrumented Pretix fork \url{https://github.com/jnzd/pretix}}.
 The modifications to Pretix consist of new fields to
 the customer model indicating consent to receive
@@ -113,6 +129,13 @@ and withdraw this consent.
 
 Pretix stores customer emails in the order data model and
 the customer data model for users that create an account.
+We have instrumented the email fields of these two model  classes,
+such that accessing them might get suppressed if needed.
+Further we annotated the function for sending emails with the
+"marketing" purpose and we annotated our newly added
+consent checkbox in such a way that updating the
+marketing consent value, triggers an event that gets reported
+to Instrlib and the enforcer.
 
 
 

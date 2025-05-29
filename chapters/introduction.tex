@@ -20,28 +20,26 @@ To address this challenge, runtime enforcement has emerged as a promising techni
 to automatically ensure a system complies with a given
 regulation.
 Runtime enforcement provides automated solutions to ensure
-Compliance by Design with digital regulations.
-Runtime enforcement provides automated solutions to
-ensure that a system complies with a given policy
+Compliance by Design with digital regulations
 by modifying the system's behavior when required.
 
 For such enforcement to be feasible, runtime enforcement tools require policies that are formal
 enough to be automated.
 However, legal texts written in natural language do not
 directly meet this requirement.
-\Lex \cite{lex, semesterproject}, a programming language developed as a specification
+Lex \cite{lex, semesterproject}, a programming language developed as a specification
 language for legal texts, maintains a high level of
 readability while being formal enough to develop
 policies for runtime enforcement.
-However, even with a high-level language like \Lex,
+However, even with a high-level language like Lex,
 formalizing legal texts is a complex task.
 This complexity is one reason why, in this thesis,
-we introduce the concept of \emph{refinement} into \Lex.
+we introduce the concept of \emph{refinement} into Lex.
 Refinement refers to both a concept where a concrete specification
 entails (or implements) a more abstract specification, as well
 as the process of deriving such a concrete specification from
 an abstract one.
-Refinement allows users to reuse existing \Lex specifications
+Refinement allows users to reuse existing Lex specifications
 and make minimal changes to adapt them to their specific use cases.
 % With the large and growing importance of digital systems
 % in our world there is also a growing number laws
@@ -58,22 +56,22 @@ and make minimal changes to adapt them to their specific use cases.
 % a level of formality suitable for automated enforcement.
 % Legal texts written in natural language do not directly
 % meet this requirement.
-% The \Lex programming language \cite{lex, semesterproject}
+% The Lex programming language \cite{lex, semesterproject}
 % was developed as a specification language
 % for legal texts that maintains a high level
 % of readability while also being formal enough
 % to be used as a policy for runtime enforcement.
-% Even with a high level language like, \Lex formalizing
+% Even with a high level language like, Lex formalizing
 % legal texts is a complex task.
 % This complexity is one of the reasons why in this
-% thesis we add the concept of refinement to \Lex in
-% order to allow users to reuse existing \Lex
+% thesis we add the concept of refinement to Lex in
+% order to allow users to reuse existing Lex
 % specifications and make minimal changes to adapt them
 % to their specific use cases.
 
 \section{Our Approach}
 \label{section:approach}
-% \Lex is designed to formalize legal texts
+% Lex is designed to formalize legal texts
 % in order to use the formalization as a policy for
 % runtime enforcement.
 % In this context, different systems might be required to
@@ -81,20 +79,20 @@ and make minimal changes to adapt them to their specific use cases.
 % For example the GDPR applies to various systems.
 % It is desirable to be able to reuse the same formalization
 % of a law like the GDPR for these different systems.
-% However, a formalization in \Lex inherently assumes a
+% However, a formalization in Lex inherently assumes a
 % certain model of the world, broken down into events and rules.
 % Not all systems work with the exact same, atomic events.
 % Therefore, it would be useful, if it was possible to define
 % a mapping from "concrete" system events to the more abstract
-% events in the \Lex formalization, without having to rewrite the
+% events in the Lex formalization, without having to rewrite the
 % entire formalization.
 % This is where refinement comes in.
-% In a programming language context, refinement in \Lex
+% In a programming language context, refinement in Lex
 % has certain parallels to the concept of inheritance
 % in object-oriented programming.
-\Lex is designed to formalize legal texts for the purpose of using the formalization as a policy for runtime enforcement.
-Even with its advanced features, formalizing a law in \Lex remains a complex task.
-A fundamental element of any \Lex specification are events.
+Lex is designed to formalize legal texts for the purpose of using the formalization as a policy for runtime enforcement.
+Even with its advanced features, formalizing a law in Lex remains a complex task.
+A fundamental element of any Lex specification are events.
 These events define a model of the world.
 In order to ensure the accuracy and simplicity of formalization, it is essential that these events be as general as possible.
 Conversely, to effectively enforce a given system, the events in the specification must directly correspond to system events.
@@ -137,7 +135,7 @@ Compliance by Design as violations were sometimes allowed
 to happen and then reacted to.
 Both Catala and eFlint do not directly support
 refinement of existing specifications, and they further
-differ from \Lex in so far as that \Lex specifications are
+differ from Lex in so far as that Lex specifications are
 not themselves executable.
 
 \subsection{Refinement}
@@ -171,7 +169,7 @@ Metric First Order Temporal Logic (MFOTL)
 \cite{basin2015monitoring}
 as a policy language.
 Hublet et al. \cite{lex} and Degelo \cite{semesterproject}
-have introduced the \Lex programming language that compiles
+have introduced the Lex programming language that compiles
 to MFOTL and is therefore compatible with these proactive
 runtime enforcement algorithms.
 
@@ -179,10 +177,10 @@ runtime enforcement algorithms.
 \label{section:contributions}
 
 This thesis presents how support for refinement
-can be added to the \Lex programming language, 
-implementats refinement in \Lex and demonstrates the
-refinement capabilities of \Lex on a case study.
-\Lex is a programming language for formalizing legal specifications,
+can be added to the Lex programming language, 
+implementats refinement in Lex and demonstrates the
+refinement capabilities of Lex on a case study.
+Lex is a programming language for formalizing legal specifications,
 developed by Hublet, Degelo et al. \cite{lex,semesterproject}.
 The contributions of this thesis are as followed.
 
@@ -198,17 +196,17 @@ as used by Sprenger et al. \cite{igloo} and Abadi and Lamport
 \cite{refinement-mappings}.
 
 Chapter \ref{chapter:implementation} introduces new
-language features to \Lex that allow CRE refinements to 
-be specified in \Lex.
+language features to Lex that allow CRE refinements to 
+be specified in Lex.
 We both present the syntax and semantics of these new
 language features and give an implementation of them.
 
 Chapter \ref{chapter:case-study} presents a case study
-where we apply the refinement features of \Lex to
+where we apply the refinement features of Lex to
 an example formalization of the EU ePrivacy Directive
 \cite{EPD2002} and how it can be refined to enforce
 the ePrivacy Directive on the open source ticketing platform
 Pretix \cite{PretixReinventingTicket}.
 
-Parts of the \Lex paper \cite{lex} (in particular those pertaining to refinement)
+Parts of the Lex paper \cite{lex} (in particular those pertaining to refinement)
 have been developed in parallel with this thesis.
