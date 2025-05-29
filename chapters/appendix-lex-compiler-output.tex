@@ -1,0 +1,78 @@
+\chapter{Compiled Lex Examples}
+
+The compiled output of the ePrivacy Directive
+formalization in Lex (Figure \ref{fig:lex-article-13})
+is shown in Figure \ref{fig:lex-article-13-compiled-signature}
+and Figure \ref{fig:lex-article-13-compiled-mfotl}.
+The compilation of the refined specification from Figure
+\ref{fig:rex-article-13} is shown in Figure
+\ref{fig:rex-article-13-compiled-signature}
+and Figure \ref{fig:rex-article-13-compiled-mfotl}.
+
+\begin{figure}[H]
+    \begin{lstlisting}
+automatedCall(r: int, s: int, p: string, c: string)+-
+email(r: int, s: int, p: string, c: string)+-
+fax(r: int, s: int, p: string, c: string)+-
+isNaturalPerson(s: int)
+marketingConsent(r: int, s: int)
+objectToSimilarEmailMarketing(r: int, s: int, c: string)
+obtainedEmailForCategory(r: int, s: int, c: string)        \end{lstlisting}
+    \caption{Compiled MFOTL Signature of the Lex Specification
+    \label{fig:lex-article-13-compiled-signature}}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{lstlisting}[mathescape]
+LET automatedCommunication(_p1 : int, _p2 : int, _p3 : string
+                                                _p4 : string)- =
+    email(_p1, _p2, _p3, _p4) $\vee$ fax(_p1, _p2, _p3, _p4)
+    $\vee$ automatedCall(_p1, _p2, _p3, _p4) IN
+LET Exception4(c : string, r : int, s : int) =
+    obtainedEmailForCategory(r, s, c)
+    $\wedge$ $\neg$objectToSimilarEmailMarketing(r, s, c) IN
+LET Scope5(r : int) = isNaturalPerson(r) IN
+$\Always$[0s,$\infty$) (
+    $\forall$c. $\forall$r. $\forall$s. automatedCommunication(s, r, "marketing", c
+        $\wedge$:L $\neg$Exception4(c, r, s) $\wedge$ Scope5(r)
+    $\to$:L marketingConsent(r, s)) \end{lstlisting}
+    \caption{Compiled MFOTL formula of the Lex Specification
+    \label{fig:lex-article-13-compiled-mfotl}}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{lstlisting}
+email(r: string, s: string, p: string, c: string)+-
+obtainedEmailForCategory(r: string, s: string, c: string)
+over18(r: string)
+userGivesConsent(r: string, s: string)
+userWithdrawsConsent(r: string, s: string) \end{lstlisting}
+    \caption{Compiled MFOTL Signature of the refined Lex Specification
+    \label{fig:rex-article-13-compiled-signature}}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{lstlisting}[mathescape]
+LET automatedCall(_p11 : string, _p12 : string, _p13 : string, _p14 : string) = $\bot$ IN
+LET fax(_p15 : string, _p16 : string, _p17 : string, _p18 : string) = $\bot$ IN
+LET isNaturalPerson(_p19 : string) = $\top$ IN
+LET marketingConsent(_p9 : string, _p10 : string) =
+    $\neg$userWithdrawsConsent(_p9, _p10)
+    S[0s,$\infty$) userGivesConsent(_p9, _p10) IN
+LET objectToSimilarEmailMarketing(_p20 : string, _p21 : string,
+                                  _p22 : string) = $\top$ IN
+LET Exception4(c : string, r : string, s : string) =
+    obtainedEmailForCategory(r, s, c)
+    $\wedge$ $\neg$objectToSimilarEmailMarketing(r, s, c) IN
+LET automatedCommunication(_p5 : string, _p6 : string, _p7 :
+                           string, _p8 : string)- =
+    email(_p5, _p6, _p7, _p8) $\vee$ fax(_p5, _p6, _p7, _p8)
+    $\vee$ automatedCall(_p5, _p6, _p7, _p8) IN
+LET Scope5(r : string) = isNaturalPerson(r) IN
+$\Always$[0s,$\infty$) (
+    $\forall$c. $\forall$r. $\forall$s. automatedCommunication(s, r, "marketing", c)
+        $\wedge$:L $\neg$Exception4(c, r, s) $\wedge$ Scope5(r)
+    $\to$:L marketingConsent(r, s) $\wedge$ over18(r)) \end{lstlisting}
+    \caption{Compiled MFOTL formula of the refined Lex Specification
+    \label{fig:rex-article-13-compiled-mfotl}}
+\end{figure}

@@ -7,19 +7,19 @@
 
 \subsection{Refinement of a Lex Specification}
 \begin{figure*}
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.6\textwidth}
 \begin{lstlisting}
 refine epd
 
 refine type person is string
 
 observable event userGivesConsent
-    """ person {s} gives consent to receive automated marketing communication from person {r} """
+    """person {s} gives consent to receive automated marketing communication from person {r}"""
     r: person
     s: person
 
 observable event userWithdrawsConsent
-    """ person {s} withdraws consent to receive automated marketing communication from person {r} """
+    """person {s} withdraws consent to receive automated marketing communication from person {r}"""
     r: person
     s: person
 
@@ -30,11 +30,33 @@ rule "refine marketing consent"
         marketingConsent(r, s)
 
 assume true objectToSimilarEmailMarketing
+assume true isNaturalPerson
 \end{lstlisting}
 \end{minipage}
 \hspace{10pt}
-\begin{minipage}{0.48\textwidth}
-\begin{lstlisting}[firstnumber=35]
+\begin{minipage}{0.6\textwidth}
+\begin{lstlisting}[firstnumber=23]
+assume false fax
+assume false automatedCall
+
+observable event over18
+    """person {r} is over 18 years old"""
+    r: person
+
+rule "stronger_consent"
+    whenever
+        automatedCommunication(s, r, "marketing", c)
+    oblige
+        marketingConsent(r, s)
+        over18(r)
+    enforceable suppressing automatedCommunication
+
+replace
+    strengthen
+        article "13" paragraph "1"
+    by
+        rule "stronger_consent"
+
 
 \end{lstlisting}
 \end{minipage}
@@ -44,23 +66,55 @@ assume true objectToSimilarEmailMarketing
 
 Figure \ref{fig:rex-article-13} shows one possible refinement
 of the Lex specification from Figure \ref{fig:lex-article-13}.
-Here the event for prior prior consent gets refined to mean
-by two events for giving and withdrawing consent.
-Further we might want to be more privacy conscious
-and always opt users out of receiving
-marketing emails that would be exempt from requireing prior 
-consent by the similarity clause in Article 13(2).
-This is done by the assumption that every user has objected
-to receiving such marketing emails.
+This Lex refinement refines the meaning of prior consent
+via a refinement rule.
+This refinement rule is more closely modeled after how
+a concrete system might implement what it means that
+a user has given consent at a certain point in time.
+Specifically, it combines two new concrete events,
+one for giving and for withdrawing consent.
 
+The type for the data type of person, which was
+left open in the original Lex specification,
+is declared as a string.
+
+It is assumed that all users are natural persons,
+and out of caution it is also assumed
+that all users have objected to receiving
+marketing about related products.
+
+The fax and automated call events are assumed to never occur,
+which would represent many modern systems that do
+not even have these a fax or automated phone attached.
+
+An event is introduced to represent that a user is over 18 years old.
+And the obligation rule about receiving unsolicited marketing
+that disallows sending any marketing emails to users
+under 18, regardless of whether they have given consent.
 
 \subsection{Pretix}
-Pretix is an open source event ticketing system.
+Pretix \cite{PretixReinventingTicket}
+is an open source event ticketing system.
 It offers products for ticket sales, wait lists,
 on location ticket sales, and ticket scanning.
 We are interested in the pre-event ticket sales part.
-We evaluated a refined Lex formalization of the emaail marketing
+We evaluated a refined Lex formalization of the email marketing
 regulations in the EU ePrivacy Directive on the Pretix
 platform.
+
+For this, we modified Pretix and instrumented this version of it
+with the Instrlib library \cite{instrlib}
+\footnote{Instrlib+Pretix case study\\ \url{https://gitlab.inf.ethz.ch/skrstic/proactive-enforcement-library/-/tree/refinement}}
+\footnote{Instrumented Pretix fork \url{https://github.com/jnzd/pretix}}.
+The modifications to Pretix consist of new fields to
+the customer model indicating consent to receive
+marketing emails, and modified views to give
+and withdraw this consent.
+
+Pretix stores customer emails in the order data model and
+the customer data model for users that create an account.
+
+
+
 
 

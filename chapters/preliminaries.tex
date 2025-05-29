@@ -1595,58 +1595,69 @@ automated calls, fax, and e-mail for marketing purposes.
 \lstset{language=Lex, style=mystyle}
 
 \begin{figure*}
-\begin{minipage}{0.48\textwidth}
+\begin{minipage}{0.6\textwidth}
 \begin{lstlisting}
-law "EPD" "ePrivacy Directive"
+law "EPD"
 
-type person
-type purpose is string
 type productCategory is string
 
 internal event automatedCommunication
+    """persso {s} sends automated commmunication to person {r} for purpose {p} about category {c}"""
     s: person
     r: person
     p: purpose
     c: productCategory
 
 causable suppressable event automatedCall
+    """person {s} calls person {r} for purpose {p} about category {c}"""
     r: person 
     s: person
     p: purpose
     c: productCategory
 
 causable suppressable event fax
+    """persen {s} faxes person {r} for purpose {p} about category {c}"""
     r: person 
     s: person
     p: purpose
     c: productCategory
 
 causable suppressable event email
+    """person {s} emails person {r} for purpose {p} about category {c}"""
     r: person 
     s: person
     p: purpose
     c: productCategory
 
 observable event obtainedEmailForCategory
+    """person {r} obtained the email address of person {s} for category {c}"""
     r: person
     s: person
     c: productCategory
 
 observable event marketingConsent
+    """person {s} gave prior consent for receiving marketing communication from person {r}"""
     r: person
     s: person
 
 observable event objectToSimilarEmailMarketing
+    """person {r} objected to receiving marketing emails from person {s} about category {c}"""
     r: person
     s: person
     c: productCategory
-
 \end{lstlisting}
 \end{minipage}
 \hspace{10pt}
-\begin{minipage}{0.48\textwidth}
-\begin{lstlisting}[firstnumber=35]
-rule "call communication"
+\begin{minipage}{0.6\textwidth}
+\begin{lstlisting}[firstnumber=51]
+type person
+type purpose is string
+
+observable event isNaturalPerson
+    """person {s} is a natural person"""
+    s: person
+
+rule "automated call communication"
     whenever
         automatedCall(s, r, p, c)
     constitute
@@ -1664,10 +1675,11 @@ rule "email communication"
     constitute
         automatedCommunication(s, r, p, c)
 
+
 article "13" "Unsolicited communications"
 paragraph "1"
 
-rule
+rule "marketing consent requirement"
     whenever
         automatedCommunication(s, r, "marketing", c)
     oblige
@@ -1676,22 +1688,33 @@ rule
 
 paragraph "2"
 
-rule
+rule "marketing of similar products or services"
     whenever
         obtainedEmailForCategory(r, s, c)
         NOT objectToSimilarEmailMarketing(r, s, c)
     except
         article "13" paragraph "1"
 
+paragraph "3"
+paragraph "4"
+paragraph "5"
+
+rule 
+    whenever
+        isNaturalPerson(r)
+    scope
+        article "13" paragraph "1"
+        article "13" paragraph "3"
 \end{lstlisting}
 \end{minipage}
-\caption{\Lex{} formalization of Article 15(1) and 15(2) of the ePrivacy Directive \label{fig:lex-article-13} from Figure~\ref{fig:eprivacy-directive-article-13}}
+\caption{\Lex{} formalization of Article 15(1), 15(2) and 15(5) of the ePrivacy Directive
+\label{fig:lex-article-13}}
 \end{figure*}
 
 Figure \ref{fig:lex-article-13} shows one way that
 Article 13 could be formalized in Lex.
 It defines three data types, \texttt{person}, \texttt{purpose}, and
-\texttt{productCategory} to represent the involved parties,
+\texttt{productCategory} to represent the involved parties:
 \texttt{person} to represent both legal and natural persons,
 \texttt{purpose} to represent the purpose of the communication,
 and \texttt{productCategory} to represent the category of the product
@@ -1706,18 +1729,21 @@ Via three constitutive rules, these concrete
 events do then constitute the internal event
 \texttt{automatedCommunication}.
 
-And from there the article itself gets defined.
+After this the logical structure of Article 13
+is formalized into three rules.
 It requires some interpretation to determine
 which parts can and should be formalized.
-Paragraphs 3 and 5 are directed at member states
-and do not state concrete rules.
-Paragraph 4 on the other hand does state
+Paragraph 3 is fairly general and does not
+directly specify any concrete rule.
+Paragraph 4 does state
 a concrete rule ("one shall not disguise one's identity"),
 however it can be a reasonable assumption to leave this
 honesty requirement to the system itself and enforce
 it with an enforcer.
+Finally, paragraph 5 restricts the scope of Paragraphs
+1 and 3 to be only applicable to natural persons.
 
-Therefore we are left with paragraphs 1 and 2.
+Therefore, we are left with paragraphs 1, 2, and 5.
 Paragraph 1 contains a simple obligation that
 a person, likely a business, can only send
 marketing communication to a user, if the user
@@ -1729,6 +1755,10 @@ a similar product or service, the user has not
 objected to receiving such communication, and
 the marketing for a product or service belonging
 to the sender.
+Paragraph 5 can be neatly formalized with a scope
+rule.
+A scope rule could be converted into an
+exception by negating the conditions.
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %                                                                              %
