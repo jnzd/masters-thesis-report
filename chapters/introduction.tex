@@ -1,33 +1,194 @@
 \chapter{Introduction}
 \label{chapter:introdcution}
 
-This thesis introduces refinemt of Lex specifications.
-Lex is a programming language for formalizing legal specifications,
-developed by Hublet et al. \cite{lex} and Degelo \cite{semesterproject}.
 
-- kurze motivation
-- problem
-. lösungsansätze in related work \& shortcomings (z.b. catala nur tax law)
-- solution: vorstellung thesis
-- contributions/outline/inhaltsübersicht (3 kapitel)
-
+% - kurze motivation
+% - problem
+% . lösungsansätze in related work \& shortcomings (z.b. catala nur tax law)
+% - solution: vorstellung thesis
+% - contributions/outline/inhaltsübersicht (3 kapitel)
 
 \section{Motivation}
 \label{section:motivation}
+As digital systems become increasingly important in our world,
+a growing number of laws are being created t`o regulate this
+digital world.
+One well-known example is the EU General Data Protection
+Regulation (GDPR), which aims to protect the privacy of
+individuals in the European Union.
+Against this backdrop, research in the field of runtime
+enforcement is growing in importance.
+Runtime enforcement provides automated solutions to ensure
+that systems comply with specifications such as legal regulations.
+Runtime enforcement tools require policies that are formal
+enough to be automated.
+However, legal texts written in natural language do not
+directly meet this requirement.
+\Lex \cite{lex, semesterproject}, a programming language developed as a specification
+language for legal texts, maintains a high level of
+readability while being formal enough to be used as
+a policy for runtime enforcement.
+However, even with a high-level language like \Lex,
+formalizing legal texts is a complex task.
+This complexity is one reason why, in this thesis,
+we introduce the concept of refinement to \Lex.
+This allows users to reuse existing \Lex specifications
+and make minimal changes to adapt them to their specific use cases.
+% With the large and growing importance of digital systems
+% in our world there is also a growing number laws
+% trying to regulate this digital world.
+% On well known example is the EU General
+% Data Protection Regulation (GDPR) which aims to protect
+% the privacy of individuals in the European Union.
+% With this background research in the field
+% of runtime enforcement is growing in importance.
+% Runtime enforcement attempts to provide automated
+% solutions for ensuring that systems comply with
+% specifications, such as legal regulations.
+% Runtime enforcement tools require policies to follow
+% a level of formality suitable for automated enforcement.
+% Legal texts written in natural language do not directly
+% meet this requirement.
+% The \Lex programming language \cite{lex, semesterproject}
+% was developed as a specification language
+% for legal texts that maintains a high level
+% of readability while also being formal enough
+% to be used as a policy for runtime enforcement.
+% Even with a high level language like, \Lex formalizing
+% legal texts is a complex task.
+% This complexity is one of the reasons why in this
+% thesis we add the concept of refinement to \Lex in
+% order to allow users to reuse existing \Lex
+% specifications and make minimal changes to adapt them
+% to their specific use cases.
 
 \section{Problem}
 \label{Problem}
+% \Lex is designed to formalize legal texts
+% in order to use the formalization as a policy for
+% runtime enforcement.
+% In this context, different systems might be required to
+% comply with the same law.
+% For example the GDPR applies to various systems.
+% It is desirable to be able to reuse the same formalization
+% of a law like the GDPR for these different systems.
+% However, a formalization in \Lex inherently assumes a
+% certain model of the world, broken down into events and rules.
+% Not all systems work with the exact same, atomic events.
+% Therefore, it would be useful, if it was possible to define
+% a mapping from "concrete" system events to the more abstract
+% events in the \Lex formalization, without having to rewrite the
+% entire formalization.
+% This is where refinement comes in.
+% In a programming language context, refinement in \Lex
+% has certain parallels to the concept of inheritance
+% in object-oriented programming.
+\Lex is designed to formalize legal texts for the purpose of using the formalization as a policy for runtime enforcement.
+Even with its advanced features, formalizing a law in \Lex remains a complex task.
+A fundamental element of any \Lex specification are events.
+These events define a model of the world.
+In order to ensure the accuracy and simplicity of formalization, it is essential that these events be as general as possible.
+Conversely, to effectively enforce a given system, the events in the specification must directly correspond to system events.
+This is a key aspect of the challenge this thesis aims to address.
+It proposes a comprehensive specification that encompasses both abstract and concrete elements, integrating them to create a cohesive system model.
+This approach enables the mapping of the concrete system model to the abstract specification, facilitating a seamless integration of both abstract and concrete components.
+We apply refinement techniques to enable the reuse of a general, abstract formalization as a baseline policy for different systems.
+This is achieved by defining a comparatively short refinement specification for each system.
+
 \section{Related Work}
 \label{section:related-work}
 
-- Legal formalization
-    - catala
+\subsection{Legal Formalization}
+There exist a multitude of languages and logics
+for formalizing legal texts.
+Each with its own strengths and weaknesses.
 
-- enforcement
-- refinement
+In recent years two notable domain specific languages
+for legal texts have been introduced.
+Merigoux et al. introduced Catala \cite{merigoux_catala_2021},
+a programming language intended for directly transforming
+existing laws, such as the US tax code, into executable code.
+It is notable for directly maintaining the laws structural
+hierarchy in its code and its use of prioritized
+default logic \cite{brewka2000prioritizing}
+as a for dealing with exceptions.
+Van Binsbergen et al. \cite{van2020eflint}
+have developed eFlint, another programming language
+to transform legal specifications into executable code.
+eFlint does not inherently maintain a law's hierarchy in
+its code, because of this it can also be used for
+other kind of norms.
+While Catala is not intended to be used for enforcement
+purposes, eFlint does can be used for certain kinds of
+enforcement.
+Both Catala and eFlint do not directly support
+refinement of existing specifications, and they further
+differ from \Lex in so far as that \Lex specifications are
+not themselves executable.
 
-\section{Solution}
-\label{section:solutions}
+\subsection{Refinement}
+Refinement of specifications is a common technique in formal
+methods where one starts with a more general specification
+and works towards a more concrete specification that
+implements or fulfills the general specification.
+Abadi and Lamport \cite{refinement-mappings} have introduced
+refinement mappings as a technique for proving that
+one specification implements another specification.
+Sprenger et al. \cite{igloo} have used refinement as a
+method to get a concrete implementation of a program
+that complies with an abstract specification.
 
-Parts of the Lex paper \cite{lex} (in particular those pertaining to refinement)
+Palmari et al. \cite{palmirani2011legalruleml} have introduced
+LegalRuleMl, an XML-based approach to formalize legal texts that
+is an extension of RuleML \cite{boley2010ruleml}.
+
+
+\subsection{Runtime Enforcement}
+
+Hublet et al. \cite{whyenf, whyenf-2} developed a proactive
+runtime enforcement algorithm that uses
+Metric First Order Temporal Logic (MFOTL)
+\cite{basin2015monitoring}
+as a policy language.
+Hublet et al. \cite{lex} and Degelo \cite{semesterproject}
+have introduced the \Lex programming language that compiles
+to MFOTL and is therefore compatible with these proactive
+runtime enforcement algorithms.
+
+\section{Contributions}
+\label{section:contributions}
+
+This thesis presents how the technique of refinement
+can be applied to the \Lex programming language, gives an
+implementation for refinement in \Lex and demonstrates the
+refinement capabilities of \Lex on a case study.
+\Lex is a programming language for formalizing legal specifications,
+developed by Hublet et al. \cite{lex} and Degelo \cite{semesterproject}.
+The contributions of this thesis are as followed.
+
+In Chapter \ref{chapter:refinement-of-cre-enforcement}
+we introduce a proactive enforcement model based on
+event systems and prove that it is analogous to the enforcement
+model of Hublet et al. \cite{whyenf,whyenf-2}.
+We then introduce a set of refinement rules for
+the CRE logic introduced by Hublet et al. \cite{lex}
+and using our new proactive enforcement model
+we show that these refinement rules correspond to refinement
+as used by Sprenger et al. \cite{igloo} and Abadi and Lamport
+\cite{refinement-mappings}.
+
+Chapter \ref{chapter:implementation} introduces new
+language features to \Lex that allow CRE refinements to 
+be specified in \Lex.
+We both present the syntax and semantics of these new
+language features and give an implementation of them.
+
+Chapter \ref{chapter:case-study} presents a case study
+where we apply the refinement features of \Lex to
+an example formalization of the EU ePrivacy Directive
+\cite{EPD2002} and how it can be refined to enforce
+the ePrivacy Directive on the open source ticketing platform
+Pretix \cite{PretixReinventingTicket}.
+
+Parts of the \Lex paper \cite{lex} (in particular those pertaining to refinement)
 have been developed in parallel to this thesis.
