@@ -567,7 +567,7 @@ we remove all $\sskip$ events before doing the trace conversion.
 
 With the isomorphism between MFOTL traces as defined in prior work and
 Section \ref{chapter:preliminaries} and trimmed system traces we can
-define MFOTL semantics for infinite system traces as followed.
+define MFOTL semantics for infinite system traces as follows.
 
 \begin{example}
     \label{ex:system-trace}
@@ -702,8 +702,7 @@ update functions, one for the proactive and one for the reactive case
         \times (\Databases \cup \{\tick, \sskip \} )
         \times \Traces_\sys
     \end{equation*}
-    and it is defined by the following three transition
-    rules.
+    and it is defined by the following two transition rules.
     \begin{align*}
         % \sigma &\Transitionrelation{}{\sskip} \sigma \cdot \sskip
         %     & \text{(Skip)} \\
@@ -821,7 +820,7 @@ some "leftover" ticks.
                 &\quad = \EnfFun(\cConv(\sigma_{\sys 1}), s, \numTicks(\sigma_{\sys 1}), D)
         \end{cases}
     \end{align*}
-    Then the $\state$ function is defined as followed for any enforcer state
+    Then the $\state$ function is defined as follows for any enforcer state
     $s \in \EnfStates$ and system trace~$\sigma_\sys \in \Traces_\sys$
     \begin{equation*}
         \state(s, \sigma_\sys) := \state'(s, \emptytrace_\sys, \sigma_\sys).
@@ -834,7 +833,7 @@ some "leftover" ticks.
     $\Enforcer = (\EnfStates, s_0, \EnfFun)$ is defined as
     $ \EventSystem(\Enforcer) :=
     (\Traces_\sys, \Databases \cup \{\tick, \sskip \}, \RFun, \PFun), $
-    with  $\RFun$ and $\PFun$ defined as followed
+    with  $\RFun$ and $\PFun$ defined as follows
     \begin{align*}
         \RFun(\sigma_\sys, D)
         &:= D \setminus D_\Sup \cup D_\Cau \\
@@ -1037,7 +1036,7 @@ function.
     \to (\Databases_A \cup \{ \tick, \sskip \})$$
     can be extended to a trace transducer function
     $$\vec{\MFun} : \Traces_C \to \Traces_A$$
-    as followed
+    as follows
     \begin{align*}
         \vec{\MFun}(\sigma_\sys) :=
         \begin{cases}
@@ -1361,18 +1360,17 @@ $\vec{pi}$ from Definition
     \label{def:mfotl-map-function-to-mediator-function}
     Let $\textsc{\textsf{map}}$ be a function as
     defined in Figure \ref{fig:cre-refinement-map-function}.
-    Then the mediator function $\cConv(\textsc{\textsf{map}})$
+    Then the mediator function $\dConv(\textsc{\textsf{map}})$
     is defined as follows:
     \begin{align*}
-        \cConv(\textsc{\textsf{map}})(\sigma_\sys, \tick) &:= \tick \\
-        \cConv(\textsc{\textsf{map}})(\sigma_\sys, \sskip) &:= \sskip \\
-        \cConv(\textsc{\textsf{map}})(\sigma_\sys, D_C) &:= D_A
+        \dConv(\textsc{\textsf{map}})(\sigma_\sys, \tick) &:= \tick \\
+        \dConv(\textsc{\textsf{map}})(\sigma_\sys, \sskip) &:= \sskip \\
+        \dConv(\textsc{\textsf{map}})(\sigma_\sys, D_C) &:= D_A
     \end{align*}
-    where $D_A$ is defined as the database $D'$
-    being returned by the $\textsc{\textsf{map}}$ function
-    for the input trace $\cConv(\sigma_\sys \cdot D)$ as
-    the database for the final time point of the returned
-    trace.
+    where $D_A$ is defined as the database of
+    the last time point of the trace being returned
+    by the MFOTL trace
+    $\textsc{\textsf{map}}(\dConv(\sigma_\sys \cdot D))$.
 \end{definition}
 
 \begin{lemma}
@@ -1380,8 +1378,8 @@ $\vec{pi}$ from Definition
     For any MFOTL trace $\sigma \in \Traces$, and
     map function $\textsc{\textsf{map}}$
     \begin{equation*}
-        \overrightarrow{\cConv(\textsc{\textsf{map}})}(\cConv(\sigma))
-        = \cConv(\textsc{\textsf{map}}(\sigma))
+        \overrightarrow{\dConv(\textsc{\textsf{map}})}(\dConv(\sigma))
+        = \dConv(\textsc{\textsf{map}}(\sigma))
     \end{equation*}
 \end{lemma}
 
@@ -1415,9 +1413,9 @@ Hublet et al. \cite{lex} have proved Theorem
     $\EventSystem_C$ and $\EventSystem_A$ such that
     they are sound for $S_C$ and $S_A$ respectively,
     and refine each other via the mediator function
-    $\cConv(\pi)$, i.e.
+    $\dConv(\pi)$, i.e.
     \begin{equation*}
-        \EventSystem(\Enforcer_C) \refineL_{\cConv(\pi)} \EventSystem(\Enforcer_A).
+        \EventSystem(\Enforcer_C) \refineL_{\dConv(\pi)} \EventSystem(\Enforcer_A).
     \end{equation*}
 \end{theorem}
 
@@ -1452,13 +1450,13 @@ Hublet et al. \cite{lex} have proved Theorem
     $\EventSystem_C$ and $\EventSystem_A$ such that
     $\EventSystem_C$ is sound for $S_C$,
     $\EventSystem_A$ is sound for $S_A$, and
-    $\EventSystem_C \refineL_{\cConv(\pi)} \EventSystem_A$.
+    $\EventSystem_C \refineL_{\dConv(\pi)} \EventSystem_A$.
 
     In the rest of this proof, let
     $R_\pi \subseteq \Traces_{\sys C} \times \Traces_{\sys A}$
     be the simulation relation
     defined by
-    $\overrightarrow{\cConv(\pi)}: \Traces_{\sys C} \to \Traces_{\sys A}$.
+    $\overrightarrow{\dConv(\pi)}: \Traces_{\sys C} \to \Traces_{\sys A}$.
 
     \textbf{REFL} In this case $S_C = S_A$ and $\pi$ is the 
     identity mapping.
@@ -1496,17 +1494,17 @@ Hublet et al. \cite{lex} have proved Theorem
     And if this is the case we want to prove that there
     exists an abstract system trace
     $\sigma_{\sys A}' \in \Traces_{\sys A}$ such that
-    $\sigma_{\sys A} \Transitionrelation{A}{\cConv(\pi)(\sigma_{\sys C}, e_C)} \sigma_{\sys A}'$.
+    $\sigma_{\sys A} \Transitionrelation{A}{\dConv(\pi)(\sigma_{\sys C}, e_C)} \sigma_{\sys A}'$.
 
     We can argue that the abstract enforcement event system can
-    iteratively be defined by applying the mediator function $\cConv(\pi)$
+    iteratively be defined by applying the mediator function $\dConv(\pi)$
     to all traces and transitions of the concrete enforcement event system.
     A transition 
     $\sigma_{\sys C} \Transitionrelation{C}{e_C} \sigma_{\sys C}'$
     would then become
-    $\overrightarrow{\cConv(\pi)}(\sigma_{\sys C})
-    \Transitionrelation{A}{\cConv(\pi)(\sigma_{\sys C}, e_C)}
-    \overrightarrow{\cConv(\pi)}(\sigma_{\sys C}')$.
+    $\overrightarrow{\dConv(\pi)}(\sigma_{\sys C})
+    \Transitionrelation{A}{\dConv(\pi)(\sigma_{\sys C}, e_C)}
+    \overrightarrow{\dConv(\pi)}(\sigma_{\sys C}')$.
     And the simulation relation $R$ can be defined by the aforementioned
     $R_\pi$.
     We call the so constructed enforcement event system $\EventSystem_A$.
