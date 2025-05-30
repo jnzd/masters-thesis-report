@@ -25,7 +25,7 @@ obtainedEmailForCategory(r: int, s: int, c: string)        \end{lstlisting}
 \begin{figure}[H]
     \begin{lstlisting}[mathescape]
 LET automatedCommunication(_p1 : int, _p2 : int, _p3 : string
-                                                _p4 : string)- =
+                                                 _p4 : string)- =
     email(_p1, _p2, _p3, _p4) $\vee$ fax(_p1, _p2, _p3, _p4)
     $\vee$ automatedCall(_p1, _p2, _p3, _p4) IN
 LET Exception4(c : string, r : int, s : int) =
@@ -53,8 +53,10 @@ userWithdrawsConsent(r: string, s: string) \end{lstlisting}
 
 \begin{figure}[H]
     \begin{lstlisting}[mathescape]
-LET automatedCall(_p11 : string, _p12 : string, _p13 : string, _p14 : string) = $\bot$ IN
-LET fax(_p15 : string, _p16 : string, _p17 : string, _p18 : string) = $\bot$ IN
+LET automatedCall(_p11 : string, _p12 : string, _p13 : string,
+                  _p14 : string) = $\bot$ IN
+LET fax(_p15 : string, _p16 : string, _p17 : string, _p18 : string)
+    = $\bot$ IN
 LET isNaturalPerson(_p19 : string) = $\top$ IN
 LET marketingConsent(_p9 : string, _p10 : string) =
     $\neg$userWithdrawsConsent(_p9, _p10)

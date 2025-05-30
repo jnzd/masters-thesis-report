@@ -171,4 +171,5 @@ We added a cache to Instrlib to mitigate this issue, but
 it remains that the fewer parts of the code that have to be instrumented
 to successfully enforce a policy, the less noticeable the presence
 of the enforcer becomes.
-
+Determining which parts must always be logged and which parts
+can be safely ignored (sometimes) without losing soundness.
