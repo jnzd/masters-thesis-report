@@ -10,9 +10,10 @@
 
 Metric First-Order Logic (MFOTL)
 \cite{basin2015monitoring, chomicki1995efficient}
-combines first-order predicate logic with temporal operators such as
+is a logical system that combines
+first-order predicate logic with temporal operators such as
 $\Next$ ("next"), $\Prev$ ("previous"), $\UUntil$ ("until"), and $\Since$ ("since").
-MFOTL is frequently used as a policy language in
+MFOTL is frequently utilized as a policy language in
 runtime verification \cite{whyenf, lex, basin2015monitoring}.
 
 \begin{definition}
@@ -386,23 +387,27 @@ We define the following operators based on the basic operators above as
         &\Always_{[0,\infty)}(
             \mathsf{sendEmail}(\mathsf{user}, \text{"marketing"}) 
             \to \\
-            & \quad ( \Once_{[0,\infty)} 
-                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
-                \wedge \\
-                & \quad
+            & \quad
+            % ( \Once_{[0,\infty)} 
+            %     \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
+            %     \wedge \\
+            %     & \quad
                 (\neg
                 \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
                 & \qquad
                 \Since_{[0,\infty)}
                 \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
             )
-        )
     \end{align*}
 \end{example}
-In words, this policy states that whenever an email is sent
-to a user for marketing purposes, the user must have previously
-given consent for receiving marketing emails and must not have revoked
-this consent since then.
+In natural language the policy in Example \ref{ex:mfotl-formula}
+requires that sending a marketing email requires that
+the receiving user has previously consented to
+receiving marketing emails and has not revoked this consent.
+% In words, this policy states that whenever an email is sent
+% to a user for marketing purposes, the user must have previously
+% given consent for receiving marketing emails and must not have revoked
+% this consent since then.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -1215,9 +1220,10 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
             r :
             &&\mathsf{sendEmail}(\mathsf{user}, \text{"marketing"})
             \Rightarrow \\
-            &&&(\Once_{[0,\infty)} 
-                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"}) \\
-                &&&\quad \wedge
+            &&&(
+                % \Once_{[0,\infty)} 
+                % \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"}) \\
+                % &&&\quad \wedge
                 ((\neg
                 \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
                 &&& \qquad \Since_{[0,\infty)}

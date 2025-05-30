@@ -8,39 +8,52 @@
 % - solution: vorstellung thesis
 % - contributions/outline/inhaltsübersicht (3 kapitel)
 
-As digital services become increasingly important,
-a growing number of laws are being created to regulate the
-digital world.
-One well-known example is the EU's General Data Protection
-Regulation (GDPR), which aims to protect the privacy of
-individuals in the European Union.
-However, empirical studies show that such regulations are often not followed in practice. 
+As digital services become increasingly important, a growing number of laws are being created to regulate the digital world.
+One prominent example is the EU's General Data Protection Regulation (GDPR), which aims to protect the privacy of individuals in the European Union.
+However, empirical evidence indicates that such regulations are frequently disregarded in practice.
 
-To address this challenge, runtime enforcement has emerged as a promising technique
-to automatically ensure a system complies with a given
-regulation.
-Runtime enforcement provides automated solutions to ensure
-Compliance by Design with digital regulations
-by modifying the system's behavior when required.
+In order to address this challenge, runtime enforcement has emerged as a promising technique to automatically ensure that a system complies with a given regulation.
+Runtime enforcement provides automated solutions to ensure Compliance by Design with digital regulations by modifying the system's behavior when required.
 
-For such enforcement to be feasible, runtime enforcement tools require policies that are formal
-enough to be automated.
-However, legal texts written in natural language do not
-directly meet this requirement.
-Lex \cite{lex, semesterproject}, a programming language developed as a specification
-language for legal texts, maintains a high level of
-readability while being formal enough to develop
-policies for runtime enforcement.
-However, even with a high-level language like Lex,
-formalizing legal texts is a complex task.
-This complexity is one reason why, in this thesis,
-we introduce the concept of \emph{refinement} into Lex.
-Refinement refers to both a concept where a concrete specification
-entails (or implements) a more abstract specification, as well
-as the process of deriving such a concrete specification from
-an abstract one.
-Refinement allows users to reuse existing Lex specifications
-and make minimal changes to adapt them to their specific use cases.
+The feasibility of such enforcement is contingent upon the existence of automated policies that are sufficiently formal.
+Nevertheless, legal texts written in natural language do not directly meet this requirement.
+Lex \cite{lex, semesterproject}, a programming language developed as a specification language for legal texts, has been shown to maintain a high level of readability while being formal enough to develop policies for runtime enforcement. Nevertheless, even with a high-level language such as Lex, the formalization of legal texts is a complex task. This intricacy is a primary rationale behind the integration of the refinement concept into Lex, as outlined in this thesis. The term "refinement" is employed to denote both a conceptual framework in which a particular concrete specification is said to "implement" (or be "derived" from) a more abstract specification, as well as the process of deriving such a concrete specification from an abstract one. Refinement allows users to reuse existing Lex specifications and make minimal changes to adapt them to their specific use cases.
+
+% As digital services become increasingly important,
+% a growing number of laws are being created to regulate the
+% digital world.
+% One well-known example is the EU's General Data Protection
+% Regulation (GDPR), which aims to protect the privacy of
+% individuals in the European Union.
+% However, empirical studies show that such regulations are often not followed in practice. 
+
+% To address this challenge, runtime enforcement has emerged as a promising technique
+% to automatically ensure a system complies with a given
+% regulation.
+% Runtime enforcement provides automated solutions to ensure
+% Compliance by Design with digital regulations
+% by modifying the system's behavior when required.
+
+% For such enforcement to be feasible, runtime enforcement tools require policies that are formal
+% enough to be automated.
+% However, legal texts written in natural language do not
+% directly meet this requirement.
+% Lex \cite{lex, semesterproject}, a programming language developed as a specification
+% language for legal texts, maintains a high level of
+% readability while being formal enough to develop
+% policies for runtime enforcement.
+% However, even with a high-level language like Lex,
+% formalizing legal texts is a complex task.
+% This complexity is one reason why, in this thesis,
+% we introduce the concept of \emph{refinement} into Lex.
+% Refinement refers to both a concept where a concrete specification
+% entails (or implements) a more abstract specification, as well
+% as the process of deriving such a concrete specification from
+% an abstract one.
+% Refinement allows users to reuse existing Lex specifications
+% and make minimal changes to adapt them to their specific use cases.
+
+%%%%%%%%%%%%%%%%%%%%%%%%
 % With the large and growing importance of digital systems
 % in our world there is also a growing number laws
 % trying to regulate this digital world.
@@ -90,17 +103,30 @@ and make minimal changes to adapt them to their specific use cases.
 % In a programming language context, refinement in Lex
 % has certain parallels to the concept of inheritance
 % in object-oriented programming.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Lex is designed to formalize legal texts for the purpose of using the formalization as a policy for runtime enforcement.
+% Even with its advanced features, formalizing a law in Lex remains a complex task.
+% A fundamental element of any Lex specification are events.
+% These events define a model of the world.
+% In order to ensure the accuracy and simplicity of formalization, it is essential that these events be as general as possible.
+% Conversely, to effectively enforce a given system, the events in the specification must directly correspond to system events.
+% This is a key aspect of the challenge this thesis aims to address.
+% It proposes a comprehensive specification that encompasses both abstract and concrete elements, integrating them to create a cohesive system model.
+% This approach enables the mapping of the concrete system model to the abstract specification, facilitating a seamless integration of both abstract and concrete components.
+% We apply refinement techniques to enable the reuse of a general, abstract formalization as a baseline policy for different systems.
+% This is achieved by defining a comparatively short refinement specification for each system.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 Lex is designed to formalize legal texts for the purpose of using the formalization as a policy for runtime enforcement.
-Even with its advanced features, formalizing a law in Lex remains a complex task.
-A fundamental element of any Lex specification are events.
+Despite its advanced features, formalizing a law in Lex remains a complex task.
+A foundational component of any Lex specification is the concept of events.
 These events define a model of the world.
 In order to ensure the accuracy and simplicity of formalization, it is essential that these events be as general as possible.
 Conversely, to effectively enforce a given system, the events in the specification must directly correspond to system events.
-This is a key aspect of the challenge this thesis aims to address.
+This is a fundamental aspect of the challenge this thesis aims to address.
 It proposes a comprehensive specification that encompasses both abstract and concrete elements, integrating them to create a cohesive system model.
-This approach enables the mapping of the concrete system model to the abstract specification, facilitating a seamless integration of both abstract and concrete components.
-We apply refinement techniques to enable the reuse of a general, abstract formalization as a baseline policy for different systems.
-This is achieved by defining a comparatively short refinement specification for each system.
+This approach facilitates the mapping of the concrete system model to the abstract specification, thereby enabling a seamless integration of both abstract and concrete components.
+We apply refinement techniques to enable the reuse of a general, abstract formalization as a baseline policy for different systems. This is achieved by defining a comparatively short refinement specification for each system
 
 \section{Related Work}
 \label{section:related-work}
@@ -110,18 +136,25 @@ There exist a multitude of languages and logics
 for formalizing legal texts.
 Each with its own strengths and weaknesses.
 
-In recent years, two notable domain specific languages
+In recent years, two notable domain-specific languages
 for legal texts have been introduced.
 Merigoux et al. introduced Catala \cite{merigoux_catala_2021},
 a programming language intended for directly transforming
 existing laws, such as the US tax code, into executable code.
-It is notable for directly maintaining the laws' structural
-hierarchy in its code and its use of prioritized
-default logic \cite{brewka2000prioritizing}
-as a basis for dealing with exceptions.
+Catala is noteworthy for its approach to
+maintaining the structural hierarchy of laws in
+its code, as well as its utilization of prioritized default logic
+\cite{brewka2000prioritizing}
+as a foundation for addressing exceptions.
+% It is notable for directly maintaining the laws' structural
+% hierarchy in its code and its use of prioritized
+% default logic \cite{brewka2000prioritizing}
+% as a basis for dealing with exceptions.
 Van Binsbergen et al. \cite{van2020eflint}
 have developed eFlint, another programming language
-to transform legal specifications into executable code.
+that facilitates the transformation of
+% to transform
+legal specifications into executable code.
 eFlint does not inherently maintain a law's hierarchy in
 its code, because of this it can also be used for
 other kind of norms.
