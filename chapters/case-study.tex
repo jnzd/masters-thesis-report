@@ -147,19 +147,19 @@ such as its wait list, which might fall under data minimization requirements.
 Formalizing any regulation in Lex requires a good understanding of
 the intended purpose of the regulation and a certain amount of creativity
 in how to model which concepts.
-While implementing the examples for this case study the addition of
+In this case study, the addition of
 refinement allowed us to move certain complexities, such as
-the implementation details of how consent is given, out of the
-original Lex specification and move it into the refinement file.
+the implementation of consent, out of the
+original Lex specification and to move them into the refinement file.
 Even with a relatively small example, our approach appears to be highly
 promising, and its advantages should only become more apparent in
 larger projects.
 
-Another aspect that has become clear, is that in order to write a good
-and useful refinement, a good level of understanding of the underlying
+Another aspect that has become clear is that in order to write a good
+and useful refinement mapping, a good level of understanding of the underlying
 code base is required.
-One must know which actions are performed where and how,
-and on the last level for the actual interaction with the enforcer,
+One must know which actions are performed where and how.
+To implement the actual interaction with the enforcer,
 an integrated solution like Instrlib has proved very helpful.
 
 During basic testing of the instrumented Pretix code base, one tricky
@@ -167,7 +167,7 @@ challenge has been not to instrument too much.
 If a part of the code gets instrumented that is frequently accessed,
 every access must go through the enforcer, which can quickly add
 very long delays.
-We added a cache to Instrlib to mitigate this issue a bit, but
+We added a cache to Instrlib to mitigate this issue, but
 it remains that the fewer parts of the code that have to be instrumented
 to successfully enforce a policy, the less noticeable the presence
 of the enforcer becomes.

@@ -1221,17 +1221,10 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
     could be captured in the following CRE[MFOTL] policy:
 
     \begin{align*}
-        C &= \{
-            r :
-            &&\mathsf{sendEmail}(\mathsf{user}, \text{"marketing"})
-            \Rightarrow \\
-            &&&(
-                % \Once_{[0,\infty)} 
-                % \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"}) \\
-                % &&&\quad \wedge
-                ((\neg
+        C &= \{ r : \mathsf{sendEmail}(\mathsf{user}, \text{"marketing"}) \Rightarrow \\
+            &\qquad (((\neg
                 \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
-                &&& \qquad \Since_{[0,\infty)}
+                & \qquad \qquad \Since_{[0,\infty)}
                 \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})))
         \} \\
         R &= \emptyset \\
