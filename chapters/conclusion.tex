@@ -7,15 +7,77 @@ this thesis presents the addition of refinement to Lex.
 Refinement in Lex is a flexible and powerful mechanism to
 adapt and reuse an existing Lex specification
 for different use cases.
+Our refinement rules for Lex ensure That
+a valid refinement of an enforceable Lex
+specification is also enforceable.
 
 In Chapter \ref{chapter:refinement-of-cre-enforcement}
-we introduced refinement rules for the CRE[MFOTL] logic.
-We showed that this refinement of CRE[MFOTL] conceptually
-equivalent to the concept and process of refinement as used
-in other areas of formal methods, such as by Sprenger et al.
-\cite{igloo} and Abadi and Lamport \cite{refinement-mappings}.
+we have introduced our refinement rules, and we have
+connected them to the long-standing concept of
+specification refinement.
+Specifically we have shown it to be analogous to the
+refinement notion for event systems used by Sprenger
+et al. \cite{igloo}.
+For this purpose, we have modeled proactive
+enforcement as an event system with labeled transitions.
+In Chapter \ref{chapter:implementation} we
+have implemented the refinement rules for the CRE[MFOTL] logic
+introduced in Chapter \ref{chapter:refinement-of-cre-enforcement}
+in Lex.
+Finally, Chapter \ref{chapter:case-study} presents a case study
+that demonstrates a possible use case for refinement in Lex
+based on the ePrivacy Directive \cite{EPD2002}
+and the Pretix ticketing system \cite{PretixReinventingTicket}.
 
+To our knowledge, Lex is the first specification language
+for legal norms that supports an inheritance-like feature
+such as refinement.
 
+In the future Lex refinement could be extended to be even more
+flexible in what it allows, like defining new global exceptions
+or step-wise refinement, where multiple Lex refinement specifications
+iterate on each other.
+Stepwise refinement should be a relatively simple change
+to the Lex compiler.
+This could allow for interesting use cases,
+one person (or more likely group of people) could formalize
+and carefully audit a law like the GDPR, another
+could refine it for a specific class of applications,
+say social media apps, and then finally any social media
+provider could refine the already refined specification
+even further.
+An ecosystem of downloadable Lex specifications,
+like package management in general purpose programming languages,
+could be built around Lex and Lex refinement.
 
+One important challenge that Lex and Lex refinement do not
+solve entirely is the issue of correctness.
+Lex does provide logical correctness, i.e. it ensures that
+a type correct Lex specification is enforceable under the
+given capabilities for events, it also ensures that enforceability
+is transitive through its refinement system.
+But what Lex does not and cannot ensure is
+that a Lex specification correctly captures the intended
+meaning of a legal norm.
+It also cannot ensure that a refinement maintains and
+does not change the semantic meaning of a formalization.
+Lex attempts to make auditing a formalization as convenient
+as possible, thus reducing the error probability
+in specifications, but this does require careful
+evaluation by humans and more likely, legal experts.
+With the continued rise of artificial intelligence
+and large language models, it might become easier
+to automate the extraction of the logical structure
+of legal norms in an automated fashion.
+However, even such systems cannot currently ensure
+that a formalization correctly represents an underlying law
+automatically.
+This remains a large unsolved problem that may well be
+unsolvable as long as laws are written in natural language
+that is inherently imprecise.
+Both by necessity and design, Lex tries
+to give a readable method for representing the
+logical structure of legal norms which is subject
+to human interpretation.
 
 
