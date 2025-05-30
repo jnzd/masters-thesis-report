@@ -1427,6 +1427,7 @@ Hublet et al. \cite{lex} have proved Theorem
 % in full detail
 
 \begin{proof}
+    for Theorem \ref{theo:cre-refinement-induced-event-system-refinement}
     Let $S_C \refineL_\pi S_A$,
     and $S_A$ be enforceable.
 
@@ -1540,12 +1541,20 @@ Hublet et al. \cite{lex} have proved Theorem
     constraints it is ensured that the missing or extra
     occurrences of the event cannot affect compliance.
 
-    Unlike in the IMP$_R$ case, the concrete enforcer
-    $\Enforcer_C$ may not always also be a sound enforcer
-    for $S_A$, because causing or suppressing the new
-    definition $\phi'$ for the constituted event, may
-    require different actions than causing or
-    suppressing the old definition $\phi$.
+    The event systems $\EventSystem_C$ and $\EventSystem_A$
+    can be simply constructed by inducing them from the
+    sound enforcers $\Enforcer_C$ and $\Enforcer_A$
+    which we know must exist.
+    Then we can build up the simulation relation $R$, by
+    iteratively following all possible transitions and adding
+    the created trace pairs to $R$.
+    e.g. starting with the empty trace, we check what trace
+    the concrete enforcement event system
+    $\EventSystem_C$ would produce when the event
+    $e$ occurs and what trace the abstract enforcement
+    event system $\EventSystem_A$ would produce when
+    the event $e$ occurs, and then we add the pair of resulting
+    traces to $R$.
 \end{proof}
 
 % \begin{theorem}
