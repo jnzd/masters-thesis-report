@@ -414,15 +414,20 @@ receiving marketing emails and has not revoked this consent.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Runtime Verification}
 \label{section:runtime-verification}
-Runtime Verification concerns itself with the behavior of
-some System under Scrutiny (SuS) with regards to some policy.
-Runtime Verification can be split into two related techniques: 
-Runtime Monitoring and Runtime Enforcement.
+% Runtime Verification concerns itself with the behavior of
+% some System under Scrutiny (SuS) with regards to some policy.
+% Runtime Verification can be split into two related techniques: 
+% Runtime Monitoring and Runtime Enforcement.
+
+Runtime Verification is a research domain that
+focuses on the behavior of a system under scrutiny (SuS)
+in relation to a specific policy.
+Runtime verification can be subdivided into two related techniques: Runtime Monitoring and Runtime Enforcement.
 
 \emph{Runtime Monitoring} is used to detect a policy violation either in an
 online (real-time) or offline fashion.
-In Runtime Monitoring a monitor continuously evaluates the current and past
-system state and determines whether or not it complies with some policy.
+In runtime monitoring a monitor continuously evaluates the current and past
+system state and determines whether it complies with some policy.
 For our purposes the system state gets abstracted into a trace of events
 and the policy represents a set of allowed traces.
 Since the monitor never interacts with the system itself, runtime
@@ -466,7 +471,7 @@ The following subsection explores an approach for enforcing MFOTL policies.
     \label{fig:system-model}
 \end{figure}
 
-We consider the system model of Hublet et. al \cite{whyenf} which is shown
+We consider the system model of Hublet et al. \cite{whyenf} which is shown
 in Figure \ref{fig:system-model}.
 The system (under scrutiny) $S$ runs in some environment $X$.
 The environment $X$ is not under the control of the enforcer $E$.
