@@ -1222,10 +1222,10 @@ via the typing rules in Figure \ref{fig:ecre-typing-rules}
 
     \begin{align*}
         C &= \{ r : \mathsf{sendEmail}(\mathsf{user}, \text{"marketing"}) \Rightarrow \\
-            &\qquad (((\neg
+            &\qquad (\neg
                 \mathsf{revokeEmailConsent}(\mathsf{user}, \text{"marketing"})) \\
                 & \qquad \qquad \Since_{[0,\infty)}
-                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})))
+                \mathsf{giveEmailConsent}(\mathsf{user}, \text{"marketing"})
         \} \\
         R &= \emptyset \\
         E &= \emptyset
