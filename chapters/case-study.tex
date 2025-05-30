@@ -152,7 +152,7 @@ refinement allowed us to move certain complexities, such as
 the implementation details of how consent is given, out of the
 original Lex specification and move it into the refinement file.
 Even with a relatively small example, our approach appears to be highly
-promising and its advantages should only become more apparent in
+promising, and its advantages should only become more apparent in
 larger projects.
 
 Another aspect that has become clear, is that in order to write a good
@@ -167,8 +167,8 @@ challenge has been not to instrument too much.
 If a part of the code gets instrumented that is frequently accessed,
 every access must go through the enforcer, which can quickly add
 very long delays.
-We added a cache to Instrlib to mitigate this issue a little bit, but
-it remains that the less parts of the code that have to be instrumented
-to successfully enforce a policy, the less noticable the presence
+We added a cache to Instrlib to mitigate this issue a bit, but
+it remains that the fewer parts of the code that have to be instrumented
+to successfully enforce a policy, the less noticeable the presence
 of the enforcer becomes.
 
