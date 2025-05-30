@@ -1075,9 +1075,6 @@ Lemma \ref{lem:refinement-property-fullfillment}
     then
     $\EventSystem_C, \Initialstates_C \vDash \vec{\MFun}^{-1}(P)$
 \end{lemma}
-\begin{proof}
-    The proof for Lemma \ref{lem:refinement-property-fullfillment-enf-event-system} ... TODO
-\end{proof}
 The proof for Lemma \ref{lem:refinement-property-fullfillment-enf-event-system}
 is analogous to the proof for Lemma \ref{lem:refinement-property-fullfillment}.
 
@@ -1325,8 +1322,10 @@ Hublet et al. \cite{lex} use the rules in Figure \ref{fig:cre-refinement-rules}
 to define refinement for CRE[MFOTL] specifications in the following manner.
 \begin{definition}
     \label{def:cre-refinement}
-    Refinement of CRE specifications is defined by the following rules.
-    A specification $S_C$ refines a specification $S_A$, written as $S_C \refineL S_A$
+    Refinement of CRE specifications is defined by
+    the rules in Figure \ref{fig:cre-refinement-rules}.
+    A specification $S_C$ refines a specification $S_A$, written as
+    $S_C \refineL_\pi S_A$
     under a refinement mapping $\pi$
     iff there exist $\Gamma_C$ and $\Gamma_A$ such that
     $S_C, \Gamma_C \leadsto_\pi S_A, \Gamma_A$.
@@ -1335,16 +1334,205 @@ The refinement rules in Figure \ref{fig:cre-refinement-rules} depend on the conc
 monotonic and anti-monotonic predicates.
 Figure \ref{fig:mfotl-monotonicity} shows the monotonicity rules for
 MFOTL predicates, in which $p,q \in \{+,-\}$, with $\neg + := -$ and $\neg - := +$.
-A predicate $p$ appears monotonically (or anti-monotonically) in a
-formula $\phi$, if the addition of an event $p(\bar{x})$ cannot make
+A predicate $P$ appears monotonically (or anti-monotonically) in a
+formula $\phi$, if the addition of an event $P(\bar{x})$ cannot make
 an already compliant (or non-compliant) trace non-compliant (or compliant).
 For example in the formula $\phi := \Always (\neg p(1))$ the
-predicate $p$ does not appear monotonically,
-because the addition of an event at any time $p(1)$ would make a trace that
+predicate $P$ does not appear monotonically,
+because the addition of an event at any time $P(1)$ would make a trace that
 was previously compliant with $\phi$, non-compliant with $\phi$,
-on the other hand $p$ appears anti-monotonically in $\phi$.
+on the other hand $P$ appears anti-monotonically in $\phi$.
 It is important to note that a predicate can appear monotonically, anti-monotonically,
 both monotonically and anti-monotonically, or neither monotonically nor
 anti-monotonically in a formula.
 
+Figure \ref{fig:cre-refinement-map-function} shows an
+algorithm that converts a concrete MFOTL trace
+to an abstract one, according to a formula $\phi$
+that defines an event $e(x_1,\dots,x_k)$
+in terms of the concrete events $e_1,\dots,e_\ell$.
+This function does for MFOTL traces, what the
+mediator function $\pi$ from Definition
+\ref{def:cre-refinement} and its extended form
+$\vec{pi}$ from Definition
+\ref{def:mediator-function-trace-extension} do for system traces.
 
+\begin{definition}
+    \label{def:mfotl-map-function-to-mediator-function}
+    Let $\textsc{\textsf{map}}$ be a function as
+    defined in Figure \ref{fig:cre-refinement-map-function}.
+    Then the mediator function $\cConv(\textsc{\textsf{map}})$
+    is defined as follows:
+    \begin{align*}
+        \cConv(\textsc{\textsf{map}})(\sigma_\sys, \tick) &:= \tick \\
+        \cConv(\textsc{\textsf{map}})(\sigma_\sys, \sskip) &:= \sskip \\
+        \cConv(\textsc{\textsf{map}})(\sigma_\sys, D_C) &:= D_A
+    \end{align*}
+    where $D_A$ is defined as the database $D'$
+    being returned by the $\textsc{\textsf{map}}$ function
+    for the input trace $\cConv(\sigma_\sys \cdot D)$ as
+    the database for the final time point of the returned
+    trace.
+\end{definition}
+
+\begin{lemma}
+    \label{lem:cre-refinement-mediator-function}
+    For any MFOTL trace $\sigma \in \Traces$, and
+    map function $\textsc{\textsf{map}}$
+    \begin{equation*}
+        \overrightarrow{\cConv(\textsc{\textsf{map}})}(\cConv(\sigma))
+        = \cConv(\textsc{\textsf{map}}(\sigma))
+    \end{equation*}
+\end{lemma}
+
+The following theorem states that any valid refinement
+of an enforceable CRE[MFOTL] specification is itself
+enforceable.
+\begin{theorem}
+    \label{theo:cre-refinement-enforceability}
+    If $S_C \refineL_\pi S_A$ under a refinement mapping
+    and $S_A$ is enforceable, then $S_C$ is enforceable.
+\end{theorem}
+Hublet et al. \cite[Theorem 3]{lex} have proved Theorem
+\ref{theo:cre-refinement-enforceability}.
+
+\begin{theorem}
+    \label{theo:cre-refinement-induced-event-system-refinement}
+    If $S_C \refineL_\pi S_A$ and $S_A$ is enforceable
+    then there exist two enforcement event systems
+    $\EventSystem_C$ and $\EventSystem_A$ such that
+    they are sound for $S_C$ and $S_A$ respectively,
+    and refine each other via the mediator function
+    $\cConv(\pi)$, i.e.
+    \begin{equation*}
+        \EventSystem(\Enforcer_C) \refineL_{\cConv(\pi)} \EventSystem(\Enforcer_A).
+    \end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+    Let $S_C \refineL_\pi S_A$,
+    and $S_A$ be enforceable.
+
+    By the enforceability of $S_A$ we know that
+    there exists an enforcer
+    $\Enforcer_A = (\EnfStates_A, s_0, \EnfFun_A)$
+    which is sound for $S_A$.
+    By Theorem \ref{theo:cre-refinement-enforceability}
+    we also know that there exists an enforcer
+    $\Enforcer_C = (\EnfStates_C, s_0, \EnfFun_C)$
+    which is sound for $S_C$.
+
+    Since $S_C \refineL_\pi S_A$ there exist two
+    contexts $\Gamma_C$ and $\Gamma_A$
+    such that $S_A, \Gamma_A \leadsto_\pi S_C, \Gamma_C$.
+    This proof proceeds by induction over the different
+    CRE[MFOTL] refinement rules for $\leadsto_\pi$.
+    We show by induction on $\leadsto_\pi$ that when
+    $S_A, \Gamma_A \leadsto_\pi S_C, \Gamma_C$ and
+    $\exists \Enforcer_A. \forall \sigma \in \Traces. \sigma \in \Language(S_A)$
+    then there exist two enforcement event systems
+    $\EventSystem_C$ and $\EventSystem_A$ such that
+    $\EventSystem_C$ is sound for $S_C$,
+    $\EventSystem_A$ is sound for $S_A$, and
+    $\EventSystem_C \refineL_{\cConv(\pi)} \EventSystem_A$.
+
+    In the rest of this proof, let
+    $R_\pi \subseteq \Traces_{\sys C} \times \Traces_{\sys A}$
+    be the simulation relation
+    defined by
+    $\overrightarrow{\cConv(\pi)}: \Traces_{\sys C} \to \Traces_{\sys A}$.
+
+    \textbf{REFL} In this case $S_C = S_A$ and $\pi$ is the 
+    identity mapping.
+    By Theorem
+    \ref{theo:induced-enforcement-event-system-soundness}
+    we know that $\EventSystem(\Enforcer_A)$ is sound for
+    $S_A$.
+    Finally, any enforcement event system 
+    $\EventSystem(\Enforcer_A)$ is trivially a refinement
+    of itself under the identity mapping
+    (and the identity simulation relation).
+    
+    \textbf{TRANS} For this case we can simply apply the
+    induction hypothesis twice.
+
+    \textbf{REF}
+    We know that two enforcers $\Enforcer_C$ and $\Enforcer_A$
+    that are sound for $S_C$ and $S_A$ respectively
+    exist (Theorems \ref{theo:cre-refinement-enforceability})
+    and that their induced event Systems
+    are also sound for $S_C$ and $S_A$ respectively
+    (\ref{theo:induced-enforcement-event-system-soundness}).
+
+    It remains to be shown that the two induced
+    event systems refine each other.
+
+    In words, this rule redefines
+    an event $e(x_1,\dots,x_k)$ in terms of a formula
+    $\phi$ and a set of events $e_1,\dots,e_\ell$.
+    It is the only rule that gives an explicit definition
+    of the mediator function $\pi$.
+    To reason about the induced event system
+    $\EventSystem(\Enforcer_A)$, we must consider how
+    an abstract Enforcer $\Enforcer_A$ would work compared
+    a concrete Enforcer $\Enforcer_C$.
+
+    Whenever the abstract Enforcer $\Enforcer_A$
+    would suppress or cause the event $e$ that is
+    refined in this rule, the concrete Enforcer
+    $\Enforcer_C$ would suppress or cause the
+    any number of the events $e_1,\dots,e_\ell$
+    such that $\phi$ becomes true or false, in the case that
+    $e$ should get caused or suppressed respectively.
+
+    The induced event systems have transitions (defined
+    by proactive and reactive update functions) that
+    simulate this behavior on system traces.
+
+    \textbf{IMP$_R$}
+    This rule simply strengthens a policy and thus reduces the
+    set of "allowed" traces.
+    By Theorem \ref{theo:cre-refinement-enforceability}
+    we know that there exists an enforcer $\Enforcer_C$
+    that is sound for $S_C$.
+    By the fact that $\Language(S_C) \subseteq \Language(S_A)$
+    we can deduce that $\Enforcer_C$ is also
+    sound for $S_A$.
+    And thus the induced event system for $\Enforcer_C$
+    is sound for both $S_C$ and $S_A$,
+    and also a refinement of itself.
+
+    \textbf{IMP$_C$} and \textbf{IMP$_E$}
+    Without loss of generality we will only consider
+    the case of IMP$_C$.
+    The case of IMP$_E$ is analogous.
+    This rule strengthens or weakens the definition of
+    an internal event alongside
+    the addition of a new, enforceable regulative rule.
+    The regulative rule, like in the IMP$_R$ case,
+    reduces the set of "allowed" traces.
+    The strengthened or weakened definition has
+    the effect that the defined event will occur less
+    or more often, but under the (anti) monotonicity
+    constraints it is ensured that the missing or extra
+    occurrences of the event cannot affect compliance.
+
+    Unlike in the IMP$_R$ case, the concrete enforcer
+    $\Enforcer_C$ may not always also be a sound enforcer
+    for $S_A$, because causing or suppressing the new
+    definition $\phi'$ for the constituted event, may
+    require different actions than causing or
+    suppressing the old definition $\phi$.
+\end{proof}
+
+% \begin{theorem}
+%   \label{thm:refinement_soundness}
+%   If $\con{\mathcal{S}} \refines_\pi \abs{\mathcal{S}}$ and $\sigma \vDash \con{\mathcal{S}}$, then $\pi(\sigma) \vDash \abs{\mathcal{S}}$.
+% \end{theorem} 
+
+% \begin{theorem}
+%   \label{thm:refinement_enforceability}
+%   If $\con{\mathcal{S}} \refines_\pi \abs{\mathcal{S}}$ and $\abs{\mathcal{S}}$ is enforceable,
+%   then  $\con{\mathcal{S}}$ is enforceable.
+% \end{theorem}
